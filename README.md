@@ -14,9 +14,16 @@ Proyecto desarrollo web equipo 4 - Proyecto web que permite ordenar la informaci
 - Psycopg2-binary 2.9.10
 
 ### 1. Crear entorno e instalar dependencias
+```bash
+conda create -n nombre_entorno Python==3.11
+
+pip install django==5.2.4
+
+pip install psycopg2-binary==2.9.10
+```
 
 ### 2. Crear base de datos
-Crear base de datos llamada proyecto_municipalidad
+Crear una base de datos en PgAdmin4 llamada proyecto_municipalidad
 
 ### 3. Clonar repositorio
 ```bash
@@ -40,7 +47,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "proyecto_municipalidad",
         "USER": "postgres",
-        "PASSWORD": "12345678",
+        "PASSWORD": "",
         "PORT": "5432",
     }
 }
