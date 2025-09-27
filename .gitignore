@@ -205,3 +205,30 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# REGLAS ESPECÍFICAS PARA DJANGO + POSTGRESQL
+
+# PostgreSQL - archivos de base de datos local
+*.sql
+*.backup
+*.dump
+
+# Configuración de PostgreSQL local
+pgdata/
+postgresql/
+
+# Logs
+*.log
+
+# Archivos de configuración sensibles (IMPORTANTE!)
+settings.py
+settings_local.py
+.env
+.venv
+
+# Archivos de medios (uploads)
+media/
+
+# Archivos estáticos recolectados
+staticfiles/
