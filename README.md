@@ -51,6 +51,11 @@ DATABASES = {
         "PORT": "5432",
     }
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST_USER = ''  # Tu correo
+EMAIL_HOST_PASSWORD = ''    # Contraseña de la app (no tu contraseña normal)
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 ```
 
 ### 5. Migraciones y Ejecución
