@@ -7,9 +7,16 @@ from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django import forms
 from .models import Profile
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
+from django.conf import settings
+from .forms import PasswordResetRequestForm
 
 class SignUpView(CreateView):
     form_class = UserCreationFormWithEmail
@@ -69,7 +76,22 @@ def profile_edit(request):
     template_name = 'registration/profile_edit.html'
     return render(request,template_name,{'profile':profile})
 
-
-
-
-
+def password_reset_request(request):
+    if request.method == "POST":
+        form = PasswordResetRequestForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            # Como el formulario ya valida existencia, podemos usar get()
+            user = User.objects.get(email=email)
+            subject = "Restablecer contraseña"
+            message = render_to_string("password_reset_email.html", {
+                'user': user,
+                'domain': request.get_host(),
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+            })
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False)
+            return redirect("password_reset_done")
+    else:
+        form = PasswordResetRequestForm()
+    return render(request, "password_reset.html", {"form": form})
