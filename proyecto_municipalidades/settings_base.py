@@ -39,6 +39,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "core",
+    "direccion",
+    "departamento",
+    "territorial",
+    "encuesta",
+    "incidencia",
 ]
 
 MIDDLEWARE = [
