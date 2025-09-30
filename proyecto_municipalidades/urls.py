@@ -18,10 +18,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from core.urls import core_urlpatterns
+from direccion.urls import direccion_urlpatterns
+from departamento.urls import departamento_urlpatterns
+from territorial.urls import territorial_urlpatterns
+from incidencia.urls import incidencia_urlpatterns
 
 urlpatterns = [
     path("",include(core_urlpatterns)),
     path("admin/", admin.site.urls),
+    path("direccion/",include(direccion_urlpatterns)),
+    path("departamento/",include(departamento_urlpatterns)),
+    path("territorial/",include(territorial_urlpatterns)),
+    path("incidencia/",include(incidencia_urlpatterns)),
     path('accounts/',include('django.contrib.auth.urls')),
     path('accounts/',include('registration.urls')),
 ]
