@@ -2,7 +2,16 @@
 <form method="post" action="{% url 'guardar_direccion' %}">
     {% csrf_token %}
     <p><input type="text" name="nombre_direccion" placeholder="Ingrese nombre de dirección"/></p>
-    <p><input type="text" name="nombre_encargado" placeholder="Ingrese nombre del encargado de dirección"/></p>
-    <p><input type="text" name="correo_encargado" placeholder="Ingrese correo del encargado de dirección"/></p>
+
+    <p>
+        <label for="usuario">Seleccione Usuario Encargado:</label><br>
+        <select name="usuario" id="usuario">
+            {% for usuario in usuarios %}
+                <option value="{{ usuario.id }}">{{ usuario.first_name }} {{ usuario.last_name }} - {{ usuario.email }} <!--no muestra nombre aun porque no se ha creado la funcion para crear usuarios -->
+                </option>
+            {% endfor %}
+        </select>
+    </p>
+    
     <p><input type="submit" value="Crear"/></p>
 </form>
