@@ -31,6 +31,10 @@ def check_profile(request):
         return redirect('login')
     if profile.group_id == 1:        
         return redirect('main_admin')
+    elif profile.group_id==2:
+        return redirect('main_direccion')
+    elif profile.group_id==3:
+        return redirect('main_departamento')
     else:
         return redirect('logout')
 
