@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.shortcuts import render,redirect
 from registration.models import Profile
 from direccion.models import Direccion
+from django.contrib.auth.models import User
 @login_required
 
 def main_direccion(request):
@@ -57,6 +58,7 @@ def guardar_direccion(request):
             return redirect('check_group_main')
     else:
         return redirect('logout')
+
 
 
 
