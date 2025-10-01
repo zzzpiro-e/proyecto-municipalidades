@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render,redirect
 from registration.models import Profile
+from django.contrib.auth.models import User
 @login_required
 
 def main_departamento(request):
@@ -62,4 +63,5 @@ def guardar_departamento(request):
         return redirect('logout')
 
     
+
 
