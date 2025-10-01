@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render,redirect
 from registration.models import Profile
+from direccion.models import Direccion
 @login_required
 
 def main_direccion(request):
@@ -56,6 +57,7 @@ def guardar_direccion(request):
             return redirect('check_group_main')
     else:
         return redirect('logout')
+
 
 
 
