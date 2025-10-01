@@ -1,0 +1,27 @@
+<h4>Crear Nuevo Departamento</h4>
+<form method="post" action="{% url 'guardar_departamento' %}">
+    {% csrf_token %}
+    <p><input type="text" name="nombre_departamento" placeholder="Ingrese nombre de departamento"/></p>
+    
+    <p>
+        <label for="usuario">Seleccione Usuario Encargado:</label><br>
+        <select name="usuario" id="usuario">
+            {% for usuario in usuarios %}
+                <option value="{{ usuario.id }}">{{ usuario.username }} {{ usuario.last_name }} - {{ usuario.email }}
+                </option>
+            {% endfor %}
+        </select>
+    </p>
+
+
+    <p>
+        <label for="direccion">Seleccione Dirección:</label><br>
+        <select name="direccion" id="direccion">
+            {% for direccion in direcciones %}
+                <option value="{{ direccion.id }}">{{ direccion.nombre_direccion }}</option>
+            {% endfor %}
+        </select>
+    </p>
+
+    <p><input type="submit" value="Crear"/></p>
+</form>
