@@ -1,0 +1,8 @@
+<h4>Crear Nueva Dirección</h4>
+<form method="post" action="{% url 'guardar_direccion' %}">
+    {% csrf_token %}
+    <p><input type="text" name="nombre_direccion" placeholder="Ingrese nombre de dirección"/></p>
+    <p><input type="text" name="nombre_encargado" placeholder="Ingrese nombre del encargado de dirección"/></p>
+    <p><input type="text" name="correo_encargado" placeholder="Ingrese correo del encargado de dirección"/></p>
+    <p><input type="submit" value="Crear"/></p>
+</form>
