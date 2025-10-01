@@ -26,4 +26,4 @@ class Incidencia(models.Model):
         ordering=["titulo"]
 
     def __str__(self):
-        return self.nombre_Incidencia
+        return self.titulo
