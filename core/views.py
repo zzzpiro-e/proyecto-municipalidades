@@ -47,3 +47,15 @@ def main_admin(request):
         return render(request,template_name)
     else:
         return redirect('logout')
+
+def gestion_direccion(request):
+    try:
+        profile= Profile.objects.filter(user_id=request.user.id).get()
+    except:
+        messages.add_message(request,messages.INFO, 'Error')
+        return redirect('login')
+    if profile.group_id ==1:
+        template_name = 'core/gestion_direccion.html'
+        return render(request,template_name)
+    else: 
+        return redirect('logout')
