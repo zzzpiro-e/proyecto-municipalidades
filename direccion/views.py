@@ -92,7 +92,7 @@ def editar_direccion(request, direccion_id=None):
         return redirect('logout')
     
 @login_required
-def direccion_ver(request,direccion_id=None):
+def ver_direccion(request,direccion_id):
     try:
         profile = Profile.objects.filter(user_id=request.user.id).get()
     except:

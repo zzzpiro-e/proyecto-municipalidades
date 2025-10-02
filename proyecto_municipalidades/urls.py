@@ -29,7 +29,7 @@ urlpatterns = [
     path("direccion/",include(direccion_urlpatterns)),
     path("departamento/",include(departamento_urlpatterns)),
     path("territorial/",include(territorial_urlpatterns)),
-    path("usuario/",include(usuario_urlpatterns)),
+    path("usuario/",include('usuario.urls')),
     path("incidencia/",include(incidencia_urlpatterns)),
     path('accounts/',include('django.contrib.auth.urls')),
     path('accounts/',include('registration.urls')),
