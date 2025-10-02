@@ -27,7 +27,7 @@ def crear_departamento(request):
         return redirect('login')
     if profile.group_id ==1:
         direcciones=Direccion.objects.all()
-        usuarios=User.objects.filter(profile__group__id=3)
+        usuarios=User.objects.filter(profile__group__id=3,,departamento__isnull=True)
         template_name = 'departamento/crear_departamento.html'
         return render(request,template_name,{"direcciones":direcciones,"usuarios":usuarios})
     else: 
@@ -98,3 +98,4 @@ def editar_departamento(request, departamento_id=None):
     else:
         return redirect('logout')
     
+
