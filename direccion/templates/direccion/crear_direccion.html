@@ -7,7 +7,7 @@
         <label for="usuario">Seleccione Usuario Encargado:</label><br>
         <select name="usuario" id="usuario">
             {% for usuario in usuarios %}
-                <option value="{{ usuario.id }}">{{ usuario.first_name }} {{ usuario.last_name }} - {{ usuario.email }} <!--no muestra nombre aun porque no se ha creado la funcion para crear usuarios -->
+                <option value="{{ usuario.id }}">{{ usuario.username }} {{ usuario.last_name }} - {{ usuario.email }}
                 </option>
             {% endfor %}
         </select>

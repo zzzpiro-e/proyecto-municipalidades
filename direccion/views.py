@@ -1,4 +1,3 @@
-
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render,redirect
@@ -13,7 +12,7 @@ def main_direccion(request):
     except:
         messages.add_message(request,messages.INFO, 'Error')
         return redirect('login')
-    if profile.group_id ==2:
+    if profile.group_id==2:
         template_name = 'direccion/main_direccion.html'
         return render(request,template_name)
     else: 
@@ -42,7 +41,7 @@ def guardar_direccion(request):
     if profile.group_id==1:
         if request.method=='POST':
             nombre_direccion=request.POST.get('nombre_direccion')
-            usuario_id=request.POST.get('usuario')
+            usuario_id=request.POST.get("usuario")
             if nombre_direccion=='' or not usuario_id:
                 messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
                 return redirect('crear_direccion')
@@ -59,8 +58,8 @@ def guardar_direccion(request):
     else:
         return redirect('logout')
 
+            
 
-
-
+    
 
 

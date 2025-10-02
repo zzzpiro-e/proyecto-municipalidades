@@ -2,10 +2,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render,redirect
 from registration.models import Profile
-from direccion.models import Direccion
 from departamento.models import Departamento
+from direccion.models import Direccion
 from django.contrib.auth.models import User
-
 @login_required
 
 def main_departamento(request):
@@ -19,7 +18,7 @@ def main_departamento(request):
         return render(request,template_name)
     else: 
         return redirect('logout')
-
+    
 def crear_departamento(request):
     try:
         profile= Profile.objects.filter(user_id=request.user.id).get()
@@ -66,4 +65,3 @@ def guardar_departamento(request):
         return redirect('logout')
 
     
-
