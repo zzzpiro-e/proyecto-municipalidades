@@ -13,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt #decorador que nos permitir
 
 from registration.models import Profile #importa el modelo profile, el que usaremos para los perfiles de usuarios
 
+
 # Create your views here.
 def home(request):
     return redirect('login')
