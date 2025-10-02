@@ -1,0 +1,37 @@
+<h2> Editando Departamento</h2>
+<form action="{% url 'editar_departamento_post' %}" method="POST">
+    {% csrf_token %}
+
+    <input type="hidden" name="departamento_id" value="{{ departamento.id }}">
+
+    <div>
+        <label>Nombre del Departamento:</label>
+        <input type="text" name="nombre_departamento" value="{{ departamento.nombre_departamento }}" required>
+    </div>
+
+    <div>
+        <label>Dirección:</label>
+        <select name="direccion" required>
+            <option value="">Seleccione una direccion</option>
+            {% for direccion in direcciones %}
+                <option value="{{ direccion.id }}" {% if direccion.id == departamento.direccion.id %}selected{% endif %}>
+                    {{ direccion.nombre_direccion }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label>Usuario encargado:</label>
+        <select name="usuario" required>
+            <option value="">Seleccione un usuario</option>
+            {% for usuario in usuarios %}
+                <option value="{{ usuario.id }}" {% if usuario.id == departamento.usuario.id %}selected{% endif %}>
+                    {{ usuario.username }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <button type="submit">Guardar Cambios</button>
+</form>

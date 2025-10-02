@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from registration.models import Profile
 from departamento.models import Departamento
 from direccion.models import Direccion
@@ -63,5 +63,38 @@ def guardar_departamento(request):
             return redirect('check_group_main')
     else:
         return redirect('logout')
-
+    
+@login_required
+def editar_departamento(request, departamento_id=None):
+    try:
+        profile = Profile.objects.filter(user_id=request.user.id).get()
+    except:
+        messages.add_message(request, messages.INFO, 'Error de perfil')
+        return redirect('login')
+    if profile.group_id == 1:
+        if request.method == 'POST':
+            depto_id = request.POST.get('departamento_id')
+            nombre_departamento = request.POST.get('nombre_departamento')
+            direccion_id = request.POST.get('direccion')
+            usuario_id = request.POST.get("usuario")
+            departamento_a_actualizar = get_object_or_404(Departamento, id=depto_id)
+            departamento_a_actualizar.nombre_departamento = nombre_departamento
+            departamento_a_actualizar.direccion_id = direccion_id
+            departamento_a_actualizar.usuario_id = usuario_id
+            departamento_a_actualizar.save()
+            messages.add_message(request, messages.INFO, 'Departamento actualizado con éxito.')
+            return redirect('gestion_departamento')
+        else:
+            departamento = get_object_or_404(Departamento, id=departamento_id)
+            direcciones = Direccion.objects.all()
+            usuarios = User.objects.filter(profile__group__id=3)
+            template_name = 'departamento/editar_departamento.html'
+            context = {
+                'departamento': departamento,
+                'direcciones': direcciones,
+                'usuarios': usuarios
+            }
+            return render(request, template_name, context)
+    else:
+        return redirect('logout')
     

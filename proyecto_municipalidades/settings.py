@@ -135,10 +135,14 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Configuración para envío de correos
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_HOST = 'smtp.gmail.com'  # Cambiar si usas otro proveedor
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST_USER = 'ians.vm3@gmail.com'  # Tu correo
+EMAIL_HOST_PASSWORD = 'zcvq jcqm uhzq vonp'    # Contraseña de la app (no tu contraseña normal)
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 TEMPLATES = [
     {

@@ -1,0 +1,33 @@
+<h2>Editando Dirección</h2>
+
+{% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<form action="{% url 'editar_direccion_post' %}" method="POST">
+    {% csrf_token %}
+
+    <input type="hidden" name="direccion_id" value="{{ direccion.id }}">
+
+    <div>
+        <label for="nombre_direccion">Nombre de la Dirección:</label>
+        <input type="text" name="nombre_direccion" value="{{ direccion.nombre_direccion }}" required>
+    </div>
+
+    <div>
+        <label for="usuario">Usuario encargado:</label>
+        <select name="usuario" required>
+            <option value="">Seleccione un usuario</option>
+            {% for usuario in usuarios %}
+                <option value="{{ usuario.id }}" {% if usuario.id == direccion.usuario.id %}selected{% endif %}>
+                    {{ usuario.username }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit">Guardar Cambios</button>
+</form>
