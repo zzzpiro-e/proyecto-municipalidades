@@ -1,0 +1,21 @@
+<h4>Crear Nueva Usuario</h4>
+<form method="post" action="{% url 'guardar_usuario' %}">
+    {% csrf_token %}
+    <p><input type="text" name="username" placeholder="Ingrese nombre de usuario"/></p>
+    <p><input type="text" name="first_name" placeholder="Ingrese su nombre"/></p>
+    <p><input type="text" name="last_name" placeholder="Ingrese su apellido"/></p>
+    <p><input type="password" name="password" placeholder="Ingrese su contraseña"/></p>
+    <p><input type="text" name="email" placeholder="Ingrese su correo electronico"/></p>
+
+    <p>
+        <select name="group_id" class="form-control" required>
+    <option value="">Seleccione un perfil de usuario</option>
+    {% for g in grupos %}
+        <option value="{{ g.id }}">{{ g.name }}</option>
+    {% endfor %}
+</select>
+
+    </p>
+    
+    <p><input type="submit" value="Crear"/></p>
+</form>
