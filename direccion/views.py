@@ -90,3 +90,25 @@ def editar_direccion(request, direccion_id=None):
             return render(request, template_name, context)
     else:
         return redirect('logout')
+    
+@login_required
+def direccion_ver(request,direccion_id=None):
+    try:
+        profile = Profile.objects.filter(user_id=request.user.id).get()
+    except:
+        messages.add_message(request, messages.INFO, 'Hubo un error')
+        return redirect('logout')
+    if profile.group_id == 1:
+        try:
+            direccion_count=Direccion.objects.filter(pk=direccion_id).count()
+            if direccion_count<=0:
+                messages.add_message(request,messages.INFO,'Hubo un error')
+                return redirect('gestion_direccion')
+            direccion_data = Direccion.objects.get(pk=direccion_id)
+        except:
+            messages.add_message(request,messages.INFO,'Hubo un error')
+            return redirect('gestion_direccion')
+        template_name = 'direccion/ver_direccion.html'
+        return render(request,template_name,{'direccion_data':direccion_data})
+    else:
+        return redirect('logout')
