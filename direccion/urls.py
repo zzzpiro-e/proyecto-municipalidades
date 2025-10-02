@@ -7,4 +7,5 @@ direccion_urlpatterns=[
     path('guardar_direccion/',views.guardar_direccion, name='guardar_direccion'),
     path('editar_direccion/', views.editar_direccion, name='editar_direccion_post'),
     path('editar_direccion/<int:direccion_id>/', views.editar_direccion, name='editar_direccion'),
+    path('ver_direccion/', views.ver_direccion, name='ver_direccion'),
 ]
