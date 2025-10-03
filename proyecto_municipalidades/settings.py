@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     "territorial",
     "encuesta",
     "incidencia",
-    "usuario"
+    "usuario",
+    "cuadrilla",
 ]
 
 MIDDLEWARE = [
