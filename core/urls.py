@@ -15,4 +15,6 @@ core_urlpatterns = [
     path('gestion_departamento/',views.gestion_departamento, name='gestion_departamento'),
     path('gestion_usuario/',views.gestion_usuario, name='gestion_usuario'),
     path('gestion_territorial/',views.gestion_territorial, name='gestion_territorial'),
+    path('gestion_cuadrilla/',views.gestion_cuadrilla, name='gestion_cuadrilla'),  
     ]
+
