@@ -222,7 +222,6 @@ postgresql/
 *.log
 
 # Archivos de configuración sensibles (IMPORTANTE!)
-settings.py
 settings_local.py
 .env
 .venv
