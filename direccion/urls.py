@@ -8,4 +8,5 @@ direccion_urlpatterns = [
     path('editar_direccion/', views.editar_direccion, name='editar_direccion_post'),
     path('editar_direccion/<int:direccion_id>/', views.editar_direccion, name='editar_direccion'),
     path('main_direccion/', views.main_direccion, name='main_direccion'),
+    path('lista_editar/', views.lista_editar_direccion, name='lista_editar_direccion'),
 ]

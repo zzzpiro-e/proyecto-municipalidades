@@ -106,4 +106,16 @@ def ver_direccion(request, direccion_id=None):
     else:
         return redirect('logout')
     
-
+@login_required
+def lista_editar_direccion(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+    if profile.group_id == 1:
+        direcciones = Direccion.objects.all()
+        context = {'direcciones': direcciones}
+        return render(request, 'direccion/lista_editar_direccion.html', context)
+    else:
+        return redirect('logout')
