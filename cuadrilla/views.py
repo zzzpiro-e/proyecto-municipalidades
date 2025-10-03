@@ -105,3 +105,31 @@ def editar_cuadrilla(request, cuadrilla_id=None):
             return render(request, template_name, context)
     else:
         return redirect('logout')
+
+@login_required
+def ver_cuadrilla(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+    if profile.group_id in [1, 3]: 
+        cuadrillas = Cuadrilla.objects.all()
+        context = {'cuadrillas': cuadrillas}
+        return render(request, 'cuadrilla/ver_cuadrilla.html', context)
+    else:
+        return redirect('logout')
+
+@login_required
+def lista_editar_cuadrilla(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+    if profile.group_id == 1:
+        cuadrillas = Cuadrilla.objects.all()
+        context = {'cuadrillas': cuadrillas}
+        return render(request, 'cuadrilla/lista_editar_cuadrilla.html', context)
+    else:
+        return redirect('logout')

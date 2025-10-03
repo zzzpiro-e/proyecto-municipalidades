@@ -1,0 +1,25 @@
+<h4>Listado de Cuadrillas</h4>
+<hr>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Nombre Cuadrilla</th>
+            <th>Tipo</th>
+            <th>Departamento</th>
+            <th>Usuario Asignado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cuadrilla in cuadrillas %}
+        <tr>
+            <td>{{ cuadrilla.nombre_cuadrilla }}</td>
+            <td>{{ cuadrilla.tipo }}</td>
+            <td>{{ cuadrilla.departamento.nombre_departamento }}</td>
+            <td>{{ cuadrilla.usuario.username }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<br>
+<a href="{% url 'gestion_cuadrilla' %}">Volver</a>
