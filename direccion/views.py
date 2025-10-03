@@ -4,8 +4,8 @@ from django.shortcuts import render,redirect,get_object_or_404
 from registration.models import Profile
 from direccion.models import Direccion
 from django.contrib.auth.models import User
-@login_required
 
+@login_required
 def main_direccion(request):
     try:
         profile= Profile.objects.filter(user_id=request.user.id).get()
@@ -91,24 +91,19 @@ def editar_direccion(request, direccion_id=None):
     else:
         return redirect('logout')
     
+
 @login_required
-def ver_direccion(request,direccion_id):
+def ver_direccion(request, direccion_id=None):
     try:
-        profile = Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request, messages.INFO, 'Hubo un error')
-        return redirect('logout')
-    if profile.group_id == 1:
-        try:
-            direccion_count=Direccion.objects.filter(pk=direccion_id).count()
-            if direccion_count<=0:
-                messages.add_message(request,messages.INFO,'Hubo un error')
-                return redirect('gestion_direccion')
-            direccion_data = Direccion.objects.get(pk=direccion_id)
-        except:
-            messages.add_message(request,messages.INFO,'Hubo un error')
-            return redirect('gestion_direccion')
-        template_name = 'direccion/ver_direccion.html'
-        return render(request,template_name,{'direccion_data':direccion_data})
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id in [1, 2]:
+        direcciones = Direccion.objects.select_related('usuario').order_by('id')
+        return render(request, 'direccion/ver_direccion.html', {'direcciones': direcciones})
     else:
         return redirect('logout')
+    
+
