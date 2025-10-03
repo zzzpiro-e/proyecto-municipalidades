@@ -31,7 +31,6 @@ def editar_territorial(request, territorial_id=None):
             usuario_id = request.POST.get("usuario")
             zona_asignada = request.POST.get('zona_asignada')
             observaciones = request.POST.get('observaciones')
-
             territorial_a_actualizar = get_object_or_404(Territorial, id=terr_id)
             territorial_a_actualizar.usuario_id = usuario_id
             territorial_a_actualizar.zona_asignada = zona_asignada
@@ -48,5 +47,33 @@ def editar_territorial(request, territorial_id=None):
                 'usuarios': usuarios
             }
             return render(request, template_name, context)
+    else:
+        return redirect('logout')
+
+@login_required
+def ver_territorial(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+    if profile.group_id in [1, 4]:
+        territoriales = Territorial.objects.all()
+        context = {'territoriales': territoriales}
+        return render(request, 'territorial/ver_territorial.html', context)
+    else:
+        return redirect('logout')
+    
+@login_required
+def lista_editar_territorial(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+    if profile.group_id == 1:
+        territoriales = Territorial.objects.all()
+        context = {'territoriales': territoriales}
+        return render(request, 'territorial/lista_editar_territorial.html', context)
     else:
         return redirect('logout')
