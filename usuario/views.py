@@ -5,7 +5,7 @@ from registration.models import Profile
 from django.contrib.auth.models import User, Group
 from registration.models import Profile
 @login_required
-
+#sex
 def main_usuario(request):
     try:
         profile= Profile.objects.filter(user_id=request.user.id).get()
