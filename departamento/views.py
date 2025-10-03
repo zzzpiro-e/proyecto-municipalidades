@@ -7,16 +7,19 @@ from direccion.models import Direccion
 from django.contrib.auth.models import User
 @login_required
 
+@login_required
 def main_departamento(request):
     try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
+        profile = Profile.objects.filter(user_id=request.user.id).get()
     except:
-        messages.add_message(request,messages.INFO, 'Error')
+        messages.add_message(request, messages.INFO, 'Error')
         return redirect('login')
-    if profile.group_id ==3:
+    if profile.group_id in [1, 3]: 
+        departamentos = Departamento.objects.all()
         template_name = 'departamento/main_departamento.html'
-        return render(request,template_name)
-    else: 
+        context = {'departamentos': departamentos}
+        return render(request, template_name, context)
+    else:
         return redirect('logout')
     
 def crear_departamento(request):
@@ -46,7 +49,6 @@ def guardar_departamento(request):
             nombre_departamento=request.POST.get('nombre_departamento')
             direccion_id=request.POST.get('direccion')
             usuario_id=request.POST.get("usuario")
-
             if nombre_departamento=='' or not direccion_id or not usuario_id:
                 messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
                 return redirect('crear_departamento')
@@ -63,13 +65,41 @@ def guardar_departamento(request):
             return redirect('check_group_main')
     else:
         return redirect('logout')
-    
+
+@login_required
+def ver_departamento(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+    if profile.group_id in [1, 3]:
+        departamentos = Departamento.objects.all()
+        context = {'departamentos': departamentos}
+        return render(request, 'departamento/ver_departamento.html', context)
+    else:
+        return redirect('logout')
+
+@login_required
+def lista_editar_departamento(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+    if profile.group_id in [1, 3]:
+        departamentos = Departamento.objects.all()
+        context = {'departamentos': departamentos}
+        return render(request, 'departamento/lista_editar_departamento.html', context)
+    else:
+        return redirect('logout')
+
 @login_required
 def editar_departamento(request, departamento_id=None):
     try:
-        profile = Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request, messages.INFO, 'Error de perfil')
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
         return redirect('login')
     if profile.group_id == 1:
         if request.method == 'POST':
@@ -83,19 +113,17 @@ def editar_departamento(request, departamento_id=None):
             departamento_a_actualizar.usuario_id = usuario_id
             departamento_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Departamento actualizado con éxito.')
-            return redirect('gestion_departamento')
+            return redirect('lista_departamento')
         else:
-            departamento = get_object_or_404(Departamento, id=departamento_id)
+            departamento_para_editar = get_object_or_404(Departamento, id=departamento_id)
             direcciones = Direccion.objects.all()
             usuarios = User.objects.filter(profile__group__id=3)
             template_name = 'departamento/editar_departamento.html'
             context = {
-                'departamento': departamento,
+                'departamento': departamento_para_editar,
                 'direcciones': direcciones,
                 'usuarios': usuarios
             }
             return render(request, template_name, context)
     else:
         return redirect('logout')
-    
-
