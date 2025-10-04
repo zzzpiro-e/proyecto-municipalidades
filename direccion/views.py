@@ -116,17 +116,40 @@ def ver_direccion(request, direccion_id: int):
         pk=direccion_id
     )
     return render(request, 'direccion/ver_direccion.html', {'direccion': direccion})
+
+@login_required
+def bloquear_direccion(request, pk):
+    try:
+        profile = Profile.objects.filter(user_id=request.user.id).get()
+    except:
+        messages.add_message(request, messages.INFO, 'Error')
+        return redirect('login')
+
+    if profile.group_id == 1:  
+        direccion = get_object_or_404(Direccion, pk=pk)
+        if direccion.state == "Activo":
+            direccion.state = "Inactivo"
+            messages.add_message(request, messages.SUCCESS, f"La dirección {direccion.nombre_direccion} fue bloqueada.")
+        else:
+            direccion.state = "Activo"
+            messages.add_message(request, messages.SUCCESS, f"La dirección {direccion.nombre_direccion} fue activada.")
+        direccion.save()
+        return redirect('main_direccion')
+    else:
+        return redirect('logout')
+    
     
 @login_required
-def lista_editar_direccion(request):
+def ver_direcciones_bloqueo(request):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except Profile.DoesNotExist:
-        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        messages.info(request, 'Error de perfil')
         return redirect('login')
-    if profile.group_id == 1:
-        direcciones = Direccion.objects.all()
-        context = {'direcciones': direcciones}
-        return render(request, 'direccion/lista_editar_direccion.html', context)
-    else:
+
+    if profile.group_id != 1:
         return redirect('logout')
+
+    direcciones = Direccion.objects.filter(state='Inactivo').select_related('usuario').order_by('nombre_direccion')
+
+    return render(request,'direccion/bloquear_direccion.html',{'direcciones': direcciones})

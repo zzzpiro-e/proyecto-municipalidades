@@ -2,6 +2,7 @@
 </hr>
 <br/><br/>
 <a href="{%url 'crear_direccion' %}"> Nueva Dirección</a>
+| <a href="{% url 'ver_direcciones_bloqueo' %}">Direcciones Bloqueadas</a>
 <br>
 <hr/>
 <table border="1">
@@ -10,17 +11,34 @@
             <th>Nombre de la Dirección</th>
             <th>Encargado de la Dirección</th>
             <th>Acciones</th>
+            <th>Estado</th>
         </tr>
     </thead>
     {% for dir in direcciones %}
         <tr>
             <td>{{ dir.nombre_direccion }}</td>
             <td>{{ dir.usuario.username }}</td>
+            <td>{{ dir.state }}</td>
             <td>
                 <a href="{% url 'ver_direccion' dir.id %}">Ver</a> 
                 <a href="{% url 'editar_direccion' dir.id %}">Editar</a>
+                <a href="{% url 'bloquear_direccion' dir.id %}">
+                    {% if dir.state == "Activo" %}
+                    Bloquear
+                    {% else %}
+                    Activar
+                    {% endif %}
             </td>
         </tr>
     {% endfor %}
 </table>
+
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li style="color: green;">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+<br/>
 <a href="{% url 'main_admin' %}"> Volver a menú</a>
