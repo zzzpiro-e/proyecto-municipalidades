@@ -1,0 +1,40 @@
+<h1>Departamentos Bloqueados</h1>
+
+<table border="1" cellpadding="5">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Dirección</th>
+      <th>Estado</th>
+      <th>Acción</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for d in departamentos %}
+      <tr>
+        <td>{{ d.nombre_departamento }}</td>
+        <td>{{ d.direccion }}</td>
+        <td>{{ d.state }}</td>
+        <td>
+          <a href="{% url 'bloquear_departamento' d.id %}">
+            {% if d.state == "Activo" %}
+              Bloquear
+            {% else %}
+              Activar
+            {% endif %}
+          </a>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li style="color: green;">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+<br>
+<a href="{% url 'main_departamento' %}">Volver a menú Departamentos</a>

@@ -83,19 +83,7 @@ def ver_departamento(request, departamento_id: int):
     return render(request, 'departamento/ver_departamento.html', {'departamentos': departamento})
 
 
-@login_required
-def lista_editar_departamento(request):
-    try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.add_message(request, messages.INFO, 'Error de perfil.')
-        return redirect('login')
-    if profile.group_id in [1, 3]:
-        departamentos = Departamento.objects.all()
-        context = {'departamentos': departamentos}
-        return render(request, 'departamento/lista_editar_departamento.html', context)
-    else:
-        return redirect('logout')
+
 
 @login_required
 def editar_departamento(request, departamento_id=None):
@@ -130,3 +118,36 @@ def editar_departamento(request, departamento_id=None):
             return render(request, template_name, context)
     else:
         return redirect('logout')
+    
+@login_required
+def bloquear_departamento(request, pk):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.error(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id == 1:
+        departamento = get_object_or_404(Departamento, id=pk)
+        if departamento.state == 'Activo':
+            departamento.state = 'Bloqueado'
+            messages.success(request, f"Departamento {departamento.nombre_departamento} bloqueado")
+        else:
+            departamento.state = 'Activo'
+            messages.success(request, f"Departamento {departamento.nombre_departamento} activado")
+        departamento.save()
+        return redirect('main_departamento')
+    return redirect('logout')
+    
+@login_required
+def ver_departamento_bloqueo(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.error(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id == 1:
+        departamentos = Departamento.objects.filter(state='Bloqueado').select_related('usuario','direccion')
+        return render(request, 'departamento/bloquear_departamento.html', {'departamentos': departamentos})
+    return redirect('logout')

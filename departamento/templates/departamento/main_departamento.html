@@ -1,6 +1,8 @@
 <h4>Menú Departamentos</h4>
 <hr/>
 <a href="{% url 'crear_departamento' %}">Nuevo Departamento</a>
+  | <a href="{% url 'ver_departamento_bloqueo' %}">Departamentos Bloqueados</a>
+
 <br/><br/>
 
 <table border="1">
@@ -10,6 +12,7 @@
       <th>Dirección</th>
       <th>Encargado</th>
       <th>Acciones</th>
+      <th>Estado</th>
     </tr>
   </thead>
   <tbody>
@@ -18,9 +21,16 @@
       <td>{{ d.nombre_departamento }}</td>
       <td>{{ d.direccion.nombre_direccion }}</td>
       <td>{{ d.usuario.username }}</td>
+      <td>{{d.state}}</td>
       <td>
         <a href="{% url 'ver_departamento' d.id %}">Ver</a>
         <a href="{% url 'editar_departamento' d.id %}">Editar</a>
+        <a href="{% url 'bloquear_departamento' d.id %}">
+          {% if d.state == "Activo" %}
+            Bloquear
+          {% else %}
+            Activar
+          {% endif %}
       </td>
     </tr>
   {% empty %}
@@ -29,5 +39,12 @@
   </tbody>
 </table>
 
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li style="color: green;">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
 <br/>
 <a href="{% url 'main_admin' %}">Volver al menú</a>
