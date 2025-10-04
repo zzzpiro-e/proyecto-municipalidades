@@ -1,4 +1,32 @@
-<h4></a4>Menú Territorial</4>
-</hr>
+<h4>Gestión Territorial</h4>
+<a href="{% url 'crear_territorial' %}">Nuevo Territorial</a>
+<br><br>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Zona Asignada</th>
+      <th>Usuario</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for t in territoriales %}
+    <tr>
+      <td>{{ t.zona_asignada }}</td>
+      <td>{{ t.usuario.username }}</td>
+      <td>{{ t.state }}</td>
+      <td>
+        <a href="{% url 'ver_territorial' t.id %}">Ver</a>
+        <a href="{% url 'editar_territorial' t.id %}">Editar</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="5">No hay registros</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
 <br>
-<a href=""> T</a>
+<a href="{% url 'main_admin' %}">Volver al menú</a>

@@ -8,6 +8,6 @@ departamento_urlpatterns=[
     path('editar_departamento/', views.editar_departamento, name='editar_departamento_post'),
     path('editar_departamento/<int:departamento_id>/', views.editar_departamento, name='editar_departamento'),
     path('lista_editar_departamento/', views.lista_editar_departamento, name='lista_editar_departamento'),
-    path('ver_departamento/', views.ver_departamento, name='ver_departamento'),
+    path('ver_departamento/<int:departamento_id>/', views.ver_departamento, name='ver_departamento'),
 ]
     

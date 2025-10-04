@@ -5,20 +5,22 @@ from registration.models import Profile
 from cuadrilla.models import Cuadrilla
 from departamento.models import Departamento
 from django.contrib.auth.models import User
+
+
 @login_required
-
-
 def main_cuadrilla(request):
     try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
         return redirect('login')
-    if profile.group_id ==5:
-        template_name = 'cuadrilla/main_cuadrilla.html'
-        return render(request,template_name)
-    else: 
+
+    if profile.group_id in [1,5]:
+        cuadrillas = (Cuadrilla.objects.select_related('usuario', 'departamento').order_by('id'))
+        return render(request, 'cuadrilla/main_cuadrilla.html', {'cuadrillas': cuadrillas})
+    else:
         return redirect('logout')
+
     
 def crear_cuadrilla(request):
     try:
@@ -60,7 +62,7 @@ def guardar_cuadrilla(request):
                 )
             cuadrilla_save.save()
             messages.add_message(request,messages.INFO,'cuadrilla creado con exito')
-            return redirect('gestion_cuadrilla')
+            return redirect('main_cuadrilla')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
             return redirect('check_group_main')
@@ -91,7 +93,7 @@ def editar_cuadrilla(request, cuadrilla_id=None):
             cuadrilla_a_actualizar.usuario_id = usuario_id
             cuadrilla_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Cuadrilla actualizada con éxito.')
-            return redirect('gestion_cuadrilla')
+            return redirect('main_cuadrilla')
         else:
             cuadrilla = get_object_or_404(Cuadrilla, id=cuadrilla_id)
             departamentos = Departamento.objects.all()
@@ -107,18 +109,22 @@ def editar_cuadrilla(request, cuadrilla_id=None):
         return redirect('logout')
 
 @login_required
-def ver_cuadrilla(request):
+def ver_cuadrilla(request, cuadrilla_id: int):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except Profile.DoesNotExist:
-        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        messages.info(request, 'Error')
         return redirect('login')
-    if profile.group_id in [1, 3]: 
-        cuadrillas = Cuadrilla.objects.all()
-        context = {'cuadrillas': cuadrillas}
-        return render(request, 'cuadrilla/ver_cuadrilla.html', context)
-    else:
+
+    if profile.group_id not in [1, 5]:
         return redirect('logout')
+    
+    cuadrilla = get_object_or_404(
+        Cuadrilla.objects.select_related('usuario','departamento'),
+        pk=cuadrilla_id
+    )
+    return render(request, 'cuadrilla/ver_cuadrilla.html', {'cuadrillas': cuadrilla})
+
 
 @login_required
 def lista_editar_cuadrilla(request):

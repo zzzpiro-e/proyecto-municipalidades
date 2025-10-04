@@ -1,0 +1,36 @@
+<h4>Gestión Cuadrillas</h4>
+<a href="{% url 'crear_cuadrilla' %}">Nueva Cuadrilla</a>
+<br/><br/>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Tipo</th>
+      <th>Departamento</th>
+      <th>Encargado</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for c in cuadrillas %}
+    <tr>
+      <td>{{ c.nombre_cuadrilla }}</td>
+      <td>{{ c.tipo }}</td>
+      <td>{{ c.departamento.nombre_departamento }}</td>
+      <td>{% if c.usuario %}{{ c.usuario.username }}{% else %}(sin usuario){% endif %}</td>
+      <td>{{ c.state }}</td>
+      <td>
+        <a href="{% url 'ver_cuadrilla' c.id %}">Ver</a>
+        <a href="{% url 'editar_cuadrilla' c.id %}">Editar</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="6">No hay cuadrillas</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<br/>
+<a href="{% url 'main_admin' %}">Volver al menú</a>

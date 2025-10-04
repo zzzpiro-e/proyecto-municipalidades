@@ -8,15 +8,57 @@ from django.contrib.auth.models import User
 @login_required
 def main_territorial(request):
     try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error de perfil.')
         return redirect('login')
+
     if profile.group_id in [1, 4]:
-        template_name = 'territorial/main_territorial.html'
-        return render(request,template_name)
-    else: 
+        territoriales = (Territorial.objects.select_related('usuario').order_by('id'))
+        return render(
+            request,
+            'territorial/main_territorial.html',{'territoriales': territoriales}
+        )
+    return redirect('logout')
+
+@login_required
+def crear_territorial(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error')
+        return redirect('login')
+
+    if profile.group_id == 1: 
+        template_name = 'territorial/crear_territorial.html'
+        usuarios = User.objects.filter(profile__group__id=4).order_by('username')
+        return render(request, template_name, {"usuarios": usuarios})
+    else:
         return redirect('logout')
+
+
+@login_required
+def guardar_territorial(request):
+    if request.method != 'POST':
+        return redirect('main_territorial')
+
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error')
+        return redirect('login')
+
+    if profile.group_id != 1:
+        return redirect('logout')
+
+    Territorial.objects.create(
+        usuario_id=request.POST.get('usuario') or None,
+        zona_asignada=request.POST.get('zona_asignada') or '',
+        observaciones=request.POST.get('observaciones') or '',
+    )
+    messages.success(request, 'Territorial creado correctamente')
+    return redirect('main_territorial')
+
 
 @login_required
 def editar_territorial(request, territorial_id=None):
@@ -37,7 +79,7 @@ def editar_territorial(request, territorial_id=None):
             territorial_a_actualizar.observaciones = observaciones
             territorial_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Territorial actualizado con éxito.')
-            return redirect('gestion_territorial')
+            return redirect('main_territorial')
         else:
             territorial = get_object_or_404(Territorial, id=territorial_id)
             usuarios = User.objects.filter(profile__group__id=4)
@@ -51,18 +93,24 @@ def editar_territorial(request, territorial_id=None):
         return redirect('logout')
 
 @login_required
-def ver_territorial(request):
+def ver_territorial(request, territorial_id: int):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except Profile.DoesNotExist:
-        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        messages.info(request, 'Error de perfil')
         return redirect('login')
-    if profile.group_id in [1, 4]:
-        territoriales = Territorial.objects.all()
-        context = {'territoriales': territoriales}
-        return render(request, 'territorial/ver_territorial.html', context)
-    else:
+
+    if profile.group_id not in [1, 4]:
         return redirect('logout')
+
+    territorial = get_object_or_404(
+        Territorial.objects.select_related('usuario'),pk=territorial_id
+    )
+    return render(
+        request,
+        'territorial/ver_territorial.html',{'territorial': territorial}
+    )
+
     
 @login_required
 def lista_editar_territorial(request):

@@ -5,20 +5,19 @@ from registration.models import Profile
 from departamento.models import Departamento
 from direccion.models import Direccion
 from django.contrib.auth.models import User
-@login_required
+
 
 @login_required
 def main_departamento(request):
     try:
-        profile = Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request, messages.INFO, 'Error')
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
         return redirect('login')
-    if profile.group_id in [1, 3]: 
-        departamentos = Departamento.objects.all()
-        template_name = 'departamento/main_departamento.html'
-        context = {'departamentos': departamentos}
-        return render(request, template_name, context)
+
+    if profile.group_id in [1, 3]:
+        departamentos = (Departamento.objects.select_related('usuario', 'direccion').order_by('id'))
+        return render(request, 'departamento/main_departamento.html',{'departamentos': departamentos})
     else:
         return redirect('logout')
     
@@ -59,7 +58,7 @@ def guardar_departamento(request):
                 )
             departamento_save.save()
             messages.add_message(request,messages.INFO,'Departamento creado con exito')
-            return redirect('gestion_departamento')
+            return redirect('main_departamento')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
             return redirect('check_group_main')
@@ -67,18 +66,22 @@ def guardar_departamento(request):
         return redirect('logout')
 
 @login_required
-def ver_departamento(request):
+def ver_departamento(request, departamento_id: int):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except Profile.DoesNotExist:
-        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        messages.info(request, 'Error')
         return redirect('login')
-    if profile.group_id in [1, 3]:
-        departamentos = Departamento.objects.all()
-        context = {'departamentos': departamentos}
-        return render(request, 'departamento/ver_departamento.html', context)
-    else:
+
+    if profile.group_id not in [1, 3]:
         return redirect('logout')
+    
+    departamento = get_object_or_404(
+        Departamento.objects.select_related('usuario', 'direccion'),
+        pk=departamento_id
+    )
+    return render(request, 'departamento/ver_departamento.html', {'departamentos': departamento})
+
 
 @login_required
 def lista_editar_departamento(request):
@@ -113,7 +116,7 @@ def editar_departamento(request, departamento_id=None):
             departamento_a_actualizar.usuario_id = usuario_id
             departamento_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Departamento actualizado con éxito.')
-            return redirect('lista_departamento')
+            return redirect('main_departamento')
         else:
             departamento_para_editar = get_object_or_404(Departamento, id=departamento_id)
             direcciones = Direccion.objects.all()

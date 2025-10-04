@@ -25,7 +25,7 @@ def main_direccion(request, direccion_id=None):
     else:
         return redirect('logout')
 
-@login_required
+
 def crear_direccion(request):
     try:
         profile= Profile.objects.filter(user_id=request.user.id).get()
@@ -86,7 +86,7 @@ def editar_direccion(request, direccion_id=None):
             direccion_a_actualizar.usuario_id = usuario_id
             direccion_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Dirección actualizada con éxito.')
-            return redirect('gestion_direccion')
+            return redirect('main_direccion')
         else:
             direccion = get_object_or_404(Direccion, id=direccion_id)
             usuarios = User.objects.filter(profile__group__id=2)

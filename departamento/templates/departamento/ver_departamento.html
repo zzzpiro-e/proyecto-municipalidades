@@ -1,20 +1,29 @@
-<h4>Listado de Departamentos</h4>
-<hr>
+<h4>Ver Departamento</h4>
 <table border="1">
-    <thead>
-        <tr>
-            <th>Nombre del Departamento</th>
-            <th>Encargado</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for depto in departamentos %}
-        <tr>
-            <td>{{ depto.nombre_departamento }}</td>
-            <td>{{ depto.usuario.username }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
+  <thead>
+    <tr>
+      <th>Nombre del Departamento</th>
+      <th>Encargado</th>
+      <th>Estado</th>
+      <th>Fecha de Creación</th>
+      <th>Fecha de Modificación</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{ departamentos.nombre_departamento }}</td>
+      <td>
+        {% if departamentos.usuario %}
+          {{ departamentos.usuario.username }}
+        {% else %}
+          (sin usuario)
+        {% endif %}
+      </td>
+      <td>{{departamentos.state}}</td>
+      <td>{{departamentos.created|date:"Y-m-d H:i"}}</td>
+      <td>{{departamentos.updated|date:"Y-m-d H:i"}}</td>
+    </tr>
+  </tbody>
 </table>
-<br>
-<a href="{% url 'gestion_departamento' %}">Volver</a>
+
+<a href="{% url 'main_departamento' %}">Volver</a>
