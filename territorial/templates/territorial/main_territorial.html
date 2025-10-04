@@ -20,6 +20,13 @@
       <td>
         <a href="{% url 'ver_territorial' t.id %}">Ver</a>
         <a href="{% url 'editar_territorial' t.id %}">Editar</a>
+        <a href="{% url 'bloquear_territorial' t.id %}">
+          {% if t.state == "Activo" %}
+            Bloquear
+          {% else %}
+            Activar
+          {% endif %}
+        </a>
       </td>
     </tr>
   {% empty %}

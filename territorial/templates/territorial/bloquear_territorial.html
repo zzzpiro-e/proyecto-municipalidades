@@ -1,0 +1,43 @@
+<h1>Bloquear / Activar Territoriales</h1>
+
+<table border="1" cellpadding="5">
+  <thead>
+    <tr>
+      <th>Zona Asignada</th>
+      <th>Usuario</th>
+      <th>Estado</th>
+      <th>Acción</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in territoriales %}
+      <tr>
+        <td>{{ t.zona_asignada }}</td>
+        <td>{{ t.usuario.username }}</td>
+        <td>{{ t.state }}</td>
+        <td>
+          <a href="{% url 'bloquear_territorial' t.id %}">
+            {% if t.state == "Activo" %}
+              Bloquear
+            {% else %}
+              Activar
+            {% endif %}
+          </a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4">No hay territoriales</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li style="color: green;">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<br>
+<a href="{% url 'main_territorial' %}">Volver a menú Territoriales</a>

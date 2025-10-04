@@ -125,3 +125,40 @@ def lista_editar_territorial(request):
         return render(request, 'territorial/lista_editar_territorial.html', context)
     else:
         return redirect('logout')
+    
+
+@login_required
+def bloquear_territorial(request, pk):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.error(request, 'Error de perfil.')
+        return redirect('login')
+
+    if profile.group_id == 1:  # solo admin
+        territorial = get_object_or_404(Territorial, id=pk)
+        if territorial.state == "Activo":
+            territorial.state = "Bloqueado"
+            messages.success(request, f"Territorial {territorial.usuario.username} bloqueado.")
+        else:
+            territorial.state = "Activo"
+            messages.success(request, f"Territorial {territorial.usuario.username} activado.")
+        territorial.save()
+        return redirect('ver_territorial_bloqueo')
+    else:
+        return redirect('logout')
+
+
+@login_required
+def ver_territorial_bloqueo(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.error(request, "Error de perfil.")
+        return redirect("login")
+
+    if profile.group_id == 1:  # solo admin
+        territoriales = Territorial.objects.all()
+        return render(request, "territorial/bloquear_territorial.html", {"territoriales": territoriales})
+    else:
+        return redirect("logout")
