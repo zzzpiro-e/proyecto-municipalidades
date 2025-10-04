@@ -6,18 +6,26 @@ from direccion.models import Direccion
 from django.contrib.auth.models import User
 
 @login_required
-def main_direccion(request):
+def main_direccion(request, direccion_id=None):
     try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
         return redirect('login')
-    if profile.group_id==2:
-        template_name = 'direccion/main_direccion.html'
-        return render(request,template_name)
-    else: 
+
+    if profile.group_id in [1, 2]:
+        direccion_listado = (
+            Direccion.objects.select_related('usuario').order_by('id')
+        )
+        return render(
+            request,
+            'direccion/main_direccion.html',
+            {'direcciones': direccion_listado}   
+        )
+    else:
         return redirect('logout')
 
+@login_required
 def crear_direccion(request):
     try:
         profile= Profile.objects.filter(user_id=request.user.id).get()
@@ -93,18 +101,21 @@ def editar_direccion(request, direccion_id=None):
     
 
 @login_required
-def ver_direccion(request, direccion_id=None):
+def ver_direccion(request, direccion_id: int):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except Profile.DoesNotExist:
         messages.info(request, 'Error')
         return redirect('login')
 
-    if profile.group_id in [1, 2]:
-        direcciones = Direccion.objects.select_related('usuario').order_by('id')
-        return render(request, 'direccion/ver_direccion.html', {'direcciones': direcciones})
-    else:
+    if profile.group_id not in [1, 2]:
         return redirect('logout')
+
+    direccion = get_object_or_404(
+        Direccion.objects.select_related('usuario'),
+        pk=direccion_id
+    )
+    return render(request, 'direccion/ver_direccion.html', {'direccion': direccion})
     
 @login_required
 def lista_editar_direccion(request):
