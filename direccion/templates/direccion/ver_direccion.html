@@ -1,5 +1,30 @@
 <h4>Ver Direcciones</h4>
-<a href="{% url 'main_admin' %}"> Volver a menú principal</a>
-</hr>
-<p><input type="text" name="direccion" value="{{direccion_data.direccion}}"/></p>
-<p><textarea name="descripcion"> {{direccion_data.descripcion}}</textarea></p>
+
+{% if messages %}
+  <ul>
+    {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+  </ul>
+{% endif %}
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Usuario</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for dir in direcciones %}
+      <tr>
+        <td>{{ dir.id }}</td>
+        <td>{{ dir.nombre_direccion }}</td>
+        <td>{{ dir.usuario.username }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4">No hay direcciones</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<br><br>
+<a href="{% url 'gestion_direccion' %}"> Volver a Direcciones</a>

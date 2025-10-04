@@ -5,19 +5,26 @@ from registration.models import Profile
 from direccion.models import Direccion
 from django.contrib.auth.models import User
 @login_required
+<<<<<<< Updated upstream
 
 def main_direccion(request):
+=======
+def main_direccion(request, direccion_id=None):
+>>>>>>> Stashed changes
     try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
         return redirect('login')
-    if profile.group_id==2:
+
+    if profile.group_id in [1, 2]:
+        direccion_listado = Direccion.objects.select_related('usuario').order_by('id')
         template_name = 'direccion/main_direccion.html'
-        return render(request,template_name)
-    else: 
+        return render(request, template_name, {'direcciones': direccion_listado})
+    else:
         return redirect('logout')
 
+@login_required
 def crear_direccion(request):
     try:
         profile= Profile.objects.filter(user_id=request.user.id).get()
@@ -78,7 +85,7 @@ def editar_direccion(request, direccion_id=None):
             direccion_a_actualizar.usuario_id = usuario_id
             direccion_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Dirección actualizada con éxito.')
-            return redirect('gestion_direccion')
+            return redirect('editar_direccion', direccion_id=dir_id)
         else:
             direccion = get_object_or_404(Direccion, id=direccion_id)
             usuarios = User.objects.filter(profile__group__id=2)
@@ -94,6 +101,7 @@ def editar_direccion(request, direccion_id=None):
 @login_required
 def direccion_ver(request,direccion_id=None):
     try:
+<<<<<<< Updated upstream
         profile = Profile.objects.filter(user_id=request.user.id).get()
     except:
         messages.add_message(request, messages.INFO, 'Hubo un error')
@@ -112,3 +120,22 @@ def direccion_ver(request,direccion_id=None):
         return render(request,template_name,{'direccion_data':direccion_data})
     else:
         return redirect('logout')
+=======
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id not in [1, 2]:
+        return redirect('logout')
+
+    direccion = get_object_or_404(
+        Direccion.objects.select_related('usuario'),
+        pk=direccion_id
+    )
+
+    return render(request, 'direccion/ver_direccion.html', {
+        'direccion': direccion
+    })
+
+>>>>>>> Stashed changes

@@ -1,4 +1,23 @@
-<h4></a4>Menú Direcciones</4>
-</hr>
-<br>
-<a href=""> Incidencias</a>
+<h4>Menú Direcciones</h4>
+<hr/>
+<a href="{% url 'crear_direccion' %}"> Nueva Dirección</a>
+<br/><br/>
+<hr/>
+<table border="1">
+    <thead>
+        <th>Nombre de Direccion</th>
+        <th>Encargado de Direccion</th>
+        <th>Acciones</th>
+    </thead>
+    {% for dir in direcciones %}
+        <tr>
+            <td>{{ dir.nombre_direccion }}</td>
+            <td>{{ dir.usuario.username }}</td>
+            <td>
+                <a href="{% url 'ver_direccion' dir.id %}">Ver</a>
+                <a href="{% url 'editar_direccion' dir.id %}">Editar</a>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+<a href="{% url 'main_admin' %}"> Volver al menu</a>
