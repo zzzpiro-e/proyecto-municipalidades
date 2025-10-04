@@ -125,17 +125,38 @@ def ver_cuadrilla(request, cuadrilla_id: int):
     )
     return render(request, 'cuadrilla/ver_cuadrilla.html', {'cuadrillas': cuadrilla})
 
+@login_required
+def bloquear_cuadrilla(request, pk):
+    try:
+        profile = Profile.objects.filter(user_id=request.user.id).get()
+    except:
+        messages.add_message(request, messages.INFO, 'Error')
+        return redirect('login')
+
+    if profile.group_id == 1:  
+        cuadrilla = get_object_or_404(Cuadrilla, pk=pk)
+        if cuadrilla.state == "Activo":
+            cuadrilla.state = "Inactivo"
+            messages.add_message(request, messages.SUCCESS, f"La cuadrilla {cuadrilla.nombre_cuadrilla} fue bloqueada.")
+        else:
+            cuadrilla.state = "Activo"
+            messages.add_message(request, messages.SUCCESS, f"La cuadrilla {cuadrilla.nombre_cuadrilla} fue activada.")
+        cuadrilla.save()
+        return redirect('main_cuadrilla')
+    else:
+        return redirect('logout')
 
 @login_required
-def lista_editar_cuadrilla(request):
+def ver_cuadrillas_bloqueo(request):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except Profile.DoesNotExist:
-        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        messages.info(request, 'Error')
         return redirect('login')
-    if profile.group_id == 1:
-        cuadrillas = Cuadrilla.objects.all()
-        context = {'cuadrillas': cuadrillas}
-        return render(request, 'cuadrilla/lista_editar_cuadrilla.html', context)
-    else:
+
+    if profile.group_id != 1:
         return redirect('logout')
+
+    cuadrillas = (Cuadrilla.objects.filter(state='Inactivo').select_related('departamento', 'usuario').order_by('nombre_cuadrilla'))
+
+    return render(request,'cuadrilla/bloquear_cuadrilla.html',{'cuadrillas': cuadrillas})
