@@ -222,7 +222,6 @@ postgresql/
 *.log
 
 # Archivos de configuración sensibles (IMPORTANTE!)
-settings.py
 settings_local.py
 .env
 .venv
@@ -232,3 +231,12 @@ media/
 
 # Archivos estáticos recolectados
 staticfiles/
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db

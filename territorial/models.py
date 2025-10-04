@@ -15,4 +15,4 @@ class Territorial(models.Model):
         ordering=["usuario__username"]
 
     def __str__(self):
-        return self.nombre_territorial
+        return self.usuario.username
