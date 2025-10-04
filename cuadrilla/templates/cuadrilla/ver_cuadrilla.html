@@ -7,6 +7,9 @@
             <th>Tipo</th>
             <th>Departamento</th>
             <th>Usuario Asignado</th>
+            <th>Estado</th>
+            <th>Fecha de Creación</th>
+            <th>Fecha de Modificación</th>
         </tr>
     </thead>
     <tbody>
@@ -15,6 +18,9 @@
             <td>{{ cuadrillas.tipo }}</td>
             <td>{{ cuadrillas.departamento.nombre_departamento }}</td>
             <td>{{ cuadrillas.usuario.username }}</td>
+            <td>{{ cuadrillas.state }}</td>
+            <td>{{ cuadrillas.created }}</td>
+            <td>{{ cuadrillas.updated }}</td>
         </tr>
     </tbody>
 </table>
