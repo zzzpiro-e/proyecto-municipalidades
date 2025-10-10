@@ -32,6 +32,10 @@
               Activar
             {% endif %}
           </a>
+
+          {% if e.state == "Bloqueado" %}
+            | <a href="{% url 'editar_encuesta' e.id %}">Editar</a>
+          {% endif %}
         </td>
       </tr>
     {% empty %}

@@ -146,17 +146,3 @@ def bloquear_cuadrilla(request, pk):
     else:
         return redirect('logout')
 
-#@login_required
-#def ver_cuadrillas_bloqueo(request):
-    try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.info(request, 'Error')
-        return redirect('login')
-
-    if profile.group_id != 1:
-        return redirect('logout')
-
-    cuadrillas = (Cuadrilla.objects.filter(state='Inactivo').select_related('departamento', 'usuario').order_by('nombre_cuadrilla'))
-
-    return render(request,'cuadrilla/bloquear_cuadrilla.html',{'cuadrillas': cuadrillas})

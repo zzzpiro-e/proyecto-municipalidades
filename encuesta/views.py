@@ -39,3 +39,49 @@ def bloquear_encuesta(request, pk):
         return redirect('main_encuesta')
     else:
         return redirect('logout')
+
+
+@login_required
+def editar_encuesta(request, encuesta_id=None):
+    """Permite editar los datos de una encuesta bloqueada."""
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+
+    if profile.group_id == 1:
+        if request.method == 'POST':
+            encuesta_id_post = request.POST.get('encuesta_id')
+            encuesta_a_actualizar = get_object_or_404(Encuesta, id=encuesta_id_post)
+
+            if encuesta_a_actualizar.state != 'Bloqueado':
+                messages.warning(request, 'Solo se pueden editar encuestas bloqueadas.')
+                return redirect('main_encuesta')
+
+            encuesta_a_actualizar.nombre_encuesta = request.POST.get('nombre_encuesta')
+            encuesta_a_actualizar.descripcion = request.POST.get('descripcion')
+            encuesta_a_actualizar.tipo = request.POST.get('tipo')
+            encuesta_a_actualizar.prioridad = request.POST.get('prioridad')
+            encuesta_a_actualizar.departamento_id = request.POST.get('departamento')
+            encuesta_a_actualizar.save()
+
+            messages.add_message(request, messages.INFO, 'Encuesta actualizada con éxito.')
+            return redirect('main_encuesta')
+
+        else:
+            encuesta_para_editar = get_object_or_404(Encuesta, id=encuesta_id)
+
+            if encuesta_para_editar.state != 'Bloqueado':
+                messages.warning(request, 'Solo se pueden editar encuestas bloqueadas.')
+                return redirect('main_encuesta')
+
+            departamentos = Departamento.objects.all()
+            template_name = 'encuesta/editar_encuesta.html'
+            context = {
+                'encuesta': encuesta_para_editar,
+                'departamentos': departamentos
+            }
+            return render(request, template_name, context)
+    else:
+        return redirect('logout')

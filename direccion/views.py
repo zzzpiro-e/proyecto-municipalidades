@@ -139,17 +139,3 @@ def bloquear_direccion(request, pk):
         return redirect('logout')
     
     
-#@login_required
-#def ver_direcciones_bloqueo(request):
-    try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.info(request, 'Error de perfil')
-        return redirect('login')
-
-    if profile.group_id != 1:
-        return redirect('logout')
-
-    direcciones = Direccion.objects.filter(state='Inactivo').select_related('usuario').order_by('nombre_direccion')
-
-    return render(request,'direccion/bloquear_direccion.html',{'direcciones': direcciones})
