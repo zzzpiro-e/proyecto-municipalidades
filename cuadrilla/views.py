@@ -146,8 +146,8 @@ def bloquear_cuadrilla(request, pk):
     else:
         return redirect('logout')
 
-@login_required
-def ver_cuadrillas_bloqueo(request):
+#@login_required
+#def ver_cuadrillas_bloqueo(request):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except Profile.DoesNotExist:

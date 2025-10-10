@@ -139,8 +139,8 @@ def bloquear_direccion(request, pk):
         return redirect('logout')
     
     
-@login_required
-def ver_direcciones_bloqueo(request):
+#@login_required
+#def ver_direcciones_bloqueo(request):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except Profile.DoesNotExist:

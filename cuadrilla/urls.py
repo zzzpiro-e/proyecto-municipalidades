@@ -8,6 +8,5 @@ cuadrilla_urlpatterns=[
     path('editar_cuadrilla/', views.editar_cuadrilla, name='editar_cuadrilla_post'),
     path('editar_cuadrilla/<int:cuadrilla_id>/', views.editar_cuadrilla, name='editar_cuadrilla'),
     path('ver_cuadrilla/<int:cuadrilla_id>/', views.ver_cuadrilla, name='ver_cuadrilla'),
-    path('ver_cuadrillas_bloqueo/', views.ver_cuadrillas_bloqueo, name='ver_cuadrillas_bloqueo'),
     path('bloquear_cuadrilla/<int:pk>/', views.bloquear_cuadrilla, name='bloquear_cuadrilla'),
 ]

@@ -9,4 +9,6 @@ territorial_urlpatterns=[
     path('editar_territorial/<int:territorial_id>/', views.editar_territorial, name='editar_territorial'),
     path('ver_territorial/<int:territorial_id>/', views.ver_territorial, name='ver_territorial'),
     path('lista_editar/', views.lista_editar_territorial, name='lista_editar_territorial'),
+    path('bloquear_territorial/<int:pk>/', views.bloquear_territorial, name='bloquear_territorial'),
+
 ]
