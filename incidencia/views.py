@@ -59,3 +59,26 @@ def editar_incidencia(request, incidencia_id=None):
             return render(request, 'incidencia/editar_incidencia.html', context)
     else:
         return redirect('logout')
+
+@login_required
+def incidencias_usuario_departamento(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+        if profile.group_id != 3:
+            print("--> RESULTADO: Permiso denegado. Redirigiendo...")
+            messages.error(request, 'No tienes permiso para acceder a esta página.')
+            return redirect('main_admin')
+        print("--> RESULTADO: Permiso concedido. Buscando incidencias...")
+        departamento_usuario = Departamento.objects.get(usuario=request.user)
+        incidencias_asignadas = Incidencia.objects.filter(departamento=departamento_usuario)
+        context = {
+            'incidencias': incidencias_asignadas,
+            'departamento': departamento_usuario,
+        }
+        return render(request, 'incidencia/incidencias_usuario_departamento.html', context)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+    except Departamento.DoesNotExist:
+        messages.error(request, 'No estás asignado a ningún departamento.')
+        return redirect('main_admin')
