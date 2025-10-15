@@ -1,0 +1,39 @@
+<h4>Incidencias Bloqueadas</h4>
+<a href="{% url 'main_incidencia' %}">Volver</a>
+
+<br><br>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Título</th>
+      <th>Departamento</th>
+      <th>Territorial</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for i in incidencias %}
+      <tr>
+        <td>{{ i.titulo }}</td>
+        <td>{{ i.departamento.nombre_departamento }}</td>
+        <td>{{ i.territorial.usuario.username }}</td>
+        <td>{{ i.state }}</td>
+        <td>
+          <a href="{% url 'bloquear_incidencia' i.id %}">Activar</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5">No hay incidencias bloqueadas</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li style="color: green;">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}

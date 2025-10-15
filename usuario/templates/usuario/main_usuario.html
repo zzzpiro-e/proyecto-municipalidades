@@ -1,3 +1,41 @@
-<h4></a4>Usuario</4>
-</hr>
-<a href=""> Nuevo Usuario</a>
+<h4>Menú Usuarios</h4>
+<hr/>
+
+<a href="{% url 'crear_usuario' %}">Nuevo Usuario</a>
+<br/><br/>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Usuarios</th>
+      <th>Nombre</th>
+      <th>Email</th>
+      <th>Roles</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in usuarios %}
+    <tr>
+      <td>{{ u.username }}</td>
+      <td>{{ u.first_name }} {{ u.last_name }}</td>
+      <td>{{ u.email }}</td>
+      <td>
+        {% if u.profile and u.profile.group %}
+            {{ u.profile.group.name }}
+        {% else %}
+            (sin rol)
+        {% endif %}
+      </td>
+      <td>
+        <a href="{% url 'ver_usuario' u.id %}">Ver</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="6">No hay usuarios</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<br/>
+<a href="{% url 'main_admin' %}">Volver al menú</a>

@@ -1,0 +1,40 @@
+<h4>Editar Incidencia</h4>
+<hr>
+
+<form method="post" action="{% url 'editar_incidencia_post' %}">
+    {% csrf_token %}
+    <input type="hidden" name="incidencia_id" value="{{ incidencia.id }}">
+
+    <p><input type="text" name="titulo" placeholder="Título de la incidencia" value="{{ incidencia.titulo }}" required></p>
+    <p><input type="text" name="tipo" placeholder="Tipo" value="{{ incidencia.tipo }}" required></p>
+    <p><input type="text" name="ubicacion" placeholder="Ubicación" value="{{ incidencia.ubicacion }}"></p>
+    
+    <p>
+        <select name="departamento" required>
+            <option value="">Seleccione un departamento</option>
+            {% for depto in departamentos %}
+                <option value="{{ depto.id }}" {% if depto.id == incidencia.departamento.id %}selected{% endif %}>{{ depto.nombre_departamento }}</option>
+            {% endfor %}
+        </select>
+    </p>
+    <p>
+        <select name="territorial" required>
+            <option value="">Seleccione un territorial</option>
+            {% for terr in territoriales %}
+                <option value="{{ terr.id }}" {% if terr.id == incidencia.territorial.id %}selected{% endif %}>{{ terr.usuario.username }}</option>
+            {% endfor %}
+        </select>
+    </p>
+    <p>
+        <select name="encuesta" required>
+            <option value="">Seleccione una encuesta</option>
+            {% for enc in encuestas %}
+                <option value="{{ enc.id }}" {% if enc.id == incidencia.encuesta.id %}selected{% endif %}>{{ enc.nombre_encuesta }}</option>
+            {% endfor %}
+        </select>
+    </p>
+    
+    <p><input type="submit" value="Guardar Cambios"></p>
+</form>
+
+<a href="{% url 'main_incidencia' %}">Cancelar y Volver a la Lista</a>

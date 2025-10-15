@@ -1,0 +1,25 @@
+<h4>Ver Usuario</h4>
+<br/>
+
+<table border="1">
+  <tr><th>Usuario</th><td>{{ usuario.username }}</td></tr>
+  <tr><th>Nombre</th><td>{{ usuario.first_name }} {{ usuario.last_name }}</td></tr>
+  <tr><th>Email</th><td>{{ usuario.email }}</td></tr>
+  <tr><th>Es staff</th><td>{{ usuario.is_staff }}</td></tr>
+  <tr><th>Activo</th><td>{{ usuario.is_active }}</td></tr>
+  <tr><th>Superusuario</th><td>{{ usuario.is_superuser }}</td></tr>
+  <tr><th>Último login</th><td>{{ usuario.last_login|date:"d/m/Y H:i" }}</td></tr>
+  <tr>
+    <th>Rol</th>
+        <td>
+            {% if usuario.profile and usuario.profile.group %}
+                {{ usuario.profile.group.name }}
+            {% else %}
+                (sin rol)
+            {% endif %}
+        </td>
+    </tr>
+</table>
+
+<br/>
+<a href="{% url 'main_usuario' %}">Volver a Usuarios</a>

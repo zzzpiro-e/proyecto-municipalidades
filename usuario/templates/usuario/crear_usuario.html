@@ -1,4 +1,4 @@
-<h4>Crear Nueva Usuario</h4>
+<h4>Crear Nuevo Usuario</h4>
 <form method="post" action="{% url 'guardar_usuario' %}">
     {% csrf_token %}
     <p><input type="text" name="username" placeholder="Ingrese nombre de usuario"/></p>
@@ -19,3 +19,4 @@
     
     <p><input type="submit" value="Crear"/></p>
 </form>
+
