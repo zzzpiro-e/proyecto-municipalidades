@@ -1,0 +1,28 @@
+<h4>Crear Nueva cuadrilla</h4>
+<form method="post" action="{% url 'guardar_cuadrilla' %}">
+    {% csrf_token %}
+    <p><input type="text" name="nombre_cuadrilla" placeholder="Ingrese nombre de cuadrilla"/></p>
+    <p><input type="text" name="tipo" placeholder="Ingrese tipo de cuadrilla"/></p>
+    
+    <p>
+        <select name="usuario" id="usuario">
+        <option value="">Seleccione Usuario Encargado</option>
+            {% for usuario in usuarios %}
+                <option value="{{ usuario.id }}">{{ usuario.first_name }} {{ usuario.last_name }}
+                </option>
+            {% endfor %}
+        </select>
+    </p>
+
+
+    <p>
+        <select name="departamento" id="departamento">
+        <option value="">Seleccione el departamento</option>
+            {% for departamento in departamentos %}
+                <option value="{{ departamento.id }}">{{ departamento.nombre_departamento }}</option>
+            {% endfor %}
+        </select>
+    </p>
+
+    <p><input type="submit" value="Crear"/></p>
+</form>

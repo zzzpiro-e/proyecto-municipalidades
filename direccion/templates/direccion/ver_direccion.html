@@ -1,0 +1,10 @@
+<h4>Ver Dirección</h4>
+<table border="1">
+  <tr><th>Nombre</th><td>{{ direccion.nombre_direccion }}</td></tr>
+  <tr><th>Usuario</th><td>{{ direccion.usuario.username }}</td></tr>
+  <tr><th>Fecha de Creación</th><td>{{ direccion.created }}</td></tr>
+  <tr><th>Fecha de Modificación</th><td>{{ direccion.updated }}</td></tr>
+  <tr><th>Estado</th><td>{{ direccion.state }}</td></tr>
+</table>
+<br>
+<a href="{% url 'main_direccion' %}">Volver a Direcciones</a>

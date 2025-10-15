@@ -1,0 +1,36 @@
+<h1>Gestión de Direcciones Bloqueadas</h1>
+
+<table border="1" cellpadding="5">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Estado</th>
+      <th>Acción</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for d in direcciones %}
+    <tr>
+      <td>{{ d.nombre_direccion }}</td>
+      <td>{{ d.state }}</td>
+      <td>
+        <a href="{% url 'bloquear_direccion' d.id %}">
+          Activar
+        </a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="3">No hay direcciones bloqueadas</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li style="color: green;">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+<br>
+<a href="{% url 'main_direccion' %}">Volver a menú Direcciones</a>

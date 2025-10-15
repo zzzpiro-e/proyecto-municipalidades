@@ -1,33 +1,23 @@
-<h2>Editando Dirección</h2>
-
-{% if messages %}
-    <ul>
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
-
-<form action="{% url 'editar_direccion_post' %}" method="POST">
+<h4>Editar Dirección</h4>
+<form method="post" action="{% url 'editar_direccion_post' %}">
     {% csrf_token %}
-
     <input type="hidden" name="direccion_id" value="{{ direccion.id }}">
-
-    <div>
-        <label for="nombre_direccion">Nombre de la Dirección:</label>
-        <input type="text" name="nombre_direccion" value="{{ direccion.nombre_direccion }}" required>
-    </div>
-
-    <div>
-        <label for="usuario">Usuario encargado:</label>
+    <p>
+        <input type="text" name="nombre_direccion" placeholder="Nombre de la dirección" value="{{ direccion.nombre_direccion }}" required>
+    </p>
+    <p>
         <select name="usuario" required>
-            <option value="">Seleccione un usuario</option>
+            <option value="">Seleccione un usuario encargado</option>
             {% for usuario in usuarios %}
                 <option value="{{ usuario.id }}" {% if usuario.id == direccion.usuario.id %}selected{% endif %}>
                     {{ usuario.username }}
                 </option>
             {% endfor %}
         </select>
-    </div>
-    <button type="submit">Guardar Cambios</button>
+    </p>
+    <p>
+        <input type="submit" value="Guardar Cambios">
+    </p>
 </form>
+
+<a href="{% url 'main_direccion' %}">Cancelar y Volver a la Lista</a>
