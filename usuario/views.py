@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.shortcuts import render,redirect, get_object_or_404
 from registration.models import Profile
 from django.contrib.auth.models import User, Group
-from registration.models import Profile
+
 
 @login_required
 def main_usuario(request, usuario_id=None):

@@ -1,0 +1,35 @@
+<h4>Incidencias Asignadas a: {{ departamento.nombre_departamento }}</h4>
+<hr/>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>Tipo</th>
+            <th>Ubicación</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for inc in incidencias %}
+        <tr>
+            <td>{{ inc.titulo }}</td>
+            <td>{{ inc.tipo }}</td>
+            <td>{{ inc.ubicacion }}</td>
+            <td>{{ inc.state }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="5">No tienes incidencias asignadas a tu departamento.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% if messages %}
+    <ul>
+    {% for message in messages %}
+        <li style="color: green;">{{ message }}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+<br/>
+<a href="{% url 'main_admin' %}">Volver al menú</a>
