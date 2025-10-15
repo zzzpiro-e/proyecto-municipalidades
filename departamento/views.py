@@ -118,7 +118,7 @@ def editar_departamento(request, departamento_id=None):
             return render(request, template_name, context)
     else:
         return redirect('logout')
-    
+
 @login_required
 def bloquear_departamento(request, pk):
     try:
@@ -138,4 +138,16 @@ def bloquear_departamento(request, pk):
         departamento.save()
         return redirect('main_departamento')
     return redirect('logout')
-    
+
+@login_required
+def ver_departamento_bloqueo(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.error(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id == 1:
+        departamentos = Departamento.objects.filter(state='Bloqueado').select_related('usuario','direccion')
+        return render(request, 'departamento/bloquear_departamento.html', {'departamentos': departamentos})
+    return redirect('logout')
