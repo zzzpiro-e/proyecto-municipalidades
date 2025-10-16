@@ -1,56 +1,60 @@
 <h4>Menú de Encuestas</h4>
 <hr/>
-<a href="#">Nueva Encuesta</a>
+<a href="#">Nueva Encuesta</a> 
+ | <a href="#">Encuestas Bloqueadas</a>
+
 <br/><br/>
 
 <table border="1">
-  <thead>
-    <tr>
-      <th>Nombre</th>
-      <th>Descripción</th>
-      <th>Tipo</th>
-      <th>Prioridad</th>
-      <th>Departamento</th>
-      <th>Estado</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Tipo</th>
+            <th>Prioridad</th>
+            <th>Departamento</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
     {% for e in encuestas %}
-      <tr>
-        <td>{{ e.nombre_encuesta }}</td>
-        <td>{{ e.descripcion }}</td>
-        <td>{{ e.tipo }}</td>
-        <td>{{ e.prioridad }}</td>
-        <td>{{ e.departamento.nombre_departamento }}</td>
-        <td>{{ e.state }}</td>
-        <td>
-          <a href="{% url 'bloquear_encuesta' e.id %}">
-            {% if e.state == "Activo" %}
-              Bloquear
-            {% else %}
-              Activar
-            {% endif %}
-          </a>
-
-          {% if e.state == "Bloqueado" %}
-            | <a href="{% url 'editar_encuesta' e.id %}">Editar</a>
-          {% endif %}
-        </td>
-      </tr>
+        <tr>
+            <td>{{ e.nombre_encuesta }}</td>
+            <td>{{ e.descripcion }}</td>
+            <td>{{ e.tipo }}</td>
+            <td>{{ e.prioridad }}</td>
+            <td>{{ e.departamento.nombre_departamento }}</td>
+            <td>{{ e.state }}</td>
+            <td>
+                <a href="#">Ver</a>
+                {% if profile.group_id == 1 %}
+                    | <a href="{% url 'bloquear_encuesta' e.pk %}">
+                        {% if e.state == "Activo" %}
+                            Bloquear
+                        {% else %}
+                            Activar
+                        {% endif %}
+                      </a>
+                    {% if e.state == "Bloqueado" %}
+                        | <a href="{% url 'editar_encuesta' e.id %}">Editar</a>
+                    {% endif %}
+                
+                {% endif %}
+            </td>
+        </tr>
     {% empty %}
-      <tr><td colspan="7">No hay encuestas registradas</td></tr>
+        <tr><td colspan="7">No hay encuestas para mostrar.</td></tr>
     {% endfor %}
-  </tbody>
+    </tbody>
 </table>
 
 {% if messages %}
-  <ul>
+    <ul>
     {% for message in messages %}
-      <li style="color: green;">{{ message }}</li>
+        <li style="color: green;">{{ message }}</li>
     {% endfor %}
-  </ul>
+    </ul>
 {% endif %}
-
-<br>
+<br/>
 <a href="{% url 'main_admin' %}">Volver al menú</a>
