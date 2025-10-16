@@ -1,0 +1,27 @@
+<h4>Ver Territorial</h4>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Zona Asignada</th>
+      <th>Observaciones</th>
+      <th>Usuario</th>
+      <th>Estado</th>
+      <th>Creado</th>
+      <th>Actualizado</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{ territorial.zona_asignada }}</td>
+      <td>{{ territorial.observaciones }}</td>
+      <td>{{ territorial.usuario.username }}</td>
+      <td>{{ territorial.state }}</td>
+      <td>{{ territorial.created }}</td>
+      <td>{{ territorial.updated }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<br>
+<a href="{% url 'main_territorial' %}">Volver</a>

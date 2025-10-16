@@ -1,22 +1,49 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect, get_object_or_404
 from registration.models import Profile
 from django.contrib.auth.models import User, Group
-from registration.models import Profile
-@login_required
 
-def main_usuario(request):
+
+@login_required
+def main_usuario(request, usuario_id=None):
     try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
         return redirect('login')
-    if profile.group_id==1:
-        template_name = 'usuario/main_usuario.html'
-        return render(request,template_name)
-    else: 
+
+    if profile.group_id == 1:
+        usuarios = (
+            User.objects
+                .prefetch_related('groups')  
+                .order_by('id')
+        )
+        return render(request, 'usuario/main_usuario.html', {
+            'usuarios': usuarios
+        })
+    else:
         return redirect('logout')
+    
+@login_required
+def ver_usuario(request, user_id= None):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id != 1:
+        return redirect('logout')
+
+    usuario = get_object_or_404(
+        User.objects.prefetch_related('groups'),
+        pk=user_id
+    )
+
+    return render(request, 'usuario/ver_usuario.html', {
+        'usuario': usuario
+    })
 
 def crear_usuario(request):
     try:
@@ -66,7 +93,7 @@ def guardar_usuario(request):
             perfil_save.save()
 
             messages.add_message(request,messages.INFO,'usuario creado con exito')
-            return redirect('gestion_usuario')
+            return redirect('main_usuario')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
             return redirect('check_group_main')
@@ -74,3 +101,40 @@ def guardar_usuario(request):
         return redirect('logout')
 
 
+
+
+
+@login_required
+def eliminar_usuario_lista(request):
+    try:
+        profile = Profile.objects.filter(user_id=request.user.id).get()
+    except:
+        messages.add_message(request, messages.INFO, 'Error')
+        return redirect('login')
+
+    if profile.group_id == 1:  # Solo admin puede
+        usuarios = User.objects.all().exclude(id=request.user.id)  # excluye al usuario logueado
+        template_name = 'usuario/eliminar_usuario_lista.html'
+        return render(request, template_name, {"usuarios": usuarios})
+    else:
+        return redirect('logout')
+
+
+@login_required
+def eliminar_usuario(request, usuario_id):
+    try:
+        profile = Profile.objects.filter(user_id=request.user.id).get()
+    except:
+        messages.add_message(request, messages.INFO, 'Error')
+        return redirect('login')
+
+    if profile.group_id == 1:
+        try:
+            usuario = User.objects.get(id=usuario_id)
+            usuario.delete()
+            messages.add_message(request, messages.INFO, 'Usuario eliminado con éxito')
+        except User.DoesNotExist:
+            messages.add_message(request, messages.INFO, 'El usuario no existe')
+        return redirect('eliminar_usuario_lista')
+    else:
+        return redirect('logout')

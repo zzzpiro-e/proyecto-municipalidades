@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "encuesta",
     "incidencia",
     "pregunta",
+    "usuario",
+    "cuadrilla",
 ]
 
 MIDDLEWARE = [

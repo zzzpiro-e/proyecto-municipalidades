@@ -1,0 +1,28 @@
+<h4>Ver Cuadrilla</h4>
+<hr>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Nombre Cuadrilla</th>
+            <th>Tipo</th>
+            <th>Departamento</th>
+            <th>Usuario Asignado</th>
+            <th>Estado</th>
+            <th>Fecha de Creación</th>
+            <th>Fecha de Modificación</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ cuadrillas.nombre_cuadrilla }}</td>
+            <td>{{ cuadrillas.tipo }}</td>
+            <td>{{ cuadrillas.departamento.nombre_departamento }}</td>
+            <td>{{ cuadrillas.usuario.username }}</td>
+            <td>{{ cuadrillas.state }}</td>
+            <td>{{ cuadrillas.created }}</td>
+            <td>{{ cuadrillas.updated }}</td>
+        </tr>
+    </tbody>
+</table>
+<br>
+<a href="{% url 'main_cuadrilla' %}">Volver</a>

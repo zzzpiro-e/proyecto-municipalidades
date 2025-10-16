@@ -4,19 +4,27 @@ from django.shortcuts import render,redirect,get_object_or_404
 from registration.models import Profile
 from direccion.models import Direccion
 from django.contrib.auth.models import User
-@login_required
 
-def main_direccion(request):
+@login_required
+def main_direccion(request, direccion_id=None):
     try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
         return redirect('login')
-    if profile.group_id==2:
-        template_name = 'direccion/main_direccion.html'
-        return render(request,template_name)
-    else: 
+
+    if profile.group_id in [1, 2]:
+        direccion_listado = (
+            Direccion.objects.select_related('usuario').order_by('id')
+        )
+        return render(
+            request,
+            'direccion/main_direccion.html',
+            {'direcciones': direccion_listado}   
+        )
+    else:
         return redirect('logout')
+
 
 def crear_direccion(request):
     try:
@@ -78,7 +86,7 @@ def editar_direccion(request, direccion_id=None):
             direccion_a_actualizar.usuario_id = usuario_id
             direccion_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Dirección actualizada con éxito.')
-            return redirect('gestion_direccion')
+            return redirect('main_direccion')
         else:
             direccion = get_object_or_404(Direccion, id=direccion_id)
             usuarios = User.objects.filter(profile__group__id=2)
@@ -90,3 +98,44 @@ def editar_direccion(request, direccion_id=None):
             return render(request, template_name, context)
     else:
         return redirect('logout')
+    
+
+@login_required
+def ver_direccion(request, direccion_id: int):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id not in [1, 2]:
+        return redirect('logout')
+
+    direccion = get_object_or_404(
+        Direccion.objects.select_related('usuario'),
+        pk=direccion_id
+    )
+    return render(request, 'direccion/ver_direccion.html', {'direccion': direccion})
+
+@login_required
+def bloquear_direccion(request, pk):
+    try:
+        profile = Profile.objects.filter(user_id=request.user.id).get()
+    except:
+        messages.add_message(request, messages.INFO, 'Error')
+        return redirect('login')
+
+    if profile.group_id == 1:  
+        direccion = get_object_or_404(Direccion, pk=pk)
+        if direccion.state == "Activo":
+            direccion.state = "Inactivo"
+            messages.add_message(request, messages.SUCCESS, f"La dirección {direccion.nombre_direccion} fue bloqueada.")
+        else:
+            direccion.state = "Activo"
+            messages.add_message(request, messages.SUCCESS, f"La dirección {direccion.nombre_direccion} fue activada.")
+        direccion.save()
+        return redirect('main_direccion')
+    else:
+        return redirect('logout')
+    
+    
