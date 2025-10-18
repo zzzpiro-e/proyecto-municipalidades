@@ -1,0 +1,48 @@
+<h2>Crear Incidencia</h2>
+
+<form method="POST" action="{% url 'guardar_incidencia' %}">
+    {% csrf_token %}
+    
+    <label>Departamento:</label>
+    <select name="departamento" required>
+        {% for d in departamentos %}
+        <option value="{{ d.id }}">{{ d }}</option>
+        {% endfor %}
+    </select><br>
+
+    <label>Título:</label>
+    <input type="text" name="titulo" required><br>
+
+    <label>Tipo:</label>
+    <input type="text" name="tipo"><br>
+
+    <label>Ubicación:</label>
+    <input type="text" name="ubicacion"><br>
+
+    <label>Latitud:</label>
+    <input type="number" step="any" name="latitud"><br>
+
+    <label>Longitud:</label>
+    <input type="number" step="any" name="longitud"><br>
+
+    <label>Nombre del vecino:</label>
+    <input type="text" name="nombre_vecino"><br>
+
+    <label>Teléfono del vecino:</label>
+    <input type="text" name="telefono_vecino"><br>
+
+    <label>Correo del vecino:</label>
+    <input type="email" name="correo_vecino"><br>
+
+    <label>Encuesta:</label>
+    <select name="encuesta" required>
+        <option value="">-- Ninguna --</option>
+        {% for e in encuestas %}
+        <option value="{{ e.id }}">{{ e }}</option>
+        {% endfor %}
+    </select><br>
+
+    <button type="submit">Guardar incidencia</button>
+    <br>
+    <a href="{% url 'main_incidencia' %}">Volver</a>
+</form>

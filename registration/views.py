@@ -95,3 +95,4 @@ def password_reset_request(request):
     else:
         form = PasswordResetRequestForm()
     return render(request, "password_reset.html", {"form": form})
+

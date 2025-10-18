@@ -6,9 +6,29 @@ from .models import Incidencia
 from departamento.models import Departamento
 from territorial.models import Territorial
 from encuesta.models import Encuesta
+from django.contrib.auth.models import User
+
 
 @login_required
 def main_incidencia(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+
+    if profile.group_id ==4:
+        incidencias = Incidencia.objects.filter(state='Activo').select_related('departamento', 'territorial').order_by('-id')
+        context = {
+            'incidencias': incidencias,
+            'profile': profile
+        }
+        return render(request, 'incidencia/main_incidencia.html', context)
+    else:
+        return redirect('logout')
+    
+@login_required
+def gestion_incidencia(request):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except Profile.DoesNotExist:
@@ -21,9 +41,82 @@ def main_incidencia(request):
             'incidencias': incidencias,
             'profile': profile
         }
-        return render(request, 'incidencia/main_incidencia.html', context)
+        return render(request, 'incidencia/gestion_incidencia.html', context)
     else:
         return redirect('logout')
+
+@login_required
+def crear_incidencia(request):
+    try:
+        profile = Profile.objects.filter(user_id=request.user.id).get()
+    except:
+        messages.add_message(request, messages.INFO, "Error al obtener el perfil del usuario.")
+        return redirect('check_profile')
+    if profile.group_id == 4:
+        template_name = 'incidencia/crear_incidencia.html'
+        departamentos = Departamento.objects.all()
+        encuestas = Encuesta.objects.all()
+        context = {
+            'departamentos': departamentos,
+            'encuestas': encuestas
+        }
+
+        return render(request, template_name, context)
+    else:
+        return redirect('logout')
+    
+@login_required
+def guardar_incidencia(request):
+    try:
+        profile=Profile.objects.filter(user_id=request.user.id).get()
+    except:
+        messages.add_message(request, messages.INFO,"Error")
+        return redirect('check_profile')
+    if profile.group_id==4:
+        if request.method=='POST':
+            departamento_id=request.POST.get('departamento')
+            titulo=request.POST.get('titulo')
+            tipo=request.POST.get("tipo")
+            ubicacion=request.POST.get("ubicacion")
+            latitud=request.POST.get("latitud")
+            longitud=request.POST.get("longitud")
+            nombre_vecino=request.POST.get("nombre_vecino")
+            telefono_vecino=request.POST.get("telefono_vecino")
+            correo_vecino=request.POST.get("correo_vecino")
+            encuesta_id=request.POST.get("encuesta")
+            if titulo=='' or latitud=="" or longitud=="" or not departamento_id :
+                messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
+                return redirect('crear_incidencia')
+            try:
+                territorial = Territorial.objects.get(usuario=request.user)
+            except Territorial.DoesNotExist:
+                messages.add_message(request, messages.INFO, 'No tienes un registro territorial asignado')
+                return redirect('check_profile')
+            
+            incidencia_save=Incidencia(
+                territorial=territorial,
+                titulo=titulo,
+                departamento_id=departamento_id,
+                tipo=tipo,
+                ubicacion=ubicacion,
+                latitud=latitud,
+                longitud=longitud,
+                nombre_vecino=nombre_vecino,
+                telefono_vecino=telefono_vecino,
+                correo_vecino=correo_vecino,
+                encuesta_id=encuesta_id
+                )
+            incidencia_save.save()
+            messages.add_message(request,messages.INFO,'Incidencia creada con exito')
+            return redirect('main_incidencia')
+        else:
+            messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
+            return redirect('check_group_main')
+    else:
+        return redirect('logout')
+
+
+
 
 @login_required
 def bloquear_incidencia(request, pk):
@@ -42,7 +135,7 @@ def bloquear_incidencia(request, pk):
             incidencia.state = 'Activo'
             messages.success(request, f'La incidencia "{incidencia.titulo}" fue activada.')
         incidencia.save()
-        return redirect('main_incidencia')
+        return redirect('gestion_incidencia')
     return redirect('logout')
 
 @login_required
@@ -77,7 +170,7 @@ def editar_incidencia(request, incidencia_id=None):
             incidencia_a_actualizar.ubicacion = request.POST.get('ubicacion')
             incidencia_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Incidencia actualizada con éxito.')
-            return redirect('main_incidencia')
+            return redirect('gestion_incidencia')
         else:
             incidencia = get_object_or_404(Incidencia, id=incidencia_id)
             departamentos = Departamento.objects.all()

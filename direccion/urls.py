@@ -9,4 +9,5 @@ direccion_urlpatterns = [
     path('editar_direccion/<int:direccion_id>/', views.editar_direccion, name='editar_direccion'),
     path('bloquear_direccion/<int:pk>/', views.bloquear_direccion, name='bloquear_direccion'),
     path('main_direccion/', views.main_direccion, name='main_direccion'),
+    path('gestion_direccion/', views.gestion_direccion, name='gestion_direccion'),
 ]

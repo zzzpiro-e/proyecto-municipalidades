@@ -22,6 +22,22 @@ def main_territorial(request):
     return redirect('logout')
 
 @login_required
+def gestion_territorial(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error de perfil.')
+        return redirect('login')
+
+    if profile.group_id ==1:
+        territoriales = (Territorial.objects.select_related('usuario').order_by('id'))
+        return render(
+            request,
+            'territorial/gestion_territorial.html',{'territoriales': territoriales}
+        )
+    return redirect('logout')
+
+@login_required
 def crear_territorial(request):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
@@ -53,11 +69,10 @@ def guardar_territorial(request):
 
     Territorial.objects.create(
         usuario_id=request.POST.get('usuario') or None,
-        zona_asignada=request.POST.get('zona_asignada') or '',
-        observaciones=request.POST.get('observaciones') or '',
+        zona_asignada=request.POST.get('zona_asignada') or ''
     )
     messages.success(request, 'Territorial creado correctamente')
-    return redirect('main_territorial')
+    return redirect('gestion_territorial')
 
 
 @login_required
@@ -72,14 +87,12 @@ def editar_territorial(request, territorial_id=None):
             terr_id = request.POST.get('territorial_id')
             usuario_id = request.POST.get("usuario")
             zona_asignada = request.POST.get('zona_asignada')
-            observaciones = request.POST.get('observaciones')
             territorial_a_actualizar = get_object_or_404(Territorial, id=terr_id)
             territorial_a_actualizar.usuario_id = usuario_id
             territorial_a_actualizar.zona_asignada = zona_asignada
-            territorial_a_actualizar.observaciones = observaciones
             territorial_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Territorial actualizado con éxito.')
-            return redirect('main_territorial')
+            return redirect('gestion_territorial')
         else:
             territorial = get_object_or_404(Territorial, id=territorial_id)
             usuarios = User.objects.filter(profile__group__id=4)
@@ -144,6 +157,6 @@ def bloquear_territorial(request, pk):
             territorial.state = 'Activo'
             messages.success(request, f"Territorial {territorial.zona_asignada} activado correctamente")
         territorial.save()
-        return redirect('main_territorial')
+        return redirect('gestion_territorial')
     else:
         return redirect('logout')

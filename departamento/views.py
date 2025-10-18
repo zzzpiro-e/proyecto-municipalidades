@@ -15,9 +15,23 @@ def main_departamento(request):
         messages.info(request, 'Error')
         return redirect('login')
 
-    if profile.group_id in [1, 3]:
+    if profile.group_id ==3:
         departamentos = (Departamento.objects.select_related('usuario', 'direccion').order_by('id'))
         return render(request, 'departamento/main_departamento.html',{'departamentos': departamentos})
+    else:
+        return redirect('logout')
+    
+@login_required
+def gestion_departamento(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id ==1:
+        departamentos = (Departamento.objects.select_related('usuario', 'direccion').order_by('id'))
+        return render(request, 'departamento/gestion_departamento.html',{'departamentos': departamentos})
     else:
         return redirect('logout')
     
@@ -48,7 +62,7 @@ def guardar_departamento(request):
             nombre_departamento=request.POST.get('nombre_departamento')
             direccion_id=request.POST.get('direccion')
             usuario_id=request.POST.get("usuario")
-            if nombre_departamento=='' or not direccion_id or not usuario_id:
+            if nombre_departamento=='' or not direccion_id:
                 messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
                 return redirect('crear_departamento')
             departamento_save=Departamento(
@@ -58,7 +72,7 @@ def guardar_departamento(request):
                 )
             departamento_save.save()
             messages.add_message(request,messages.INFO,'Departamento creado con exito')
-            return redirect('main_departamento')
+            return redirect('gestion_departamento')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
             return redirect('check_group_main')
@@ -104,11 +118,11 @@ def editar_departamento(request, departamento_id=None):
             departamento_a_actualizar.usuario_id = usuario_id
             departamento_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Departamento actualizado con éxito.')
-            return redirect('main_departamento')
+            return redirect('gestion_departamento')
         else:
             departamento_para_editar = get_object_or_404(Departamento, id=departamento_id)
             direcciones = Direccion.objects.all()
-            usuarios = User.objects.filter(profile__group__id=3)
+            usuarios = User.objects.filter(profile__group__id=3,departamento__isnull=True)
             template_name = 'departamento/editar_departamento.html'
             context = {
                 'departamento': departamento_para_editar,
@@ -136,7 +150,7 @@ def bloquear_departamento(request, pk):
             departamento.state = 'Activo'
             messages.success(request, f"Departamento {departamento.nombre_departamento} activado")
         departamento.save()
-        return redirect('main_departamento')
+        return redirect('gestion_departamento')
     return redirect('logout')
 
 @login_required

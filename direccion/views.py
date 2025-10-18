@@ -13,7 +13,7 @@ def main_direccion(request, direccion_id=None):
         messages.info(request, 'Error')
         return redirect('login')
 
-    if profile.group_id in [1, 2]:
+    if profile.group_id ==2:
         direccion_listado = (
             Direccion.objects.select_related('usuario').order_by('id')
         )
@@ -24,6 +24,27 @@ def main_direccion(request, direccion_id=None):
         )
     else:
         return redirect('logout')
+    
+@login_required
+def gestion_direccion(request, direccion_id=None):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id ==1:
+        direccion_listado = (
+            Direccion.objects.select_related('usuario').order_by('id')
+        )
+        return render(
+            request,
+            'direccion/gestion_direccion.html',
+            {'direcciones': direccion_listado}   
+        )
+    else:
+        return redirect('logout')
+
 
 
 def crear_direccion(request):
@@ -34,7 +55,7 @@ def crear_direccion(request):
         return redirect('login')
     if profile.group_id ==1:
         template_name = 'direccion/crear_direccion.html'
-        usuarios=User.objects.filter(profile__group__id=2)
+        usuarios=User.objects.filter(profile__group__id=2,direccion__isnull=True)
         return render(request,template_name,{"usuarios":usuarios})
     else: 
         return redirect('logout')
@@ -50,7 +71,7 @@ def guardar_direccion(request):
         if request.method=='POST':
             nombre_direccion=request.POST.get('nombre_direccion')
             usuario_id=request.POST.get("usuario")
-            if nombre_direccion=='' or not usuario_id:
+            if nombre_direccion=='':
                 messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
                 return redirect('crear_direccion')
             direccion_save=Direccion(
@@ -86,10 +107,10 @@ def editar_direccion(request, direccion_id=None):
             direccion_a_actualizar.usuario_id = usuario_id
             direccion_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Dirección actualizada con éxito.')
-            return redirect('main_direccion')
+            return redirect('gestion_direccion')
         else:
             direccion = get_object_or_404(Direccion, id=direccion_id)
-            usuarios = User.objects.filter(profile__group__id=2)
+            usuarios = User.objects.filter(profile__group__id=2,direccion__isnull=True)
             template_name = 'direccion/editar_direccion.html'
             context = {
                 'direccion': direccion,
@@ -134,7 +155,7 @@ def bloquear_direccion(request, pk):
             direccion.state = "Activo"
             messages.add_message(request, messages.SUCCESS, f"La dirección {direccion.nombre_direccion} fue activada.")
         direccion.save()
-        return redirect('main_direccion')
+        return redirect('gestion_direccion')
     else:
         return redirect('logout')
     

@@ -20,6 +20,19 @@ def main_cuadrilla(request):
         return render(request, 'cuadrilla/main_cuadrilla.html', {'cuadrillas': cuadrillas})
     else:
         return redirect('logout')
+@login_required
+def gestion_cuadrilla(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id ==1:
+        cuadrillas = (Cuadrilla.objects.select_related('usuario', 'departamento').order_by('id'))
+        return render(request, 'cuadrilla/gestion_cuadrilla.html', {'cuadrillas': cuadrillas})
+    else:
+        return redirect('logout')
 
     
 def crear_cuadrilla(request):
@@ -31,7 +44,7 @@ def crear_cuadrilla(request):
     if profile.group_id ==1:
         departamentos=Departamento.objects.all()
         template_name = 'cuadrilla/crear_cuadrilla.html'
-        usuarios=User.objects.filter(profile__group__id=5)
+        usuarios=User.objects.filter(profile__group__id=5,cuadrilla__isnull=True)
         return render(request,template_name,{"departamentos":departamentos, "usuarios":usuarios})
     else: 
         return redirect('logout')
@@ -62,7 +75,7 @@ def guardar_cuadrilla(request):
                 )
             cuadrilla_save.save()
             messages.add_message(request,messages.INFO,'cuadrilla creado con exito')
-            return redirect('main_cuadrilla')
+            return redirect('gestion_cuadrilla')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
             return redirect('check_group_main')
@@ -93,7 +106,7 @@ def editar_cuadrilla(request, cuadrilla_id=None):
             cuadrilla_a_actualizar.usuario_id = usuario_id
             cuadrilla_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Cuadrilla actualizada con éxito.')
-            return redirect('main_cuadrilla')
+            return redirect('gestion_cuadrilla')
         else:
             cuadrilla = get_object_or_404(Cuadrilla, id=cuadrilla_id)
             departamentos = Departamento.objects.all()
@@ -142,7 +155,7 @@ def bloquear_cuadrilla(request, pk):
             cuadrilla.state = "Activo"
             messages.add_message(request, messages.SUCCESS, f"La cuadrilla {cuadrilla.nombre_cuadrilla} fue activada.")
         cuadrilla.save()
-        return redirect('main_cuadrilla')
+        return redirect('gestion_cuadrilla')
     else:
         return redirect('logout')
 
