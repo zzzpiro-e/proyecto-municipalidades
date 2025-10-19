@@ -15,12 +15,26 @@ def main_departamento(request):
         messages.info(request, 'Error')
         return redirect('login')
 
-    if profile.group_id in [1, 3]:
+    if profile.group_id ==3:
         departamentos = (Departamento.objects.select_related('usuario', 'direccion').order_by('id'))
         return render(request, 'departamento/main_departamento.html',{'departamentos': departamentos})
     else:
         return redirect('logout')
-    
+
+@login_required
+def gestion_departamento(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id ==1:
+        departamentos = (Departamento.objects.select_related('usuario', 'direccion').order_by('id'))
+        return render(request, 'departamento/gestion_departamento.html',{'departamentos': departamentos})
+    else:
+        return redirect('logout')
+
 def crear_departamento(request):
     try:
         profile= Profile.objects.filter(user_id=request.user.id).get()

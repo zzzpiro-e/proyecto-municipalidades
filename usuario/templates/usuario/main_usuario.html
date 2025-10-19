@@ -1,41 +1,54 @@
-<h4>Menú Usuarios</h4>
-<hr/>
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}{% endblock %}
+{% block content %}
 
-<a href="{% url 'crear_usuario' %}">Nuevo Usuario</a>
-<br/><br/>
+<div class="row mt-2 mb-2">
+    <div class="col-7">
+        <h4 class="text-secondary">Gestión de Usuarios</h4>
+    </div>
+    <div class="col-5">
+        <a href="{% url 'crear_usuario' %}" class="btn btn-dark form-control">Nuevo Usuario</a>
+    </div>
+</div>
 
-<table border="1">
-  <thead>
-    <tr>
-      <th>Usuarios</th>
-      <th>Nombre</th>
-      <th>Email</th>
-      <th>Roles</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for u in usuarios %}
-    <tr>
-      <td>{{ u.username }}</td>
-      <td>{{ u.first_name }} {{ u.last_name }}</td>
-      <td>{{ u.email }}</td>
-      <td>
-        {% if u.profile and u.profile.group %}
-            {{ u.profile.group.name }}
-        {% else %}
-            (sin rol)
-        {% endif %}
-      </td>
-      <td>
-        <a href="{% url 'ver_usuario' u.id %}">Ver</a>
-      </td>
-    </tr>
-    {% empty %}
-    <tr><td colspan="6">No hay usuarios</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+<hr>
 
-<br/>
-<a href="{% url 'main_admin' %}">Volver al menú</a>
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle text-center">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Usuario</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Email</th>
+                <th scope="col">Rol</th>
+                <th scope="col">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in usuarios %}
+            <tr>
+                <td>{{ u.username }}</td>
+                <td>{{ u.first_name }} {{ u.last_name }}</td>
+                <td>{{ u.email }}</td>
+                <td>
+                    {% if u.profile and u.profile.group %}
+                        {{ u.profile.group.name }}
+                    {% else %}
+                        (sin rol)
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <a class="btn btn-outline-dark btn-sm" href="{% url 'ver_usuario' u.id %}">Ver</a>
+                        <a class="btn btn-outline-danger btn-sm" href="{% url 'eliminar_usuario' u.id %}">Eliminar</a>
+
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            <a class="btn btn-outline-danger btn-sm" href="{% url 'main_admin' %}">Cancelar</a>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

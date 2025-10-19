@@ -18,6 +18,18 @@ def main_encuesta(request):
     else:
         return redirect('logout')
 
+def crear_encuesta(request):
+    try:
+        profile= Profile.objects.filter(user_id=request.user.id).get()
+    except:
+        messages.add_message(request,messages.INFO, 'Error')
+        return redirect('login')
+    if profile.group_id ==3:
+        departamentos=Departamento.objects.all()
+        template_name = 'encuesta/crear_encuesta.html'
+        return render(request,template_name,{"departamentos":departamentos})
+    else: 
+        return redirect('logout')
 
 @login_required
 def bloquear_encuesta(request, pk):
@@ -40,10 +52,42 @@ def bloquear_encuesta(request, pk):
     else:
         return redirect('logout')
 
+@login_required
+def guardar_encuesta(request):
+    try:
+        profile=Profile.objects.filter(user_id=request.user.id).get()
+    except:
+        messages.add_message(request, messages.INFO,"Error")
+        return redirect('check_profile')
+    if profile.group_id==3:
+        if request.method=='POST':
+            nombre_encuesta=request.POST.get('nombre_encuesta')
+            departamento_id=request.POST.get('departamento')
+            descripcion=request.POST.get("descripcion")
+            tipo=request.POST.get("tipo")
+            prioridad=request.POST.get("prioridad")
+            if nombre_encuesta=='' or not departamento_id:
+                messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
+                return redirect('crear_encuesta')
+            encuesta_save=Encuesta(
+                nombre_encuesta=nombre_encuesta,
+                departamento_id=departamento_id,
+                tipo=tipo,
+                prioridad=prioridad,
+                descripcion=descripcion,
+                )
+            encuesta_save.save()
+            messages.add_message(request,messages.INFO,'encuesta creado con exito')
+            return redirect('main_encuesta')
+        else:
+            messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
+            return redirect('check_group_main')
+    else:
+        return redirect('logout')
+
 
 @login_required
 def editar_encuesta(request, encuesta_id=None):
-    """Permite editar los datos de una encuesta bloqueada."""
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except Profile.DoesNotExist:

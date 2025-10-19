@@ -7,11 +7,12 @@
         <label for="usuario">Seleccione Usuario Encargado:</label><br>
         <select name="usuario" id="usuario">
             {% for usuario in usuarios %}
-                <option value="{{ usuario.id }}">{{ usuario.username }} {{ usuario.last_name }} - {{ usuario.email }}
+                <option value="{{ usuario.id }}">{{ usuario.first_name }} {{ usuario.last_name }}
                 </option>
             {% endfor %}
         </select>
     </p>
     
     <p><input type="submit" value="Crear"/></p>
+    <a href="{% url 'gestion_direccion' %}">Volver a menú Direcciones</a>
 </form>

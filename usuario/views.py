@@ -100,10 +100,6 @@ def guardar_usuario(request):
     else:
         return redirect('logout')
 
-
-
-
-
 @login_required
 def eliminar_usuario_lista(request):
     try:
@@ -112,8 +108,8 @@ def eliminar_usuario_lista(request):
         messages.add_message(request, messages.INFO, 'Error')
         return redirect('login')
 
-    if profile.group_id == 1:  # Solo admin puede
-        usuarios = User.objects.all().exclude(id=request.user.id)  # excluye al usuario logueado
+    if profile.group_id == 1:
+        usuarios = User.objects.all().exclude(id=request.user.id)
         template_name = 'usuario/eliminar_usuario_lista.html'
         return render(request, template_name, {"usuarios": usuarios})
     else:

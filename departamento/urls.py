@@ -3,6 +3,7 @@ from departamento import views
 
 departamento_urlpatterns=[
     path('main_departamento/',views.main_departamento, name='main_departamento'),
+    path('gestion_departamento/',views.gestion_departamento, name='gestion_departamento'),
     path('crear_departamento/',views.crear_departamento, name='crear_departamento'),
     path('guardar_departamento/',views.guardar_departamento, name='guardar_departamento'),
     path('editar_departamento/', views.editar_departamento, name='editar_departamento_post'),

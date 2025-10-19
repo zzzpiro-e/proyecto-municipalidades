@@ -22,6 +22,22 @@ def main_territorial(request):
     return redirect('logout')
 
 @login_required
+def gestion_territorial(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error de perfil.')
+        return redirect('login')
+
+    if profile.group_id ==1:
+        territoriales = (Territorial.objects.select_related('usuario').order_by('id'))
+        return render(
+            request,
+            'territorial/gestion_territorial.html',{'territoriales': territoriales}
+        )
+    return redirect('logout')
+
+@login_required
 def crear_territorial(request):
     try:
         profile = Profile.objects.get(user_id=request.user.id)

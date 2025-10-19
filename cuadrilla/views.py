@@ -21,6 +21,19 @@ def main_cuadrilla(request):
     else:
         return redirect('logout')
 
+@login_required
+def gestion_cuadrilla(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id ==1:
+        cuadrillas = (Cuadrilla.objects.select_related('usuario', 'departamento').order_by('id'))
+        return render(request, 'cuadrilla/gestion_cuadrilla.html', {'cuadrillas': cuadrillas})
+    else:
+        return redirect('logout')
     
 def crear_cuadrilla(request):
     try:

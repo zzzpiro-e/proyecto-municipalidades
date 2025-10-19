@@ -1,0 +1,23 @@
+<h4>Crear Nueva Encuesta</h4>
+<form method="post" action="{% url 'guardar_encuesta' %}">
+    {% csrf_token %}
+    <p><input type="text" name="nombre_encuesta" placeholder="Ingrese nombre de encuesta"/></p>
+    <p><input type="text" name="tipo" placeholder="Ingrese tipo de encuesta"/></p>
+    <p><textarea name="descripcion" placeholder="Ingrese descripcion para la encuesta"></textarea></p>
+    <p><input type="text" name="prioridad" placeholder="Indique prioridad de la encuesta"/></p>
+    <p>
+        <label for="departamento">Seleccione Un Departamento:</label><br>
+        <select name="departamento" id="departamento">
+            {% for departamento in departamentos %}
+                <option value="{{ departamento.id }}">{{ departamento.nombre_departamento }}
+                </option>
+            {% endfor %}
+        </select>
+    </p>
+
+
+    
+
+    <p><input type="submit" value="Crear"/></p>
+</form>
+<a href="{% url 'main_encuesta' %}">Volver al menú</a>
