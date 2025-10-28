@@ -42,13 +42,16 @@
                     <div class="d-flex justify-content-center gap-2 flex-wrap">
                         <a class="btn btn-outline-dark btn-sm" href="{% url 'ver_usuario' u.id %}">Ver</a>
                         <a class="btn btn-outline-danger btn-sm" href="{% url 'eliminar_usuario' u.id %}">Eliminar</a>
-
                     </div>
                 </td>
             </tr>
             {% endfor %}
-            <a class="btn btn-outline-danger btn-sm" href="{% url 'main_admin' %}">Cancelar</a>
         </tbody>
     </table>
 </div>
+
+<div class="mt-3">
+    <a class="btn btn-outline-secondary" href="{% url 'main_admin' %}">Menú principal</a>
+</div>
+
 {% endblock %}

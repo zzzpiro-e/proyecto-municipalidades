@@ -64,7 +64,7 @@ def guardar_departamento(request):
             usuario_id=request.POST.get("usuario")
             if nombre_departamento=='' or not direccion_id or not usuario_id:
                 messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
-                return redirect('crear_departamento')
+                return redirect('gestion_departamento')
             departamento_save=Departamento(
                 nombre_departamento=nombre_departamento,
                 direccion_id=direccion_id,
@@ -72,7 +72,7 @@ def guardar_departamento(request):
                 )
             departamento_save.save()
             messages.add_message(request,messages.INFO,'Departamento creado con exito')
-            return redirect('main_departamento')
+            return redirect('gestion_departamento')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
             return redirect('check_group_main')
