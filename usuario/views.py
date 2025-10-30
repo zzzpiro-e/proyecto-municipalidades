@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.shortcuts import render,redirect, get_object_or_404
 from registration.models import Profile
 from django.contrib.auth.models import User, Group
-
+from core.models import Usuario
 
 @login_required
 def main_usuario(request, usuario_id=None):
@@ -102,39 +102,23 @@ def guardar_usuario(request):
 
 
 
-
-
-@login_required
-def eliminar_usuario_lista(request):
-    try:
-        profile = Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request, messages.INFO, 'Error')
-        return redirect('login')
-
-    if profile.group_id == 1:  # Solo admin puede
-        usuarios = User.objects.all().exclude(id=request.user.id)  # excluye al usuario logueado
-        template_name = 'usuario/eliminar_usuario_lista.html'
-        return render(request, template_name, {"usuarios": usuarios})
-    else:
-        return redirect('logout')
-
-
 @login_required
 def eliminar_usuario(request, usuario_id):
+    """
+    Elimina únicamente el usuario seleccionado.
+    Solo admin puede ejecutar.
+    """
     try:
-        profile = Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request, messages.INFO, 'Error')
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error de perfil')
         return redirect('login')
 
-    if profile.group_id == 1:
-        try:
-            usuario = User.objects.get(id=usuario_id)
-            usuario.delete()
-            messages.add_message(request, messages.INFO, 'Usuario eliminado con éxito')
-        except User.DoesNotExist:
-            messages.add_message(request, messages.INFO, 'El usuario no existe')
-        return redirect('eliminar_usuario_lista')
-    else:
+    if profile.group_id != 1:
         return redirect('logout')
+
+    usuario = get_object_or_404(User, pk=usuario_id)
+    usuario.delete()
+    messages.success(request, f'Usuario {usuario.username} eliminado con éxito')
+    return redirect('main_usuario')
+

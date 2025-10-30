@@ -13,7 +13,7 @@ def main_direccion(request, direccion_id=None):
         messages.info(request, 'Error')
         return redirect('login')
 
-    if profile.group_id in [1, 2]:
+    if profile.group_id ==2:
         direccion_listado = (
             Direccion.objects.select_related('usuario').order_by('id')
         )
@@ -25,6 +25,25 @@ def main_direccion(request, direccion_id=None):
     else:
         return redirect('logout')
 
+@login_required
+def gestion_direccion(request, direccion_id=None):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id ==1:
+        direccion_listado = (
+            Direccion.objects.select_related('usuario').order_by('id')
+        )
+        return render(
+            request,
+            'direccion/gestion_direccion.html',
+            {'direcciones': direccion_listado}   
+        )
+    else:
+        return redirect('logout')
 
 def crear_direccion(request):
     try:
@@ -86,7 +105,7 @@ def editar_direccion(request, direccion_id=None):
             direccion_a_actualizar.usuario_id = usuario_id
             direccion_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Dirección actualizada con éxito.')
-            return redirect('main_direccion')
+            return redirect('gestion_direccion')
         else:
             direccion = get_object_or_404(Direccion, id=direccion_id)
             usuarios = User.objects.filter(profile__group__id=2)

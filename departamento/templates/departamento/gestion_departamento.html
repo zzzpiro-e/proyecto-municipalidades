@@ -1,14 +1,15 @@
 {% extends 'core/base.html' %}
 {% load static %}
-{% block title %}Gestión de Encuestas{% endblock %}
+{% block title %}Gestión de Departamentos{% endblock %}
 {% block content %}
 
 <div class="row mt-2 mb-2">
     <div class="col-7">
-        <h4 class="text-secondary">Gestión de Encuestas</h4>
+        <h4 class="text-secondary">Gestión de Departamentos</h4>
     </div>
     <div class="col-5 d-flex justify-content-end gap-2">
-        <a href="{% url 'crear_encuesta' %}" class="btn btn-dark">Nueva Encuesta</a>
+        <a href="{% url 'crear_departamento' %}" class="btn btn-dark">Nuevo Departamento</a>
+        <a href="{% url 'ver_departamento_bloqueo' %}" class="btn btn-outline-danger">Ver Bloqueados</a>
     </div>
 </div>
 
@@ -19,53 +20,54 @@
         <thead class="table-dark">
             <tr>
                 <th scope="col">Nombre</th>
-                <th scope="col">Descripción</th>
-                <th scope="col">Tipo</th>
-                <th scope="col">Prioridad</th>
-                <th scope="col">Departamento</th>
+                <th scope="col">Dirección</th>
+                <th scope="col">Encargado</th>
                 <th scope="col">Estado</th>
                 <th scope="col">Acciones</th>
             </tr>
         </thead>
         <tbody>
-            {% for e in encuestas %}
+            {% for d in departamentos %}
             <tr>
-                <td>{{ e.nombre_encuesta }}</td>
-                <td>{{ e.descripcion }}</td>
-                <td>{{ e.tipo }}</td>
-                <td>{{ e.prioridad }}</td>
+                <td>{{ d.nombre_departamento }}</td>
                 <td>
-                    {% if e.departamento %}
-                        {{ e.departamento.nombre_departamento }}
+                    {% if d.direccion %}
+                        {{ d.direccion.nombre_direccion }}
                     {% else %}
-                        (sin departamento)
+                        (sin dirección)
                     {% endif %}
                 </td>
                 <td>
-                    {% if e.state == "Activo" %}
-                        <span class="badge bg-success">{{ e.state }}</span>
+                    {% if d.usuario %}
+                        {{ d.usuario.username }}
                     {% else %}
-                        <span class="badge bg-danger">{{ e.state }}</span>
+                        (sin encargado)
+                    {% endif %}
+                </td>
+                <td>
+                    {% if d.state == "Activo" %}
+                        <span class="badge bg-success">{{ d.state }}</span>
+                    {% else %}
+                        <span class="badge bg-danger">{{ d.state }}</span>
                     {% endif %}
                 </td>
                 <td>
                     <div class="d-flex justify-content-center gap-2 flex-wrap">
-                        <a href="{% url 'bloquear_encuesta' e.id %}" class="btn btn-outline-danger btn-sm">
-                            {% if e.state == "Activo" %}
+                        <a class="btn btn-outline-dark btn-sm" href="{% url 'ver_departamento' d.id %}">Ver</a>
+                        <a class="btn btn-outline-primary btn-sm" href="{% url 'editar_departamento' d.id %}">Editar</a>
+                        <a class="btn btn-outline-danger btn-sm" href="{% url 'bloquear_departamento' d.id %}">
+                            {% if d.state == "Activo" %}
                                 Bloquear
                             {% else %}
                                 Activar
                             {% endif %}
                         </a>
-                        {% if e.state == "Bloqueado" %}
-                            <a href="{% url 'editar_encuesta' e.id %}" class="btn btn-outline-primary btn-sm">Editar</a>
-                        {% endif %}
                     </div>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="7" class="text-muted">No hay encuestas registradas</td>
+                <td colspan="5" class="text-muted">No hay departamentos registrados</td>
             </tr>
             {% endfor %}
         </tbody>

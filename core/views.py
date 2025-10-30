@@ -36,6 +36,10 @@ def check_profile(request):
         return redirect('main_direccion')
     elif profile.group_id==3:
         return redirect('main_departamento')
+    elif profile.group_id==4:
+        return redirect('main_territorial')
+    elif profile.group_id==5:
+        return redirect('main_cuadrilla')
     else:
         return redirect('logout')
 
@@ -52,66 +56,3 @@ def main_admin(request):
         return render(request,template_name)
     else:
         return redirect('logout')
-    
-def gestion_direccion(request):
-    try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
-        return redirect('login')
-    if profile.group_id ==1:
-        template_name = 'core/gestion_direccion.html'
-        return render(request,template_name)
-    else: 
-        return redirect('logout')
-    
-def gestion_departamento(request):
-    try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
-        return redirect('login')
-    if profile.group_id ==1:
-        template_name = 'core/gestion_departamento.html'
-        return render(request,template_name)
-    else: 
-        return redirect('logout')
-    
-def gestion_usuario(request):
-    try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
-        return redirect('login')
-    if profile.group_id ==1:
-        template_name = 'core/gestion_usuario.html'
-        return render(request,template_name)
-    else: 
-        return redirect('logout')
-
-def gestion_territorial(request):
-    try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
-        return redirect('login')
-    if profile.group_id == 1:
-        template_name = 'core/gestion_territorial.html'
-        return render(request,template_name)
-    else: 
-        return redirect('logout')
-
-def gestion_cuadrilla(request):
-    try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
-        return redirect('login')
-    if profile.group_id == 1:
-        template_name = 'core/gestion_cuadrilla.html'
-        return render(request,template_name)
-    else: 
-        return redirect('logout')
-
-
-

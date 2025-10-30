@@ -15,12 +15,26 @@ def main_departamento(request):
         messages.info(request, 'Error')
         return redirect('login')
 
-    if profile.group_id in [1, 3]:
+    if profile.group_id ==3:
         departamentos = (Departamento.objects.select_related('usuario', 'direccion').order_by('id'))
         return render(request, 'departamento/main_departamento.html',{'departamentos': departamentos})
     else:
         return redirect('logout')
-    
+
+@login_required
+def gestion_departamento(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id ==1:
+        departamentos = (Departamento.objects.select_related('usuario', 'direccion').order_by('id'))
+        return render(request, 'departamento/gestion_departamento.html',{'departamentos': departamentos})
+    else:
+        return redirect('logout')
+
 def crear_departamento(request):
     try:
         profile= Profile.objects.filter(user_id=request.user.id).get()
@@ -50,7 +64,7 @@ def guardar_departamento(request):
             usuario_id=request.POST.get("usuario")
             if nombre_departamento=='' or not direccion_id or not usuario_id:
                 messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
-                return redirect('crear_departamento')
+                return redirect('gestion_departamento')
             departamento_save=Departamento(
                 nombre_departamento=nombre_departamento,
                 direccion_id=direccion_id,
@@ -58,7 +72,7 @@ def guardar_departamento(request):
                 )
             departamento_save.save()
             messages.add_message(request,messages.INFO,'Departamento creado con exito')
-            return redirect('main_departamento')
+            return redirect('gestion_departamento')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
             return redirect('check_group_main')

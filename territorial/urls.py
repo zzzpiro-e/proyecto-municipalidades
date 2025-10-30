@@ -3,6 +3,7 @@ from territorial import views
 
 territorial_urlpatterns=[
     path('main_territorial/',views.main_territorial, name='main_territorial'),
+    path('gestion_territorial/',views.gestion_territorial, name='gestion_territorial'),
     path('crear_territorial/',views.crear_territorial, name='crear_territorial'),
     path('guardar_territorial/',views.guardar_territorial, name='guardar_territorial'),
     path('editar_territorial/', views.editar_territorial, name='editar_territorial_post'),

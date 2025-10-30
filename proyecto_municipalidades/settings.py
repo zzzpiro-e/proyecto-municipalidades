@@ -63,11 +63,14 @@ ROOT_URLCONF = "proyecto_municipalidades.urls"
 
 TEMPLATES = [
     {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            BASE_DIR / "templates",
+            BASE_DIR / "registration" / "templates",  
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
@@ -146,21 +149,3 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST_USER = 'ians.vm3@gmail.com'  # Tu correo
 EMAIL_HOST_PASSWORD = 'zcvq jcqm uhzq vonp'    # Contraseña de la app (no tu contraseña normal)
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            BASE_DIR / "templates",
-            BASE_DIR / "registration" / "templates",  
-        ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-            ],
-        },
-    },
-]

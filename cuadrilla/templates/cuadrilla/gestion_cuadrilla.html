@@ -1,14 +1,14 @@
 {% extends 'core/base.html' %}
 {% load static %}
-{% block title %}Gestión de Encuestas{% endblock %}
+{% block title %}Gestión de Cuadrillas{% endblock %}
 {% block content %}
 
 <div class="row mt-2 mb-2">
     <div class="col-7">
-        <h4 class="text-secondary">Gestión de Encuestas</h4>
+        <h4 class="text-secondary">Gestión de Cuadrillas</h4>
     </div>
     <div class="col-5 d-flex justify-content-end gap-2">
-        <a href="{% url 'crear_encuesta' %}" class="btn btn-dark">Nueva Encuesta</a>
+        <a href="{% url 'crear_cuadrilla' %}" class="btn btn-dark">Nueva Cuadrilla</a>
     </div>
 </div>
 
@@ -19,53 +19,56 @@
         <thead class="table-dark">
             <tr>
                 <th scope="col">Nombre</th>
-                <th scope="col">Descripción</th>
                 <th scope="col">Tipo</th>
-                <th scope="col">Prioridad</th>
                 <th scope="col">Departamento</th>
+                <th scope="col">Encargado</th>
                 <th scope="col">Estado</th>
                 <th scope="col">Acciones</th>
             </tr>
         </thead>
         <tbody>
-            {% for e in encuestas %}
+            {% for c in cuadrillas %}
             <tr>
-                <td>{{ e.nombre_encuesta }}</td>
-                <td>{{ e.descripcion }}</td>
-                <td>{{ e.tipo }}</td>
-                <td>{{ e.prioridad }}</td>
+                <td>{{ c.nombre_cuadrilla }}</td>
+                <td>{{ c.tipo }}</td>
                 <td>
-                    {% if e.departamento %}
-                        {{ e.departamento.nombre_departamento }}
+                    {% if c.departamento %}
+                        {{ c.departamento.nombre_departamento }}
                     {% else %}
                         (sin departamento)
                     {% endif %}
                 </td>
                 <td>
-                    {% if e.state == "Activo" %}
-                        <span class="badge bg-success">{{ e.state }}</span>
+                    {% if c.usuario %}
+                        {{ c.usuario.username }}
                     {% else %}
-                        <span class="badge bg-danger">{{ e.state }}</span>
+                        (sin usuario)
+                    {% endif %}
+                </td>
+                <td>
+                    {% if c.state == "Activo" %}
+                        <span class="badge bg-success">{{ c.state }}</span>
+                    {% else %}
+                        <span class="badge bg-danger">{{ c.state }}</span>
                     {% endif %}
                 </td>
                 <td>
                     <div class="d-flex justify-content-center gap-2 flex-wrap">
-                        <a href="{% url 'bloquear_encuesta' e.id %}" class="btn btn-outline-danger btn-sm">
-                            {% if e.state == "Activo" %}
+                        <a class="btn btn-outline-dark btn-sm" href="{% url 'ver_cuadrilla' c.id %}">Ver</a>
+                        <a class="btn btn-outline-primary btn-sm" href="{% url 'editar_cuadrilla' c.id %}">Editar</a>
+                        <a class="btn btn-outline-danger btn-sm" href="{% url 'bloquear_cuadrilla' c.id %}">
+                            {% if c.state == "Activo" %}
                                 Bloquear
                             {% else %}
                                 Activar
                             {% endif %}
                         </a>
-                        {% if e.state == "Bloqueado" %}
-                            <a href="{% url 'editar_encuesta' e.id %}" class="btn btn-outline-primary btn-sm">Editar</a>
-                        {% endif %}
                     </div>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="7" class="text-muted">No hay encuestas registradas</td>
+                <td colspan="6" class="text-muted">No hay cuadrillas registradas</td>
             </tr>
             {% endfor %}
         </tbody>
