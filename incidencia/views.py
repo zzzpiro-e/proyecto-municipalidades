@@ -209,3 +209,20 @@ def incidencias_usuario_departamento(request):
     except Departamento.DoesNotExist:
         messages.error(request, 'No estás asignado a ningún departamento.')
         return redirect('main_admin')
+
+@login_required
+def ver_incidencia(request, incidencia_id):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+        if profile.group_id in [1, 2, 3, 4, 5]:
+            incidencia = get_object_or_404(Incidencia, id=incidencia_id)
+            context = {
+                'incidencia': incidencia
+            }
+            return render(request, 'incidencia/ver_incidencia.html', context)
+        else:
+            messages.error(request, 'No tienes permiso para ver esta página.')
+            return redirect('main_admin')
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
