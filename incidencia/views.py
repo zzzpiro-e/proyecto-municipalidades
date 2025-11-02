@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from registration.models import Profile
-from .models import Incidencia
+from .models import Incidencia, MultimediaIncidencia 
 from departamento.models import Departamento
 from territorial.models import Territorial
 from encuesta.models import Encuesta
@@ -89,9 +89,8 @@ def guardar_incidencia(request):
             try:
                 territorial = Territorial.objects.get(usuario=request.user)
             except Territorial.DoesNotExist:
-                messages.add_message(request, messages.INFO, 'No tienes un registro territorial asignado')
+                messages.add_message(request, messages.INFO, 'No tienes un registro territorial asignado.')
                 return redirect('check_profile')
-            
             incidencia_save=Incidencia(
                 territorial=territorial,
                 titulo=titulo,
@@ -104,9 +103,17 @@ def guardar_incidencia(request):
                 telefono_vecino=telefono_vecino,
                 correo_vecino=correo_vecino,
                 encuesta_id=encuesta_id
+            )
+            incidencia_save.save() 
+            archivos_subidos = request.FILES.getlist('archivos')
+            
+            for archivo in archivos_subidos:
+                MultimediaIncidencia.objects.create(
+                    incidencia=incidencia_save,
+                    tipo=archivo.content_type,
+                    path=archivo
                 )
-            incidencia_save.save()
-            messages.add_message(request,messages.INFO,'Incidencia creada con exito')
+            messages.add_message(request,messages.INFO,'Incidencia y archivos creados con éxito.')
             return redirect('main_incidencia')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')

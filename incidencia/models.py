@@ -27,3 +27,24 @@ class Incidencia(models.Model):
 
     def __str__(self):
         return self.titulo
+
+class MultimediaIncidencia(models.Model):
+    incidencia = models.ForeignKey(Incidencia, on_delete=models.CASCADE, related_name='multimedia')
+    TIPO_CHOICES = [
+        ('imagen', 'Imagen'),
+        ('video', 'Video'),
+        ('audio', 'Audio'),
+        ('otro', 'Otro'),
+    ]
+    tipo = models.CharField(max_length=50, choices=TIPO_CHOICES, default='imagen')
+    path = models.FileField(upload_to='archivos_incidencias/%Y/%m/%d/') 
+    created = models.DateTimeField(auto_now_add=True)
+    updated= models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Archivo Multimedia'
+        verbose_name_plural = 'Archivos Multimedia'
+        ordering = ['-created']
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} de Incidencia {self.incidencia.id}"
