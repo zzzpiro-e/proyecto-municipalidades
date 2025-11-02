@@ -1,0 +1,39 @@
+<h4>Editar Usuario</h4>
+
+<form method="post" action="{% url 'editar_usuario' usuario.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="usuario_id" value="{{ usuario.id }}">
+
+    <p>
+        <input type="text" name="username" placeholder="Usuario" value="{{ usuario.username }}" required>
+    </p>
+
+    <p>
+        <input type="text" name="first_name" placeholder="Nombre" value="{{ usuario.first_name }}" required>
+    </p>
+
+    <p>
+        <input type="text" name="last_name" placeholder="Apellido" value="{{ usuario.last_name }}" required>
+    </p>
+
+    <p>
+        <input type="text" name="email" placeholder="Correo" value="{{ usuario.email }}" required>
+    </p>
+
+    <p>
+        <select name="group_id" required>
+            <option value="">Seleccione un grupo</option>
+            {% for grupo in grupos %}
+                <option value="{{ grupo.id }}" {% if usuario.profile.group_id == grupo.id %}selected{% endif %}>
+                    {{ grupo.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </p>
+
+    <p>
+        <input type="submit" value="Guardar Cambios">
+    </p>
+</form>
+
+<a href="{% url 'main_usuario' %}">Cancelar y Volver a la Lista</a>

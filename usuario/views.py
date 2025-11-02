@@ -122,3 +122,46 @@ def eliminar_usuario(request, usuario_id):
     messages.success(request, f'Usuario {usuario.username} eliminado con éxito')
     return redirect('main_usuario')
 
+
+
+@login_required
+def editar_usuario(request, usuario_id=None):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+
+    if profile.group_id == 1:
+        if request.method == 'POST':
+            user_id = request.POST.get('usuario_id')
+            username = request.POST.get('username')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            email = request.POST.get('email')
+            group_id = request.POST.get('group_id')
+
+            usuario_a_actualizar = get_object_or_404(User, id=user_id)
+            usuario_a_actualizar.username = username
+            usuario_a_actualizar.first_name = first_name
+            usuario_a_actualizar.last_name = last_name
+            usuario_a_actualizar.email = email
+            usuario_a_actualizar.save()
+
+            perfil_a_actualizar = get_object_or_404(Profile, user_id=user_id)
+            perfil_a_actualizar.group_id = group_id
+            perfil_a_actualizar.save()
+
+            messages.add_message(request, messages.INFO, 'Usuario actualizado con éxito.')
+            return redirect('main_usuario')
+        else:
+            usuario_para_editar = get_object_or_404(User, id=usuario_id)
+            grupos = Group.objects.all()
+            template_name = 'usuario/editar_usuario.html'
+            context = {
+                'usuario': usuario_para_editar,
+                'grupos': grupos
+            }
+            return render(request, template_name, context)
+    else:
+        return redirect('logout')
