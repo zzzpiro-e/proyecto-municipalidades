@@ -58,6 +58,7 @@
                 </td>
                 <td>
                     <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <a href="{% url 'ver_incidencia' inc.id %}" class="btn btn-outline-dark btn-sm">Ver</a>
                         {% if profile.group_id == 1 %}
                             <a href="{% url 'editar_incidencia' inc.id %}" class="btn btn-outline-primary btn-sm">Editar</a>
                             <a href="{% url 'bloquear_incidencia' inc.id %}" class="btn btn-outline-danger btn-sm">
