@@ -26,3 +26,13 @@
     <p><input type="submit" value="Crear"/></p>
 </form>
 <a href="{% url 'gestion_departamento' %}">Volver al menú</a>
+
+{% if messages %}
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}

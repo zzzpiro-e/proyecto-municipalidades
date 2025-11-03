@@ -153,7 +153,7 @@ def bloquear_direccion(request, pk):
             direccion.state = "Activo"
             messages.add_message(request, messages.SUCCESS, f"La dirección {direccion.nombre_direccion} fue activada.")
         direccion.save()
-        return redirect('main_direccion')
+        return redirect('gestion_direccion')
     else:
         return redirect('logout')
     

@@ -37,3 +37,13 @@
 </form>
 
 <a href="{% url 'gestion_departamento' %}">Cancelar y Volver a la Lista</a>
+
+{% if messages %}
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}

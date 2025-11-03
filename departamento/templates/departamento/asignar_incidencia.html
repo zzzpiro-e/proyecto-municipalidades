@@ -1,0 +1,17 @@
+<h2>Asignar incidencia a la cuadrilla: {{ cuadrilla.nombre_cuadrilla }}</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Selecciona una incidencia:</label>
+    <select name="incidencia_id" required>
+        {% for i in incidencias %}
+            <option value="{{ i.id }}">{{ i.titulo }} — {{ i.descripcion|truncatechars:60 }}</option>
+        {% empty %}
+            <option disabled>No hay incidencias disponibles</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Asignar</button>
+</form>
+
+<br>
+<a href="{% url 'main_departamento' %}">Volver</a>
+

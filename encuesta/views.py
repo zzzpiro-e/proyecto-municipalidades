@@ -39,7 +39,7 @@ def bloquear_encuesta(request, pk):
         messages.error(request, 'Error de perfil')
         return redirect('login')
 
-    if profile.group_id == 1:
+    if profile.group_id in [1,3]:
         encuesta = get_object_or_404(Encuesta, id=pk)
         if encuesta.state == 'Activo':
             encuesta.state = 'Bloqueado'
@@ -94,7 +94,7 @@ def editar_encuesta(request, encuesta_id=None):
         messages.add_message(request, messages.INFO, 'Error de perfil.')
         return redirect('login')
 
-    if profile.group_id == 1:
+    if profile.group_id in [1,3]:
         if request.method == 'POST':
             encuesta_id_post = request.POST.get('encuesta_id')
             encuesta_a_actualizar = get_object_or_404(Encuesta, id=encuesta_id_post)
