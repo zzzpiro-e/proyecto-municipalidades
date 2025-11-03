@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from registration.models import Profile
 from .models import Incidencia, MultimediaIncidencia 
 from departamento.models import Departamento
@@ -114,7 +115,7 @@ def guardar_incidencia(request):
                     path=archivo
                 )
             messages.add_message(request,messages.INFO,'Incidencia y archivos creados con éxito.')
-            return redirect('main_incidencia')
+            return redirect('gestion_incidencia')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
             return redirect('check_group_main')
@@ -195,7 +196,7 @@ def incidencias_usuario_departamento(request):
         profile = Profile.objects.get(user_id=request.user.id)
         if profile.group_id != 3:
             messages.error(request, 'No tienes permiso para acceder a esta página.')
-            return redirect('main_admin')
+            return redirect('logout')
         departamento_usuario = Departamento.objects.get(usuario=request.user)
         incidencias_asignadas = Incidencia.objects.filter(departamento=departamento_usuario)
         context = {
@@ -208,7 +209,7 @@ def incidencias_usuario_departamento(request):
         return redirect('login')
     except Departamento.DoesNotExist:
         messages.error(request, 'No estás asignado a ningún departamento.')
-        return redirect('main_admin')
+        return redirect('logout')
 
 @login_required
 def ver_incidencia(request, incidencia_id):
@@ -216,13 +217,50 @@ def ver_incidencia(request, incidencia_id):
         profile = Profile.objects.get(user_id=request.user.id)
         if profile.group_id in [1, 2, 3, 4, 5]:
             incidencia = get_object_or_404(Incidencia, id=incidencia_id)
+            fallback_url = reverse('main_admin') 
+            back_url = request.META.get('HTTP_REFERER', fallback_url)
             context = {
-                'incidencia': incidencia
+                'incidencia': incidencia,
+                'back_url': back_url
             }
             return render(request, 'incidencia/ver_incidencia.html', context)
         else:
             messages.error(request, 'No tienes permiso para ver esta página.')
-            return redirect('main_admin')
+            return redirect('logout')
     except Profile.DoesNotExist:
         messages.add_message(request, messages.INFO, 'Error de perfil.')
         return redirect('login')
+    
+@login_required
+def aceptar_incidencia(request, pk):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.error(request, 'Error de perfil')
+        return redirect('login')
+    if profile.group_id == 3: 
+        incidencia = get_object_or_404(Incidencia, id=pk)
+        incidencia.state = Incidencia.STATE_ACEPTADO 
+        incidencia.save()
+        messages.success(request, f'La incidencia "{incidencia.titulo}" fue aceptada.')
+        return redirect('incidencias_usuario_departamento') 
+    else:
+        messages.error(request, 'No tienes permiso para realizar esta acción.')
+        return redirect('logout')
+
+@login_required
+def rechazar_incidencia(request, pk):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.error(request, 'Error de perfil')
+        return redirect('login')
+    if profile.group_id == 3: 
+        incidencia = get_object_or_404(Incidencia, id=pk)
+        incidencia.state = Incidencia.STATE_RECHAZADO
+        incidencia.save()
+        messages.success(request, f'La incidencia "{incidencia.titulo}" fue rechazada.')
+        return redirect('incidencias_usuario_departamento')
+    else:
+        messages.error(request, 'No tienes permiso para realizar esta acción.')
+        return redirect('logout')

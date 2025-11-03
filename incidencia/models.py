@@ -5,6 +5,16 @@ from encuesta.models import Encuesta
 
 
 class Incidencia(models.Model):
+    STATE_ACTIVO = 'Activo'
+    STATE_ACEPTADO = 'Aceptado'
+    STATE_RECHAZADO = 'Rechazado'
+    STATE_BLOQUEADO = 'Bloqueado'
+    STATE_CHOICES = [
+        (STATE_ACTIVO, 'Activo (Pendiente)'),
+        (STATE_ACEPTADO, 'Aceptado'),
+        (STATE_RECHAZADO, 'Rechazado'),
+        (STATE_BLOQUEADO, 'Bloqueado'),
+    ]
     departamento=models.ForeignKey(Departamento, on_delete=models.CASCADE)
     territorial=models.ForeignKey(Territorial, on_delete=models.CASCADE)
     titulo=models.CharField(max_length=200,null=False,blank=True)
@@ -16,7 +26,7 @@ class Incidencia(models.Model):
     telefono_vecino=models.CharField(max_length=15,null=True,blank=True)
     correo_vecino=models.EmailField(max_length=254,null=True,blank=True)
     encuesta=models.ForeignKey(Encuesta, on_delete=models.CASCADE)
-    state=models.CharField(max_length=100,null=True,blank=True,default='Activo')
+    state=models.CharField(max_length=100,null=True,blank=True,choices=STATE_CHOICES,default=STATE_ACTIVO)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now=True)
 
