@@ -20,3 +20,13 @@
 <a class="btn btn-outline-secondary" href="{% url 'cuadrillas_usuario_departamento' %}">Volver</a>
 {% endblock %}
 
+{% if messages %}
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
