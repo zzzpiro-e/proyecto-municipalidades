@@ -1,3 +1,7 @@
+{%extends 'core/base.html'%}
+{% load static%}
+{% block title %}{% endblock %}
+{% block content %}
 <h4>Registrar Trabajo de Incidencia</h4>
 <form method="post" action="{% url 'crear_registro' %}">
     {% csrf_token %}
@@ -25,3 +29,4 @@
     </ul>
 </div>
 {% endif %}
+{% endblock %}

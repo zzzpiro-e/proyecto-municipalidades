@@ -113,7 +113,7 @@ def guardar_incidencia(request):
                 )
             incidencia_save.save()
             messages.add_message(request,messages.INFO,'Incidencia creada con exito')
-            return redirect('main_incidencia')
+            return redirect('main_territorial')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
             return redirect('check_group_main')

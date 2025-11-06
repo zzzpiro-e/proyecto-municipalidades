@@ -1,3 +1,7 @@
+{%extends 'core/base.html'%}
+{% load static%}
+{% block title %}{% endblock %}
+{% block content %}
 <h4>Crear Nuevo Departamento</h4>
 <form method="post" action="{% url 'guardar_departamento' %}">
     {% csrf_token %}
@@ -36,3 +40,4 @@
     </ul>
 </div>
 {% endif %}
+{% endblock %}

@@ -1,3 +1,7 @@
+{%extends 'core/base.html'%}
+{% load static%}
+{% block title %}{% endblock %}
+{% block content %}
 <h4>Editar Cuadrilla</h4>
 
 <form method="post" action="{% url 'editar_cuadrilla_post' %}">
@@ -41,3 +45,4 @@
 </form>
 
 <a href="{% url 'gestion_cuadrilla' %}">Cancelar y Volver a la Lista</a>
+{% endblock %}

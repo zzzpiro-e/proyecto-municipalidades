@@ -1,3 +1,7 @@
+{%extends 'core/base.html'%}
+{% load static%}
+{% block title %}{% endblock %}
+{% block content %}
 <h2>Crear Incidencia</h2>
 
 <form method="POST" action="{% url 'guardar_incidencia' %}">
@@ -56,3 +60,4 @@
     </ul>
 </div>
 {% endif %}
+{% endblock %}
