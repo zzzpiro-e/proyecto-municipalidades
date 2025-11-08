@@ -1,0 +1,50 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}{% endblock %}
+{% block content %}
+<div class="container">
+  <h2>Incidencias Asignadas</h2>
+
+  {% if asignaciones %}
+    <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle text-center">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Título</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Ubicacion</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Fecha Asignación</th>
+            </tr>
+        </thead>
+      <tbody>
+        {% for asignacion in asignaciones %}
+          <tr>
+            <td>{{ asignacion.incidencia.titulo }}</td>
+            <td>{{ asignacion.incidencia.tipo }}</td>
+            <td>{{ asignacion.incidencia.ubicacion }}</td>
+            <td>{{ asignacion.incidencia.state }}</td>
+            <td>{{ asignacion.fecha_asignacion }}</td>
+            
+            
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No hay registros aún.</p>
+  {% endif %}
+</div>
+<a href="{% url 'main_cuadrilla' %}">Volver</a>
+{% endblock %}
+
+{% if messages %}
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+

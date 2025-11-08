@@ -4,6 +4,7 @@ from territorial.models import Territorial
 from encuesta.models import Encuesta
 
 
+
 class Incidencia(models.Model):
     departamento=models.ForeignKey(Departamento, on_delete=models.CASCADE)
     territorial=models.ForeignKey(Territorial, on_delete=models.CASCADE)
@@ -27,3 +28,4 @@ class Incidencia(models.Model):
 
     def __str__(self):
         return self.titulo
+    

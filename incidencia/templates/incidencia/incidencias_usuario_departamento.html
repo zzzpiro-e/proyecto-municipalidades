@@ -1,15 +1,21 @@
+{%extends 'core/base.html'%}
+{% load static%}
+{% block title %}{% endblock %}
+{% block content %}
 <h4>Incidencias Asignadas a: {{ departamento.nombre_departamento }}</h4>
 <hr/>
 
-<table border="1">
-    <thead>
-        <tr>
-            <th>Título</th>
-            <th>Tipo</th>
-            <th>Ubicación</th>
-            <th>Estado</th>
-        </tr>
-    </thead>
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle text-center">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Título</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Ubicación</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Acciones</th>
+            </tr>
+        </thead>
     <tbody>
     {% for inc in incidencias %}
         <tr>
@@ -32,4 +38,5 @@
     </ul>
 {% endif %}
 <br/>
-<a href="{% url 'gestion_admin' %}">Volver al menú</a>
+<a href="{% url 'main_departamento' %}">Volver al menú</a>
+{% endblock %}
