@@ -4,7 +4,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from registration.models import Profile
 from direccion.models import Direccion
 from django.contrib.auth.models import User
-
+from departamento.models import Departamento
 @login_required
 def main_direccion(request, direccion_id=None):
     try:
@@ -158,3 +158,36 @@ def bloquear_direccion(request, pk):
         return redirect('logout')
     
     
+@login_required
+def departamento_e_incidencia_asociadas(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.error(request, 'Error al obtener el perfil.')
+        return redirect('login')
+
+    # Solo usuarios del grupo Dirección (group_id = 2)
+    if profile.group_id == 2:
+        # Buscar la dirección asociada al usuario actual
+        direccion = Direccion.objects.filter(usuario=request.user).first()
+        if not direccion:
+            messages.info(request, 'No tienes una dirección asignada.')
+            return redirect('main_direccion')
+
+        # Obtener los departamentos que pertenecen a esa dirección
+        departamentos = (
+            Departamento.objects.filter(direccion=direccion)
+            .select_related('usuario', 'direccion')
+            .order_by('id')
+        )
+
+        return render(
+            request,
+            'direccion/departamento_e_incidencia_asociadas.html',
+            {
+                'direccion': direccion,
+                'departamentos': departamentos
+            }
+        )
+    else:
+        return redirect('logout')

@@ -92,7 +92,6 @@ def guardar_usuario(request):
             )
             perfil_save.save()
 
-            messages.add_message(request,messages.INFO,'usuario creado con exito')
             return redirect('main_usuario')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
