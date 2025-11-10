@@ -66,6 +66,26 @@ def crear_incidencia(request):
         return redirect('logout')
 
 @login_required
+def crear_incidencia(request):
+    try:
+        profile = Profile.objects.filter(user_id=request.user.id).get()
+    except:
+        messages.add_message(request, messages.INFO, "Error al obtener el perfil del usuario.")
+        return redirect('check_profile')
+    if profile.group_id == 4:
+        template_name = 'incidencia/crear_incidencia.html'
+        departamentos = Departamento.objects.all()
+        encuestas = Encuesta.objects.all()
+        context = {
+            'departamentos': departamentos,
+            'encuestas': encuestas
+        }
+
+        return render(request, template_name, context)
+    else:
+        return redirect('logout')
+
+@login_required
 def guardar_incidencia(request):
     try:
         profile=Profile.objects.filter(user_id=request.user.id).get()
@@ -84,8 +104,16 @@ def guardar_incidencia(request):
             telefono_vecino=request.POST.get("telefono_vecino")
             correo_vecino=request.POST.get("correo_vecino")
             encuesta_id=request.POST.get("encuesta")
-            if titulo=='' or latitud=="" or longitud=="" or not departamento_id :
+            
+            if titulo=='' or latitud==""  or longitud=="" or not departamento_id :
                 messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
+                return redirect('crear_incidencia')
+            
+            lat = float(request.POST.get('latitud'))
+            lon = float(request.POST.get('longitud'))
+
+            if not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
+                messages.error(request, "Debes ingresar datos validos, revisa las coordenadas.")
                 return redirect('crear_incidencia')
             try:
                 territorial = Territorial.objects.get(usuario=request.user)
@@ -109,13 +137,22 @@ def guardar_incidencia(request):
             archivos_subidos = request.FILES.getlist('archivos')
             
             for archivo in archivos_subidos:
+                content_type = archivo.content_type
+                tipo_simple = 'otro'
+                if content_type.startswith('image'):
+                    tipo_simple = 'imagen'
+                elif content_type.startswith('video'):
+                    tipo_simple = 'video'
+                elif content_type.startswith('audio'):
+                    tipo_simple = 'audio'
+                
                 MultimediaIncidencia.objects.create(
                     incidencia=incidencia_save,
-                    tipo=archivo.content_type,
+                    tipo=tipo_simple,
                     path=archivo
                 )
             messages.add_message(request,messages.INFO,'Incidencia y archivos creados con éxito.')
-            return redirect('gestion_incidencia')
+            return redirect('main_incidencia')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
             return redirect('check_group_main')
@@ -139,7 +176,7 @@ def bloquear_incidencia(request, pk):
             incidencia.state = 'Activo'
             messages.success(request, f'La incidencia "{incidencia.titulo}" fue activada.')
         incidencia.save()
-        return redirect('main_incidencia')
+        return redirect('gestion_incidencia')
     return redirect('logout')
 
 @login_required
@@ -174,7 +211,7 @@ def editar_incidencia(request, incidencia_id=None):
             incidencia_a_actualizar.ubicacion = request.POST.get('ubicacion')
             incidencia_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Incidencia actualizada con éxito.')
-            return redirect('main_incidencia')
+            return redirect('gestion_incidencia')
         else:
             incidencia = get_object_or_404(Incidencia, id=incidencia_id)
             departamentos = Departamento.objects.all()
@@ -197,6 +234,7 @@ def incidencias_usuario_departamento(request):
         if profile.group_id != 3:
             messages.error(request, 'No tienes permiso para acceder a esta página.')
             return redirect('logout')
+            
         departamento_usuario = Departamento.objects.get(usuario=request.user)
         incidencias_asignadas = Incidencia.objects.filter(departamento=departamento_usuario)
         context = {

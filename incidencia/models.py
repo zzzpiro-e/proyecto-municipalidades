@@ -4,6 +4,7 @@ from territorial.models import Territorial
 from encuesta.models import Encuesta
 
 
+
 class Incidencia(models.Model):
     STATE_ACTIVO = 'Activo'
     STATE_ACEPTADO = 'Aceptado'

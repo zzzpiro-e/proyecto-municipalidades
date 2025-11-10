@@ -81,8 +81,19 @@
 
         <div class="col-12 mt-4">
             <button type="submit" class="btn btn-primary">Guardar incidencia</button>
-            <a href="{% url 'gestion_incidencia' %}" class="btn btn-secondary">Volver</a>
+            
+            <a href="{% url 'main_territorial' %}">Volver</a>
         </div>
     </form>
 </div>
+
+{% if messages %}
+<div class="alert alert-info mt-3"> <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
 {% endblock %}
