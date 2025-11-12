@@ -32,15 +32,12 @@ def ver_usuario(request, user_id= None):
     except Profile.DoesNotExist:
         messages.info(request, 'Error')
         return redirect('login')
-
     if profile.group_id != 1:
         return redirect('logout')
-
     usuario = get_object_or_404(
-        User.objects.prefetch_related('groups'),
+        User.objects.select_related('profile', 'profile__group'),
         pk=user_id
     )
-
     return render(request, 'usuario/ver_usuario.html', {
         'usuario': usuario
     })
