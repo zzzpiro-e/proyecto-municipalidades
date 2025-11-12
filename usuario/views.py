@@ -4,6 +4,7 @@ from django.shortcuts import render,redirect, get_object_or_404
 from registration.models import Profile
 from django.contrib.auth.models import User, Group
 from core.models import Usuario
+from django.db import IntegrityError
 
 @login_required
 def main_usuario(request, usuario_id=None):
@@ -65,39 +66,37 @@ def guardar_usuario(request):
     if profile.group_id==1:
         if request.method=='POST':
             username=request.POST.get('username')
-            password=request.POST.get('password')
             first_name=request.POST.get('first_name')
             last_name=request.POST.get("last_name")
             email=request.POST.get("email")
             group_id=request.POST.get('group_id')
-
-            if username=='' or password=="" or first_name=="" or last_name=="" or email=="" or not group_id:
+            if username=='' or first_name=="" or last_name=="" or email=="" or not group_id:
                 messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
                 return redirect('crear_usuario')
-            usuario_save=User.objects.create_user(
-                username=username,
-                first_name=first_name,
-                last_name=last_name,
-                password=password,
-                email=email
-              )
-            usuario_save.save()
-            
+            try:
+                usuario_save=User.objects.create_user(
+                    username=username,
+                    first_name=first_name,
+                    last_name=last_name,
+                    password=username,
+                    email=email
+                )
+                usuario_save.save()
+            except IntegrityError:
+                messages.error(request, f'Error: El nombre de usuario "{username}" ya existe.')
+                return redirect('crear_usuario')
             perfil_save = Profile(
-            user=usuario_save,
-            group_id=group_id
+                user=usuario_save,
+                group_id=group_id
             )
             perfil_save.save()
-
-            messages.add_message(request,messages.INFO,'usuario creado con exito')
+            messages.add_message(request,messages.INFO,'Usuario creado con exito')
             return redirect('main_usuario')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
             return redirect('check_group_main')
     else:
         return redirect('logout')
-
-
 
 @login_required
 def eliminar_usuario(request, usuario_id):
