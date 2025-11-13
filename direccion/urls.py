@@ -11,5 +11,5 @@ direccion_urlpatterns = [
     path('main_direccion/', views.main_direccion, name='main_direccion'),
     path('gestion_direccion/', views.gestion_direccion, name='gestion_direccion'),
     path('departamento_e_incidencia_asociadas/', views.departamento_e_incidencia_asociadas, name='departamento_e_incidencia_asociadas'),
-    
+    path('incidencias_direccion/', views.incidencias_direccion, name='incidencias_direccion'),
 ]

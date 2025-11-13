@@ -5,6 +5,9 @@ from registration.models import Profile
 from direccion.models import Direccion
 from django.contrib.auth.models import User
 from departamento.models import Departamento
+from incidencia.models import Incidencia
+
+
 @login_required
 def main_direccion(request, direccion_id=None):
     try:
@@ -191,3 +194,30 @@ def departamento_e_incidencia_asociadas(request):
         )
     else:
         return redirect('logout')
+
+
+
+
+@login_required
+def incidencias_direccion(request):
+    try:
+        # Obtenemos la dirección asociada al usuario actual
+        direccion_usuario = Direccion.objects.get(usuario=request.user)
+
+        # Buscamos todos los departamentos que pertenecen a esa dirección
+        departamentos = Departamento.objects.filter(direccion=direccion_usuario)
+
+        # Buscamos todas las incidencias de esos departamentos
+        incidencias_asociadas = Incidencia.objects.filter(departamento__in=departamentos)
+
+        context = {
+            'direccion': direccion_usuario,
+            'departamentos': departamentos,
+            'incidencias': incidencias_asociadas,
+        }
+
+        return render(request, 'direccion/incidencias_direccion.html', context)
+
+    except Direccion.DoesNotExist:
+        messages.error(request, 'No estás asignado a ninguna dirección.')
+        return redirect('main_direccion')
