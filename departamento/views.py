@@ -4,6 +4,8 @@ from django.shortcuts import render,redirect,get_object_or_404
 from registration.models import Profile
 from departamento.models import Departamento
 from direccion.models import Direccion
+from cuadrilla.models import Cuadrilla, Registro_trabajo
+from incidencia.models import Incidencia
 from django.contrib.auth.models import User
 
 
@@ -118,7 +120,7 @@ def editar_departamento(request, departamento_id=None):
             departamento_a_actualizar.usuario_id = usuario_id
             departamento_a_actualizar.save()
             messages.add_message(request, messages.INFO, 'Departamento actualizado con éxito.')
-            return redirect('main_departamento')
+            return redirect('gestion_departamento')
         else:
             departamento_para_editar = get_object_or_404(Departamento, id=departamento_id)
             direcciones = Direccion.objects.all()
@@ -150,7 +152,7 @@ def bloquear_departamento(request, pk):
             departamento.state = 'Activo'
             messages.success(request, f"Departamento {departamento.nombre_departamento} activado")
         departamento.save()
-        return redirect('main_departamento')
+        return redirect('gestion_departamento')
     return redirect('logout')
 
 @login_required
@@ -165,3 +167,27 @@ def ver_departamento_bloqueo(request):
         departamentos = Departamento.objects.filter(state='Bloqueado').select_related('usuario','direccion')
         return render(request, 'departamento/bloquear_departamento.html', {'departamentos': departamentos})
     return redirect('logout')
+
+@login_required
+def cuadrillas_usuario_departamento(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+        if profile.group_id != 3:
+            messages.error(request, 'No tienes permiso para acceder a esta página.')
+            return redirect('main_departamento')
+        departamento_usuario = Departamento.objects.get(usuario=request.user)
+        cuadrillas_pertenecientes = Cuadrilla.objects.filter(departamento=departamento_usuario)
+        context = {
+            'cuadrillas': cuadrillas_pertenecientes,
+            'departamento': departamento_usuario,
+        }
+        return render(request, 'departamento/cuadrillas_usuario_departamento.html', context)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+    except Departamento.DoesNotExist:
+        messages.error(request, 'No estás asignado a ningún departamento.')
+        return redirect('main_departamento')
+    
+
+

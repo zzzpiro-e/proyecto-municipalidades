@@ -1,3 +1,7 @@
+{%extends 'core/base.html'%}
+{% load static%}
+{% block title %}{% endblock %}
+{% block content %}
 <h2>Crear Incidencia</h2>
 
 <form method="POST" action="{% url 'guardar_incidencia' %}">
@@ -44,5 +48,16 @@
 
     <button type="submit">Guardar incidencia</button>
     <br>
-    <a href="{% url 'main_incidencia' %}">Volver</a>
+    <a href="{% url 'main_territorial' %}">Volver</a>
 </form>
+
+{% if messages %}
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endblock %}

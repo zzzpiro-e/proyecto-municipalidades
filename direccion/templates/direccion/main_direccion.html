@@ -1,4 +1,22 @@
-<h4></a4>Menú Direcciones</4>
-</hr>
-<br>
-<a href="#"> Incidencias</a>
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Menú de Direcciones{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="container mt-4">
+    <h2>¡Hola, {{ request.user.first_name|default:request.user.username }}!</h2>
+    
+</div>
+
+{% endblock %}
+
+
+{% if messages %}
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}

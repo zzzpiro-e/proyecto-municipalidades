@@ -56,7 +56,7 @@ def crear_territorial(request):
 @login_required
 def guardar_territorial(request):
     if request.method != 'POST':
-        return redirect('main_territorial')
+        return redirect('gestion_territorial')
 
     try:
         profile = Profile.objects.get(user_id=request.user.id)
@@ -70,10 +70,9 @@ def guardar_territorial(request):
     Territorial.objects.create(
         usuario_id=request.POST.get('usuario') or None,
         zona_asignada=request.POST.get('zona_asignada') or '',
-        observaciones=request.POST.get('observaciones') or '',
     )
     messages.success(request, 'Territorial creado correctamente')
-    return redirect('main_territorial')
+    return redirect('gestion_territorial')
 
 
 @login_required
