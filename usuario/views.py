@@ -19,12 +19,12 @@ def main_usuario(request, usuario_id=None):
     if profile.group_id == 1:
         usuarios = (
             User.objects
-                .filter(is_active=True) 
                 .prefetch_related('groups')  
                 .order_by('id')
         )
         return render(request, 'usuario/main_usuario.html', {
-            'usuarios': usuarios
+            'usuarios': usuarios,
+            'profile': profile
         })
     else:
         return redirect('logout')
@@ -74,7 +74,8 @@ def guardar_usuario(request):
             last_name = request.POST.get("last_name")
             email = request.POST.get("email")
             group_id = request.POST.get('group_id')
-            zona = request.POST.get('zona') 
+            zona = request.POST.get('zona')
+            telefono = request.POST.get('telefono')
 
             if username=='' or first_name=="" or last_name=="" or email=="" or not group_id:
                 messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
@@ -94,7 +95,8 @@ def guardar_usuario(request):
             
             perfil_save = Profile.objects.create(
                 user=usuario_save,
-                group_id=group_id
+                group_id=group_id,
+                telefono=telefono
             )
 
             group_obj = Group.objects.get(id=group_id)

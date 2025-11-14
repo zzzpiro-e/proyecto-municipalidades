@@ -18,32 +18,13 @@ def gestion_incidencia(request):
         return redirect('login')
 
     if profile.group_id in [1, 2, 3, 4, 5]:
-        incidencias = Incidencia.objects.filter(state='Activo').select_related('departamento', 'territorial').order_by('-id')
+        incidencias = Incidencia.objects.exclude(
+            state__in=['Resuelto', 'Rechazado', 'Bloqueado']).select_related('departamento', 'territorial').order_by('-id')
         context = {
             'incidencias': incidencias,
             'profile': profile
         }
         return render(request, 'incidencia/gestion_incidencia.html', context)
-    else:
-        return redirect('logout')
-
-@login_required
-def crear_incidencia(request):
-    try:
-        profile = Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request, messages.INFO, "Error al obtener el perfil del usuario.")
-        return redirect('check_profile')
-    if profile.group_id == 4:
-        template_name = 'incidencia/crear_incidencia.html'
-        departamentos = Departamento.objects.all()
-        encuestas = Encuesta.objects.all()
-        context = {
-            'departamentos': departamentos,
-            'encuestas': encuestas
-        }
-
-        return render(request, template_name, context)
     else:
         return redirect('logout')
 
@@ -134,7 +115,7 @@ def guardar_incidencia(request):
                     path=archivo
                 )
             messages.add_message(request,messages.INFO,'Incidencia y archivos creados con éxito.')
-            return redirect('main_incidencia')
+            return redirect('main_territorial')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
             return redirect('check_group_main')
@@ -218,17 +199,14 @@ def incidencias_usuario_departamento(request):
             return redirect('logout')
             
         departamento_usuario = Departamento.objects.get(usuario=request.user)
-        estado_filtro = request.GET.get("estado", "Todos")
-        # Query base
+        state_filtro = request.GET.get("state", "Todos") 
         qs = Incidencia.objects.filter(departamento=departamento_usuario)
-        if estado_filtro != "Todos":
-            qs = qs.filter(estado=estado_filtro)
-
-        incidencias_asignadas = Incidencia.objects.filter(departamento=departamento_usuario)
+        if state_filtro != "Todos":
+            qs = qs.filter(state=state_filtro) 
         context = {
             'incidencias': qs,
             'departamento': departamento_usuario,
-            'estado_actual':estado_filtro,
+            'state_actual': state_filtro,
         }
         return render(request, 'incidencia/incidencias_usuario_departamento.html', context)
     except Profile.DoesNotExist:

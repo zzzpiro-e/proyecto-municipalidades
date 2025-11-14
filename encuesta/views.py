@@ -15,9 +15,7 @@ def main_encuesta(request):
         return redirect('login')
     if profile.group_id == 1:
         encuestas = Encuesta.objects.select_related('departamento').order_by('-id')
-        
-        return render(request, 'encuesta/main_encuesta.html', context)
-
+    
     elif profile.group_id == 3:
         try:
             departamento_usuario = Departamento.objects.get(usuario=request.user)
@@ -26,15 +24,14 @@ def main_encuesta(request):
             ).select_related('departamento').order_by('-id')
         except Departamento.DoesNotExist:
             messages.error(request, 'No estás asignado a ningún departamento.')
-            return redirect('main_departamento')
+            return redirect('logout')
     else:
         return redirect('logout')
     context = {
-            'encuestas': encuestas,
-            'profile': profile
-        }
-    return render(request, 'encuesta/main_encuesta.html', {'encuestas': encuestas})
-
+        'encuestas': encuestas,
+        'profile': profile
+    }
+    return render(request, 'encuesta/main_encuesta.html', context)
 
 def crear_encuesta(request):
     try:
