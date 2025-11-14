@@ -121,6 +121,6 @@ def bloquear_territorial(request, pk):
             territorial.state = 'Activo'
             messages.success(request, f"Territorial {territorial.zona_asignada} activado correctamente")
         territorial.save()
-        return redirect('main_territorial')
+        return redirect('gestion_territorial')
     else:
         return redirect('logout')
