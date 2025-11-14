@@ -9,24 +9,6 @@ from encuesta.models import Encuesta
 from django.contrib.auth.models import User
 
 @login_required
-def main_incidencia(request):
-    try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.add_message(request, messages.INFO, 'Error de perfil.')
-        return redirect('login')
-
-    if profile.group_id ==4:
-        incidencias = Incidencia.objects.filter(state='Activo').select_related('departamento', 'territorial').order_by('-id')
-        context = {
-            'incidencias': incidencias,
-            'profile': profile
-        }
-        return render(request, 'incidencia/main_incidencia.html', context)
-    else:
-        return redirect('logout')
-
-@login_required
 def gestion_incidencia(request):
     try:
         profile = Profile.objects.get(user_id=request.user.id)

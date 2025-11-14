@@ -4,6 +4,7 @@ from django.shortcuts import render,redirect, get_object_or_404
 from registration.models import Profile
 from django.contrib.auth.models import User, Group
 from core.models import Usuario
+from territorial.models import Territorial
 
 @login_required
 def main_usuario(request, usuario_id=None):
@@ -61,44 +62,62 @@ def crear_usuario(request):
 @login_required
 def guardar_usuario(request):
     try:
-        profile=Profile.objects.filter(user_id=request.user.id).get()
+        profile = Profile.objects.get(user_id=request.user.id)
     except:
-        messages.add_message(request, messages.INFO,"Error")
+        messages.error(request, "Error")
         return redirect('check_profile')
-    if profile.group_id==1:
-        if request.method=='POST':
-            username=request.POST.get('username')
-            password=request.POST.get('password')
-            first_name=request.POST.get('first_name')
-            last_name=request.POST.get("last_name")
-            email=request.POST.get("email")
-            group_id=request.POST.get('group_id')
 
-            if username=='' or password=="" or first_name=="" or last_name=="" or email=="" or not group_id:
-                messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
+    if profile.group_id == 1:
+        if request.method == 'POST':
+
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get("last_name")
+            email = request.POST.get("email")
+            group_id = request.POST.get('group_id')
+            zona = request.POST.get('zona')  # <-- zona como texto
+
+            if username=='' or password=='' or first_name=='' or last_name=='' or email=='' or not group_id:
+                messages.info(request, 'Debes ingresar toda la información')
                 return redirect('crear_usuario')
-            usuario_save=User.objects.create_user(
+
+            # Crear usuario
+            usuario_save = User.objects.create_user(
                 username=username,
                 first_name=first_name,
                 last_name=last_name,
                 password=password,
                 email=email
-              )
-            usuario_save.save()
-            
-            perfil_save = Profile(
-            user=usuario_save,
-            group_id=group_id
             )
-            perfil_save.save()
 
-            messages.add_message(request,messages.INFO,'usuario creado con exito')
+            # Crear perfil
+            perfil_save = Profile.objects.create(
+                user=usuario_save,
+                group_id=group_id
+            )
+
+            # Si es territorial, crea Territorial con zona charfield
+            group_obj = Group.objects.get(id=group_id)
+            if group_obj.name == "Territorial":
+                
+                if not zona:
+                    messages.error(request, "Debe ingresar zona para usuarios territoriales.")
+                    return redirect("crear_usuario")
+
+                Territorial.objects.create(
+                    usuario=usuario_save,
+                    zona_asignada=zona   # <-- zona es texto
+                )
+
+            messages.success(request, "Usuario creado con éxito")
             return redirect('main_usuario')
-        else:
-            messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
-            return redirect('check_group_main')
-    else:
-        return redirect('logout')
+
+        messages.error(request, "Solicitud inválida")
+        return redirect('check_group_main')
+
+    return redirect('logout')
+
 
 
 
