@@ -32,7 +32,6 @@
                 <label for="email" class="form-label">Email:</label>
                 <input type="email" name="email" id="email" class="form-control" placeholder="Ingrese su correo" required>
             </div>
-
             </div>
 
         <div class="col-md-6">
@@ -47,7 +46,12 @@
                     {% endfor %}
                 </select>
             </div>
-        </div>
+
+            <div class="mb-3" id="zona_field" style="display:none;">
+                <label for="zona" class="form-label">Zona Asignada (Territorial):</label>
+                <input type="text" class="form-control" name="zona" id="zona" placeholder="Ingrese la zona">
+            </div>
+            </div>
 
         <hr class="my-3">
         <div class="col-12">
@@ -70,4 +74,22 @@
     {% endif %}
 
 </div>
+
+<script>
+    const groupSelect = document.getElementById("group_id");
+    const zonaField = document.getElementById("zona_field");
+    const zonaInput = document.getElementById("zona");
+
+    groupSelect.addEventListener("change", function() {
+        const selected = this.options[this.selectedIndex].text;
+        if (selected === "Territorial") {
+            zonaField.style.display = "block";
+            zonaInput.required = true;
+        } else {
+            zonaField.style.display = "none";
+            zonaInput.required = false;
+        }
+    });
+</script>
+
 {% endblock %}

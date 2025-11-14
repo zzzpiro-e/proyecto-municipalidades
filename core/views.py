@@ -10,7 +10,7 @@ from django.http import (HttpResponse, HttpResponseBadRequest,
 from django.shortcuts import redirect, render #permite renderizar vistas basadas en funciones o redireccionar a otras funciones
 from django.template import RequestContext # contexto del sistema
 from django.views.decorators.csrf import csrf_exempt #decorador que nos permitira realizar conexiones csrf
-
+from incidencia.models import Incidencia
 from registration.models import Profile #importa el modelo profile, el que usaremos para los perfiles de usuarios
 
 
@@ -47,12 +47,33 @@ def check_profile(request):
 @login_required
 def main_admin(request):  
     try:
-        profile = Profile.objects.filter(user_id=request.user.id).get()    
-    except:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
         messages.add_message(request, messages.INFO, 'Hubo un error con su usuario, por favor contactese con los administradores')              
         return redirect('login')
-    if profile.group_id == 1:        
-        template_name = 'core/main_admin.html'
-        return render(request,template_name)
+
+    # Solo admin (group_id = 1)
+    if profile.group_id == 1:
+
+        # --- Datos para el dashboard ---
+        total_usuarios = User.objects.count()
+        total_incidencias = Incidencia.objects.count()
+        incidencias_derivadas = Incidencia.objects.filter(estado="Asignada").count()
+        incidencias_rechazadas = Incidencia.objects.filter(estado="Rechazada").count()
+        incidencias_finalizadas = Incidencia.objects.filter(estado="Resuelto").count()
+
+        context = {
+            'total_usuarios': total_usuarios,
+            'total_incidencias': total_incidencias,
+            'incidencias_derivadas': incidencias_derivadas,
+            'incidencias_rechazadas': incidencias_rechazadas,
+            'incidencias_finalizadas': incidencias_finalizadas,
+        }
+
+        return render(request, 'core/main_admin.html', context)
+
     else:
         return redirect('logout')
+
+    
+    

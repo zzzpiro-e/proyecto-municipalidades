@@ -1,10 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render,redirect, get_object_or_404
+from django.urls import reverse
 from registration.models import Profile
 from django.contrib.auth.models import User, Group
 from core.models import Usuario
 from django.db import IntegrityError
+from territorial.models import Territorial
 
 @login_required
 def main_usuario(request, usuario_id=None):
@@ -17,7 +19,7 @@ def main_usuario(request, usuario_id=None):
     if profile.group_id == 1:
         usuarios = (
             User.objects
-                .filter(is_active=True)
+                .filter(is_active=True) 
                 .prefetch_related('groups')  
                 .order_by('id')
         )
@@ -60,51 +62,63 @@ def crear_usuario(request):
 @login_required
 def guardar_usuario(request):
     try:
-        profile=Profile.objects.filter(user_id=request.user.id).get()
+        profile = Profile.objects.get(user_id=request.user.id)
     except:
-        messages.add_message(request, messages.INFO,"Error")
+        messages.error(request, "Error de perfil")
         return redirect('check_profile')
-    if profile.group_id==1:
-        if request.method=='POST':
-            username=request.POST.get('username')
-            first_name=request.POST.get('first_name')
-            last_name=request.POST.get("last_name")
-            email=request.POST.get("email")
-            group_id=request.POST.get('group_id')
+
+    if profile.group_id == 1:
+        if request.method == 'POST':
+            username = request.POST.get('username')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get("last_name")
+            email = request.POST.get("email")
+            group_id = request.POST.get('group_id')
+            zona = request.POST.get('zona') 
+
             if username=='' or first_name=="" or last_name=="" or email=="" or not group_id:
                 messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
                 return redirect('crear_usuario')
+
             try:
                 usuario_save=User.objects.create_user(
                     username=username,
                     first_name=first_name,
                     last_name=last_name,
-                    password=username,
+                    password=username, 
                     email=email
                 )
-                usuario_save.save()
             except IntegrityError:
                 messages.error(request, f'Error: El nombre de usuario "{username}" ya existe.')
                 return redirect('crear_usuario')
-            perfil_save = Profile(
+            
+            perfil_save = Profile.objects.create(
                 user=usuario_save,
                 group_id=group_id
             )
-            perfil_save.save()
-            messages.add_message(request,messages.INFO,'Usuario creado con exito')
+
+            group_obj = Group.objects.get(id=group_id)
+            if group_obj.name == "Territorial":
+                if not zona:
+                    messages.error(request, "Debe ingresar zona para usuarios territoriales.")
+                    usuario_save.delete() 
+                    return redirect("crear_usuario")
+
+                Territorial.objects.create(
+                    usuario=usuario_save,
+                    zona_asignada=zona 
+                )
+
+            messages.success(request, "Usuario creado con éxito")
             return redirect('main_usuario')
-        else:
-            messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
-            return redirect('check_group_main')
-    else:
-        return redirect('logout')
-    
+
+        messages.error(request, "Solicitud inválida (no-POST)")
+        return redirect('check_profile')
+
+    return redirect('logout')
+
 @login_required
 def eliminar_usuario(request, usuario_id):
-    """
-    Elimina únicamente el usuario seleccionado.
-    Solo admin puede ejecutar.
-    """
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except Profile.DoesNotExist:
@@ -140,13 +154,13 @@ def editar_usuario(request, user_id=None):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         email = request.POST.get('email')
-        is_active = request.POST.get('is_active') == 'on'
+        
         telefono = request.POST.get('telefono')
         group_id = request.POST.get('group')
         usuario_a_editar.first_name = first_name
         usuario_a_editar.last_name = last_name
         usuario_a_editar.email = email
-        usuario_a_editar.is_active = is_active
+        
         usuario_a_editar.save()
 
         if usuario_a_editar.profile:

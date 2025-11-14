@@ -13,13 +13,13 @@ def asignar_incidencia(request, cuadrilla_id):
         incidencia_id = request.POST.get("incidencia_id")
         incidencia = get_object_or_404(Incidencia, id=incidencia_id)
 
-        # Crear el vínculo en la tabla intermedia
+        
         Asignacion.objects.create(
             cuadrilla=cuadrilla,
             incidencia=incidencia,
         )
 
-        incidencia.estado = "asignada"
+        incidencia.estado = "Asignada"
         incidencia.save()
 
         return redirect("main_departamento")

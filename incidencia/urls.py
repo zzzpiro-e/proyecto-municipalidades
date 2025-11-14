@@ -2,7 +2,6 @@ from django.urls import path
 from incidencia import views
 
 incidencia_urlpatterns=[
-     path('main_incidencia/',views.main_incidencia, name='main_incidencia'),
      path('gestion_incidencia/',views.gestion_incidencia, name='gestion_incidencia'),
      path('crear_incidencia/',views.crear_incidencia, name='crear_incidencia'),
      path('guardar_incidencia/',views.guardar_incidencia, name='guardar_incidencia'),

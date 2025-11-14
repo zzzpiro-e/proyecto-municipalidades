@@ -187,6 +187,8 @@ def crear_registro(request):
             descripcion=descripcion,
             fecha=fecha
         )
+        incidencia.estado='Resuelto'
+        incidencia.save()
         messages.success(request, "Registro creado correctamente.")
         return redirect('main_cuadrilla') 
     return render(request, 'cuadrilla/crear_registro.html', {
@@ -195,17 +197,12 @@ def crear_registro(request):
     })
 
 def ver_incidencias_cuadrilla(request):
-    # Asumimos que el usuario tiene un perfil con referencia a su cuadrilla
     cuadrilla = Cuadrilla.objects.filter(usuario=request.user).first()
-
-    # Obtenemos las incidencias asignadas a la cuadrilla
     asignaciones = Asignacion.objects.filter(cuadrilla=cuadrilla).select_related('incidencia')
-
     context = {
         'asignaciones': asignaciones
     }
     return render(request, 'cuadrilla/ver_incidencias_cuadrilla.html', context)
-
 def ver_registro(request):
     cuadrilla = Cuadrilla.objects.filter(usuario=request.user).first()
     registros = Registro_trabajo.objects.filter(cuadrilla=cuadrilla).order_by('-fecha')

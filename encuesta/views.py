@@ -13,15 +13,28 @@ def main_encuesta(request):
     except Profile.DoesNotExist:
         messages.error(request, 'Error de perfil.')
         return redirect('login')
-    if profile.group_id in [1, 2, 3, 4, 5]:
+    if profile.group_id == 1:
         encuestas = Encuesta.objects.select_related('departamento').order_by('-id')
-        context = {
+        
+        return render(request, 'encuesta/main_encuesta.html', context)
+
+    elif profile.group_id == 3:
+        try:
+            departamento_usuario = Departamento.objects.get(usuario=request.user)
+            encuestas = Encuesta.objects.filter(
+                departamento=departamento_usuario
+            ).select_related('departamento').order_by('-id')
+        except Departamento.DoesNotExist:
+            messages.error(request, 'No estás asignado a ningún departamento.')
+            return redirect('main_departamento')
+    else:
+        return redirect('logout')
+    context = {
             'encuestas': encuestas,
             'profile': profile
         }
-        return render(request, 'encuesta/main_encuesta.html', context)
-    else:
-        return redirect('logout')
+    return render(request, 'encuesta/main_encuesta.html', {'encuestas': encuestas})
+
 
 def crear_encuesta(request):
     try:

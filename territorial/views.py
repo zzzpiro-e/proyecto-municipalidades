@@ -38,44 +38,6 @@ def gestion_territorial(request):
     return redirect('logout')
 
 @login_required
-def crear_territorial(request):
-    try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.add_message(request, messages.INFO, 'Error')
-        return redirect('login')
-
-    if profile.group_id == 1: 
-        template_name = 'territorial/crear_territorial.html'
-        usuarios = User.objects.filter(profile__group__id=4).order_by('username')
-        return render(request, template_name, {"usuarios": usuarios})
-    else:
-        return redirect('logout')
-
-
-@login_required
-def guardar_territorial(request):
-    if request.method != 'POST':
-        return redirect('gestion_territorial')
-
-    try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.add_message(request, messages.INFO, 'Error')
-        return redirect('login')
-
-    if profile.group_id != 1:
-        return redirect('logout')
-
-    Territorial.objects.create(
-        usuario_id=request.POST.get('usuario') or None,
-        zona_asignada=request.POST.get('zona_asignada') or '',
-    )
-    messages.success(request, 'Territorial creado correctamente')
-    return redirect('gestion_territorial')
-
-
-@login_required
 def editar_territorial(request, territorial_id=None):
     try:
         profile = Profile.objects.filter(user_id=request.user.id).get()
