@@ -17,6 +17,7 @@ def main_usuario(request, usuario_id=None):
     if profile.group_id == 1:
         usuarios = (
             User.objects
+                .filter(is_active=True)
                 .prefetch_related('groups')  
                 .order_by('id')
         )
@@ -97,7 +98,7 @@ def guardar_usuario(request):
             return redirect('check_group_main')
     else:
         return redirect('logout')
-
+    
 @login_required
 def eliminar_usuario(request, usuario_id):
     """
@@ -114,6 +115,10 @@ def eliminar_usuario(request, usuario_id):
         return redirect('logout')
 
     usuario = get_object_or_404(User, pk=usuario_id)
+    if usuario.id == request.user.id:
+        messages.error(request, 'No puedes eliminar tu propia cuenta.')
+        return redirect('main_usuario')
+        
     usuario.delete()
     messages.success(request, f'Usuario {usuario.username} eliminado con éxito')
     return redirect('main_usuario')
@@ -128,6 +133,7 @@ def editar_usuario(request, user_id=None):
 
     if profile.group_id != 1:
         return redirect('logout')
+    
     usuario_a_editar = get_object_or_404(User.objects.select_related('profile'), id=user_id)
 
     if request.method == 'POST':

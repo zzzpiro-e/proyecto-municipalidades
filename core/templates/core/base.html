@@ -84,7 +84,7 @@
 
                     <!-- ======================= DIRECCIÓN ======================= -->
                     {% elif user.profile.group_id == 2 %}
-                        <li><a href="{% url 'main_direccion' %}" class="nav-link text-white">Mis Departamentos</a></li>
+                        <li><a href="{% url 'departamento_e_incidencia_asociadas' %}" class="nav-link text-white">Mis Departamentos</a></li>
                         <li><a href="{% url 'login' %}" class="nav-link text-white">Cerrar sesión</a></li>
                     <!-- ======================= DEPARTAMENTO ======================= -->
                     {% elif user.profile.group_id == 3 %}
@@ -118,10 +118,3 @@
     </div>
 </body>
 </html>
-
-
-
-    
-
-
-   
