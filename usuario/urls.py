@@ -7,5 +7,5 @@ usuario_urlpatterns=[
     path('crear_usuario/',views.crear_usuario, name='crear_usuario'),
     path('guardar_usuario/',views.guardar_usuario, name='guardar_usuario'),
     path('usuarios/eliminar/<int:usuario_id>/', views.eliminar_usuario, name='eliminar_usuario'),
-    path('editar_usuario/<int:usuario_id>/', views.editar_usuario, name='editar_usuario'),
+    path('editar_usuario/<int:user_id>/', views.editar_usuario, name='editar_usuario'),
 ]
