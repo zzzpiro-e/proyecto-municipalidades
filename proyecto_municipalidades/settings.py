@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "usuario",
     "cuadrilla",
     "multimedia",
+    "asignacion",
 ]
 
 MIDDLEWARE = [
@@ -151,3 +152,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST_USER = 'ians.vm3@gmail.com'  # Tu correo
 EMAIL_HOST_PASSWORD = 'zcvq jcqm uhzq vonp'    # Contraseña de la app (no tu contraseña normal)
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Configuración para multimedia incidencia
+# URL base para acceder a los archivos subidos desde el navegador
+MEDIA_URL = '/media/'
+# Ruta en tu disco duro donde Django guardará los archivos subidos.
+MEDIA_ROOT = BASE_DIR / 'media'

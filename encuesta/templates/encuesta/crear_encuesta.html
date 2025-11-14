@@ -1,23 +1,106 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Crear Encuesta{% endblock %}
+
+{% block content %}
 <h4>Crear Nueva Encuesta</h4>
+
 <form method="post" action="{% url 'guardar_encuesta' %}">
     {% csrf_token %}
-    <p><input type="text" name="nombre_encuesta" placeholder="Ingrese nombre de encuesta"/></p>
-    <p><input type="text" name="tipo" placeholder="Ingrese tipo de encuesta"/></p>
-    <p><textarea name="descripcion" placeholder="Ingrese descripcion para la encuesta"></textarea></p>
-    <p><input type="text" name="prioridad" placeholder="Indique prioridad de la encuesta"/></p>
+    <label>Nombre:</label><br>
+    <p><input type="text" name="nombre_encuesta" placeholder="Ingrese nombre de encuesta" required style="width: 30%;" /></p>
+    <label>Tipo:</label><br>
+    <p><input type="text" name="tipo" placeholder="Ingrese tipo de encuesta" required style="width: 30%;"/></p>
+    <label>Descripción:</label><br>
+    <p><textarea name="descripcion" placeholder="Ingrese descripcion para la encuesta" required style="width: 30%;"></textarea></p>
+    <label>Prioridad:</label><br>
+    <p><input type="text" name="prioridad" placeholder="Indique prioridad de la encuesta" required style="width: 30%;"/></p>
+
+    <h4>Preguntas:</h4>
+    <div id="preguntas-container">
+    <div class="pregunta-item">
+        <input type="text" name="preguntas[]" class="pregunta-input" placeholder="Escriba una pregunta" required style="width: 30%;">
+        
+        </div>
+    </div>
+
+    <a href="#" id="agregar-pregunta" style="color: purple; text-decoration: none;">➕ Agregar pregunta</a><br><br>
+
+    {% if es_admin %}
     <p>
         <label for="departamento">Seleccione Un Departamento:</label><br>
         <select name="departamento" id="departamento">
             {% for departamento in departamentos %}
-                <option value="{{ departamento.id }}">{{ departamento.nombre_departamento }}
-                </option>
+                <option value="{{ departamento.id }}">{{ departamento.nombre_departamento }}</option>
             {% endfor %}
         </select>
     </p>
-
-
-    
+    {% endif %}
 
     <p><input type="submit" value="Crear"/></p>
 </form>
+
 <a href="{% url 'main_encuesta' %}">Volver al menú</a>
+
+{% if messages %}
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const agregarBtn = document.getElementById('agregar-pregunta');
+    const container = document.getElementById('preguntas-container');
+
+    if (!agregarBtn || !container) {
+        console.warn('Agregar pregunta o contenedor no encontrado en DOM.');
+        return;
+    }
+
+    function crearCampoPregunta(value = '') {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'pregunta-item';
+        wrapper.style.marginBottom = '6px';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'preguntas[]';
+        input.placeholder = 'Escriba una pregunta';
+        input.required = true;
+        input.value = value;
+        input.style.width = '30%';
+
+        const btnEliminar = document.createElement('button');
+        btnEliminar.type = 'button';
+        btnEliminar.className = 'eliminar-pregunta btn btn-sm btn-danger';
+        btnEliminar.textContent = 'X';
+        btnEliminar.style.marginLeft = '8px';
+
+        btnEliminar.addEventListener('click', function () {
+            wrapper.remove();
+        });
+
+        wrapper.appendChild(input);
+        wrapper.appendChild(btnEliminar);
+
+        return wrapper;
+    }
+    //agregar preguntas
+    agregarBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const nuevo = crearCampoPregunta();
+        container.appendChild(nuevo);
+    });
+
+});
+</script>
+
+
+
+
+{% endblock %}

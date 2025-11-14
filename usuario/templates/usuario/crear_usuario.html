@@ -1,22 +1,100 @@
-<h4>Crear Nuevo Usuario</h4>
-<form method="post" action="{% url 'guardar_usuario' %}">
-    {% csrf_token %}
-    <p><input type="text" name="username" placeholder="Ingrese nombre de usuario"/></p>
-    <p><input type="text" name="first_name" placeholder="Ingrese su nombre"/></p>
-    <p><input type="text" name="last_name" placeholder="Ingrese su apellido"/></p>
-    <p><input type="password" name="password" placeholder="Ingrese su contraseña"/></p>
-    <p><input type="text" name="email" placeholder="Ingrese su correo electronico"/></p>
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Crear Nuevo Usuario{% endblock %}
 
-    <p>
-        <select name="group_id" class="form-control" required>
-    <option value="">Seleccione un perfil de usuario</option>
-    {% for g in grupos %}
-        <option value="{{ g.id }}">{{ g.name }}</option>
-    {% endfor %}
-</select>
+{% block content %}
+<div class="container-fluid">
+    <h4 class="text-secondary mb-3">Crear Nuevo Usuario</h4>
+    <hr>
 
-    </p>
-    
-    <p><input type="submit" value="Crear"/></p>
-    <a href="{% url 'main_usuario' %}">Volver al menú de gestión</a>
-</form>
+    <form method="POST" action="{% url 'guardar_usuario' %}" class="row g-3">
+        {% csrf_token %}
+
+        <div class="col-md-6">
+            <h5>Información de la Cuenta</h5>
+            
+            <div class="mb-3">
+                <label for="username" class="form-label">Username:</label>
+                <input type="text" name="username" id="username" class="form-control" placeholder="Ingrese nombre de usuario" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="first_name" class="form-label">Nombre:</label>
+                <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Ingrese su nombre" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="last_name" class="form-label">Apellido:</label>
+                <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Ingrese su apellido" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input type="email" name="email" id="email" class="form-control" placeholder="Ingrese su correo" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="telefono" class="form-label">Teléfono:</label>
+                <input type="text" name="telefono" id="telefono" class="form-control" placeholder="Ingrese teléfono">
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <h5>Rol del Usuario</h5>
+            
+            <div class="mb-3">
+                <label for="group_id" class="form-label">Rol Asignado:</label>
+                <select name="group_id" id="group_id" class="form-select" required>
+                    <option value="">Seleccione un perfil de usuario</option>
+                    {% for g in grupos %}
+                        <option value="{{ g.id }}">{{ g.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3" id="zona_field" style="display:none;">
+                <label for="zona" class="form-label">Zona Asignada (Territorial):</label>
+                <input type="text" class="form-control" name="zona" id="zona" placeholder="Ingrese la zona">
+            </div>
+            </div>
+
+        <hr class="my-3">
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Crear Usuario</button>
+            <a href="{% url 'main_usuario' %}" class="btn btn-outline-secondary">Volver al menú</a>
+        </div>
+    </form>
+
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert 
+            {% if message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} 
+            alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    const groupSelect = document.getElementById("group_id");
+    const zonaField = document.getElementById("zona_field");
+    const zonaInput = document.getElementById("zona");
+
+    groupSelect.addEventListener("change", function() {
+        const selected = this.options[this.selectedIndex].text;
+        if (selected === "Territorial") {
+            zonaField.style.display = "block";
+            zonaInput.required = true;
+        } else {
+            zonaField.style.display = "none";
+            zonaInput.required = false;
+        }
+    });
+</script>
+
+{% endblock %}

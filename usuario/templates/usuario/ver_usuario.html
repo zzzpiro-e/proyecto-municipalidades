@@ -1,25 +1,105 @@
-<h4>Ver Usuario</h4>
-<br/>
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Detalle de Usuario: {{ usuario.username }}{% endblock %}
 
-<table border="1">
-  <tr><th>Usuario</th><td>{{ usuario.username }}</td></tr>
-  <tr><th>Nombre</th><td>{{ usuario.first_name }} {{ usuario.last_name }}</td></tr>
-  <tr><th>Email</th><td>{{ usuario.email }}</td></tr>
-  <tr><th>Es staff</th><td>{{ usuario.is_staff }}</td></tr>
-  <tr><th>Activo</th><td>{{ usuario.is_active }}</td></tr>
-  <tr><th>Superusuario</th><td>{{ usuario.is_superuser }}</td></tr>
-  <tr><th>Último login</th><td>{{ usuario.last_login|date:"d/m/Y H:i" }}</td></tr>
-  <tr>
-    <th>Rol</th>
-        <td>
-            {% if usuario.profile and usuario.profile.group %}
-                {{ usuario.profile.group.name }}
-            {% else %}
-                (sin rol)
-            {% endif %}
-        </td>
-    </tr>
-</table>
+{% block content %}
+<div class="container-fluid">
+    <h4 class="text-secondary mb-3">Detalle de Usuario: {{ usuario.username }}</h4>
+    <hr>
 
-<br/>
-<a href="{% url 'main_usuario' %}">Volver a Usuarios</a>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <h5>Información de la Cuenta</h5>
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Username:</strong>
+                    <span>{{ usuario.username }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Nombre:</strong>
+                    <span>{{ usuario.first_name|default:"-" }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Apellido:</strong>
+                    <span>{{ usuario.last_name|default:"-" }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Email:</strong>
+                    <span>{{ usuario.email|default:"-" }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Teléfono:</strong>
+                    <span>{{ usuario.profile.telefono|default:"No informado" }}</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-md-6">
+            <h5>Rol y Estado</h5>
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Rol Asignado:</strong>
+                    <span>
+                        {% if usuario.profile and usuario.profile.group %}
+                            <span class="badge bg-primary">{{ usuario.profile.group.name }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">(sin rol)</span>
+                        {% endif %}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Estado de la Cuenta:</strong>
+                    <span>
+                        {% if usuario.is_active %}
+                            <span class="badge bg-success">Activo</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactivo</span>
+                        {% endif %}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Permisos de Admin:</strong>
+                    <span>
+                        {% if usuario.is_superuser %}
+                            <span class="badge bg-danger">Superusuario</span>
+                        {% elif usuario.is_staff %}
+                            <span class"badge bg-warning text-dark">Staff</span>
+                        {% else %}
+                            <span class="badge bg-light text-dark">Ninguno</span>
+                        {% endif %}
+                    </span>
+                </li>
+            </ul>
+
+            <h5 class="mt-4">Historial</h5>
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Último Login:</strong>
+                    <span>{{ usuario.last_login|date:"d/m/Y H:i"|default:"Nunca" }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Fecha de Registro:</strong>
+                    <span>{{ usuario.date_joined|date:"d/m/Y H:i" }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <hr class="my-4">
+    
+    <a href="{% url 'main_usuario' %}" class="btn btn-outline-secondary">Volver a Usuarios</a>
+
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert 
+            {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} 
+            alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
