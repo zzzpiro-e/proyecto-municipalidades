@@ -20,6 +20,8 @@ class Incidencia(models.Model):
     state=models.CharField(max_length=100,null=True,blank=True,default='Activo')
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now=True)
+    estado=models.CharField(max_length=100,null=True,blank=True,default='Pendiente')
+
 
     class Meta:
         verbose_name='Incidencia'
@@ -28,4 +30,12 @@ class Incidencia(models.Model):
 
     def __str__(self):
         return self.titulo
+    
+    def filtrar_incidencias_departamento_por_estado(departamento, estado):
+        qs = Incidencia.objects.filter(departamento=departamento)
+
+        if estado and estado != "Todos":
+            qs = qs.filter(estado=estado)
+
+        return qs
     

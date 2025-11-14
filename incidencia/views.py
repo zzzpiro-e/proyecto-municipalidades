@@ -196,10 +196,17 @@ def incidencias_usuario_departamento(request):
             messages.error(request, 'No tienes permiso para acceder a esta página.')
             return redirect('main_departamento')
         departamento_usuario = Departamento.objects.get(usuario=request.user)
+        estado_filtro = request.GET.get("estado", "Todos")
+        # Query base
+        qs = Incidencia.objects.filter(departamento=departamento_usuario)
+        if estado_filtro != "Todos":
+            qs = qs.filter(estado=estado_filtro)
+
         incidencias_asignadas = Incidencia.objects.filter(departamento=departamento_usuario)
         context = {
-            'incidencias': incidencias_asignadas,
+            'incidencias': qs,
             'departamento': departamento_usuario,
+            'estado_actual':estado_filtro,
         }
         return render(request, 'incidencia/incidencias_usuario_departamento.html', context)
     except Profile.DoesNotExist:
