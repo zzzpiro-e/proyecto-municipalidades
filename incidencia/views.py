@@ -8,6 +8,9 @@ from departamento.models import Departamento
 from territorial.models import Territorial
 from encuesta.models import Encuesta
 from django.contrib.auth.models import User
+from pregunta.models import Encuesta, Pregunta
+from .models import Incidencia, MultimediaIncidencia, RespuestaIncidencia
+from django.db import transaction
 
 @login_required
 def gestion_incidencia(request):
@@ -39,37 +42,51 @@ def crear_incidencia(request):
         template_name = 'incidencia/crear_incidencia.html'
         departamentos = Departamento.objects.all()
         encuestas = Encuesta.objects.all()
+        preguntas_encuesta = []
+        if encuestas.exists():
+            encuesta_por_defecto = encuestas.first() 
+            preguntas_encuesta = Pregunta.objects.filter(encuesta=encuesta_por_defecto).order_by('id')
         context = {
             'departamentos': departamentos,
-            'encuestas': encuestas
+            'encuestas': encuestas,
+            'preguntas': preguntas_encuesta,
         }
 
         return render(request, template_name, context)
     else:
         return redirect('logout')
 
+# incidencia/views.py
+
+from django.db import transaction # ⬅️ NUEVA IMPORTACIÓN NECESARIA
+from pregunta.models import Pregunta # ⬅️ Importa el modelo Pregunta
+from .models import Incidencia, MultimediaIncidencia, RespuestaIncidencia # ⬅️ Asegúrate de que RespuestaIncidencia esté importado
+
+# ... (otras importaciones) ...
+
 @login_required
 def guardar_incidencia(request):
     try:
-        profile=Profile.objects.filter(user_id=request.user.id).get()
+        profile = Profile.objects.filter(user_id=request.user.id).get()
     except:
-        messages.add_message(request, messages.INFO,"Error")
+        messages.add_message(request, messages.INFO, "Error de perfil.")
         return redirect('check_profile')
-    if profile.group_id==4:
-        if request.method=='POST':
-            departamento_id=request.POST.get('departamento')
-            titulo=request.POST.get('titulo')
-            tipo=request.POST.get("tipo")
-            ubicacion=request.POST.get("ubicacion")
-            latitud=request.POST.get("latitud")
-            longitud=request.POST.get("longitud")
-            nombre_vecino=request.POST.get("nombre_vecino")
-            telefono_vecino=request.POST.get("telefono_vecino")
-            correo_vecino=request.POST.get("correo_vecino")
-            encuesta_id=request.POST.get("encuesta")
-            
-            if titulo=='' or latitud==""  or longitud=="" or not departamento_id :
-                messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
+        
+    if profile.group_id == 4:
+        if request.method == 'POST':
+            departamento_id = request.POST.get('departamento')
+            titulo = request.POST.get('titulo')
+            tipo = request.POST.get("tipo")
+            ubicacion = request.POST.get("ubicacion")
+            latitud = request.POST.get("latitud")
+            longitud = request.POST.get("longitud")
+            nombre_vecino = request.POST.get("nombre_vecino")
+            telefono_vecino = request.POST.get("telefono_vecino")
+            correo_vecino = request.POST.get("correo_vecino")
+            encuesta_id = request.POST.get("encuesta") 
+
+            if titulo == '' or latitud == "" or longitud == "" or not departamento_id:
+                messages.add_message(request, messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
                 return redirect('crear_incidencia')
             
             lat = float(request.POST.get('latitud'))
@@ -78,46 +95,72 @@ def guardar_incidencia(request):
             if not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
                 messages.error(request, "Debes ingresar datos validos, revisa las coordenadas.")
                 return redirect('crear_incidencia')
+                
             try:
                 territorial = Territorial.objects.get(usuario=request.user)
             except Territorial.DoesNotExist:
                 messages.add_message(request, messages.INFO, 'No tienes un registro territorial asignado.')
                 return redirect('check_profile')
-            incidencia_save=Incidencia(
-                territorial=territorial,
-                titulo=titulo,
-                departamento_id=departamento_id,
-                tipo=tipo,
-                ubicacion=ubicacion,
-                latitud=latitud,
-                longitud=longitud,
-                nombre_vecino=nombre_vecino,
-                telefono_vecino=telefono_vecino,
-                correo_vecino=correo_vecino,
-                encuesta_id=encuesta_id
-            )
-            incidencia_save.save() 
-            archivos_subidos = request.FILES.getlist('archivos')
+
+            try:
+                with transaction.atomic():
+                    incidencia_save = Incidencia.objects.create(
+                        territorial=territorial,
+                        titulo=titulo,
+                        departamento_id=departamento_id,
+                        tipo=tipo,
+                        ubicacion=ubicacion,
+                        latitud=latitud,
+                        longitud=longitud,
+                        nombre_vecino=nombre_vecino,
+                        telefono_vecino=telefono_vecino,
+                        correo_vecino=correo_vecino,
+                        encuesta_id=encuesta_id 
+                    )
+                    
+                    # 6. GUARDAR LAS RESPUESTAS DE LA ENCUESTA
+                    if encuesta_id:
+                        preguntas = Pregunta.objects.filter(encuesta_id=encuesta_id)
+                        
+                        for pregunta in preguntas:
+                            campo_nombre = f'respuesta_{pregunta.id}'
+                            respuesta_texto = request.POST.get(campo_nombre)
+                            
+                            if respuesta_texto is not None:
+                                RespuestaIncidencia.objects.create(
+                                    incidencia=incidencia_save,
+                                    pregunta=pregunta,
+                                    respuesta_texto=respuesta_texto
+                                )
+
+                    # 7. GUARDAR ARCHIVOS MULTIMEDIA 
+                    archivos_subidos = request.FILES.getlist('archivos')
+                    
+                    for archivo in archivos_subidos:
+                        content_type = archivo.content_type
+                        tipo_simple = 'otro'
+                        if content_type.startswith('image'):
+                            tipo_simple = 'imagen'
+                        elif content_type.startswith('video'):
+                            tipo_simple = 'video'
+                        elif content_type.startswith('audio'):
+                            tipo_simple = 'audio'
+                        
+                        MultimediaIncidencia.objects.create(
+                            incidencia=incidencia_save,
+                            tipo=tipo_simple,
+                            path=archivo
+                        )
+
+                messages.add_message(request, messages.INFO, 'Incidencia, respuestas y archivos creados con éxito.')
+                return redirect('main_territorial')
             
-            for archivo in archivos_subidos:
-                content_type = archivo.content_type
-                tipo_simple = 'otro'
-                if content_type.startswith('image'):
-                    tipo_simple = 'imagen'
-                elif content_type.startswith('video'):
-                    tipo_simple = 'video'
-                elif content_type.startswith('audio'):
-                    tipo_simple = 'audio'
+            except Exception as e:
+                messages.error(request, f"Error al guardar la solicitud. Intente nuevamente. Detalles: {e}")
+                return redirect('crear_incidencia')
                 
-                MultimediaIncidencia.objects.create(
-                    incidencia=incidencia_save,
-                    tipo=tipo_simple,
-                    path=archivo
-                )
-            messages.add_message(request,messages.INFO,'Incidencia y archivos creados con éxito.')
-            return redirect('main_territorial')
         else:
-            messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
+            messages.add_message(request, messages.INFO, 'No se pudo realizar la solicitud, intente nuevamente')
             return redirect('check_group_main')
     else:
         return redirect('logout')

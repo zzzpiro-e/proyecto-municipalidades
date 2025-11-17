@@ -1,6 +1,6 @@
 from django.urls import path
-from multimedia import views
+from . import views
 
-multimedia_urlpatterns = [
-    path('subir/', views.subir_archivo, name='subir_archivo'),
+multimedia_url_patterns = [
+    path('subir/<int:registro_id>/', views.subir_archivo, name='subir_archivo'), 
 ]

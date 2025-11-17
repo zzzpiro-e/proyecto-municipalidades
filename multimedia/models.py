@@ -1,4 +1,5 @@
 from django.db import models
+from incidencia.models import Incidencia
 
 class ArchivoMultimedia(models.Model):
     TIPOS = [
@@ -7,6 +8,12 @@ class ArchivoMultimedia(models.Model):
         ('documento', 'Documento'),
         ('audio', 'Audio'),
     ]
+
+    registro_trabajo = models.ForeignKey(
+        Incidencia, 
+        on_delete=models.CASCADE,
+        related_name='multimedia_archivos'
+    )
 
     titulo = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True)
@@ -22,3 +29,5 @@ class ArchivoMultimedia(models.Model):
 
     def __str__(self):
         return f"{self.titulo} ({self.tipo})"
+
+

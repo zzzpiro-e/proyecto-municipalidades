@@ -2,6 +2,8 @@ from django.db import models
 from departamento.models import Departamento
 from territorial.models import Territorial
 from encuesta.models import Encuesta
+from pregunta.models import Pregunta
+from usuario.models import Usuario
 
 
 class Incidencia(models.Model):
@@ -81,3 +83,32 @@ class MultimediaIncidencia(models.Model):
 
     def __str__(self):
         return f"{self.get_tipo_display()} de Incidencia {self.incidencia.id}"
+    
+
+class RespuestaIncidencia(models.Model):
+    incidencia = models.ForeignKey(
+        'Incidencia', 
+        on_delete=models.CASCADE,
+        related_name='respuestas_incidencia' 
+    )
+    
+    pregunta = models.ForeignKey(
+        Pregunta, 
+        on_delete=models.CASCADE
+    )
+    
+    respuesta_texto = models.TextField(
+        verbose_name="Respuesta", 
+        blank=True, 
+        null=True
+    )
+    
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Respuesta de Incidencia"
+        verbose_name_plural = "Respuestas de Incidencias"
+        unique_together = ('incidencia', 'pregunta') 
+
+    def __str__(self):
+        return f"Respuesta a {self.pregunta.descripcion} para Incidencia #{self.incidencia.id}"

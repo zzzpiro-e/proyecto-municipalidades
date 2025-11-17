@@ -74,6 +74,24 @@
         </div>
 
         <hr class="my-3">
+        <h5 class="text-muted">Preguntas de la Encuesta Seleccionada</h5>
+
+        {% for pregunta in preguntas %}
+            <div class="col-12 mb-3">
+                <label for="respuesta_{{ pregunta.id }}" class="form-label">{{ pregunta.descripcion }}</label>
+                <textarea 
+                    name="respuesta_{{ pregunta.id }}" 
+                    id="respuesta_{{ pregunta.id }}" 
+                    class="form-control" 
+                    rows="3" 
+                    required
+                ></textarea>
+            </div>
+        {% empty %}
+            <p class="text-info">No se encontraron preguntas de encuesta para adjuntar.</p>
+        {% endfor %}
+
+        <hr class="my-3">
         <div class="col-12">
             <label for="archivos" class="form-label">Subir Multimedia (Imágenes/Videos)</label>
             <input class="form-control" type="file" name="archivos" id="archivos" multiple>
