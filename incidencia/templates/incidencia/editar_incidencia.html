@@ -1,5 +1,7 @@
-<h4>Editar Incidencia</h4>
-<hr>
+{%extends 'core/base.html'%}
+{% load static%}
+{% block title %}Editar Incidencia{% endblock %}
+{% block content %}
 
 <form method="post" action="{% url 'editar_incidencia_post' %}">
     {% csrf_token %}
@@ -47,4 +49,5 @@
 </div>
 {% endif %}
 
-<a href="{% url 'main_incidencia' %}">Cancelar y Volver a la Lista</a>
+<a href="{% url 'gestion_incidencia' %}">Cancelar y Volver a la Lista</a>
+{% endblock %}

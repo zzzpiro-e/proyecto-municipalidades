@@ -182,7 +182,7 @@ def incidencias_usuario_departamento(request):
         # Query base
         qs = Incidencia.objects.filter(departamento=departamento_usuario)
         if estado_filtro != "Todos":
-            qs = qs.filter(estado=estado_filtro)
+            qs = qs.filter(state=estado_filtro)
 
         incidencias_asignadas = Incidencia.objects.filter(departamento=departamento_usuario)
         context = {

@@ -6,6 +6,20 @@ from encuesta.models import Encuesta
 
 
 class Incidencia(models.Model):
+    STATE_PENDIENTE = 'Pendiente'
+    STATE_ACEPTADO = 'Aceptado'
+    STATE_RECHAZADO = 'Rechazado'
+    STATE_BLOQUEADO = 'Bloqueado'
+    STATE_ASIGNADA = 'Asignada'
+    STATE_RESUELTO = 'Resuelto'
+    STATE_CHOICES = [
+        (STATE_PENDIENTE, 'Pendiente'),
+        (STATE_ACEPTADO, 'Aceptado'),
+        (STATE_RECHAZADO, 'Rechazado'),
+        (STATE_BLOQUEADO, 'Bloqueado'),
+        (STATE_ASIGNADA, 'Asignada'),
+        (STATE_RESUELTO, 'Resuelto'),
+    ]
     departamento=models.ForeignKey(Departamento, on_delete=models.CASCADE)
     territorial=models.ForeignKey(Territorial, on_delete=models.CASCADE)
     titulo=models.CharField(max_length=200,null=False,blank=True)
@@ -17,11 +31,20 @@ class Incidencia(models.Model):
     telefono_vecino=models.CharField(max_length=15,null=True,blank=True)
     correo_vecino=models.EmailField(max_length=254,null=True,blank=True)
     encuesta=models.ForeignKey(Encuesta, on_delete=models.CASCADE)
-    state=models.CharField(max_length=100,null=True,blank=True,default='Activo')
+    state=models.CharField(max_length=100,null=True,blank=True,choices=STATE_CHOICES,default=STATE_PENDIENTE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now=True)
-    estado=models.CharField(max_length=100,null=True,blank=True,default='Pendiente')
-
+    
+    state=models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        choices=STATE_CHOICES,
+        default=STATE_PENDIENTE
+    )
+    
+    created=models.DateTimeField(auto_now_add=True)
+    updated=models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name='Incidencia'
@@ -31,11 +54,11 @@ class Incidencia(models.Model):
     def __str__(self):
         return self.titulo
     
-    def filtrar_incidencias_departamento_por_estado(departamento, estado):
+    def filtrar_incidencias_departamento_por_estado(departamento, state):
         qs = Incidencia.objects.filter(departamento=departamento)
 
-        if estado and estado != "Todos":
-            qs = qs.filter(estado=estado)
+        if state and state != "Todos":
+            qs = qs.filter(state=state)
 
         return qs
     

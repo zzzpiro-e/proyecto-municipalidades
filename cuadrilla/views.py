@@ -187,7 +187,7 @@ def crear_registro(request):
             descripcion=descripcion,
             fecha=fecha
         )
-        incidencia.estado='Resuelto'
+        incidencia.state='Resuelto'
         incidencia.save()
         messages.success(request, "Registro creado correctamente.")
         return redirect('main_cuadrilla') 
