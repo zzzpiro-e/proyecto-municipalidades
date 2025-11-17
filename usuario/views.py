@@ -7,6 +7,8 @@ from django.contrib.auth.models import User, Group
 from core.models import Usuario
 from django.db import IntegrityError
 from territorial.models import Territorial
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 
 @login_required
 def main_usuario(request, usuario_id=None):
@@ -150,7 +152,15 @@ def editar_usuario(request, user_id=None):
     if profile.group_id != 1:
         return redirect('logout')
     
-    usuario_a_editar = get_object_or_404(User.objects.select_related('profile'), id=user_id)
+    usuario_a_editar = get_object_or_404(User, id=user_id)
+    try:
+        profile_a_editar, created = Profile.objects.get_or_create(user=usuario_a_editar)
+        if created:
+            profile_a_editar.group_id = 1 
+            profile_a_editar.save()
+    except Exception as e:
+        messages.error(request, f"Error crítico al obtener/crear el perfil: {e}")
+        return redirect('main_usuario')
 
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
@@ -181,3 +191,30 @@ def editar_usuario(request, user_id=None):
             'grupos': grupos
         }
         return render(request, template_name, context)
+    
+@login_required
+def cambiar_contraseña_obligatorio(request):
+    profile = request.user.profile
+
+    if not profile.first_session:
+        return redirect('check_profile')
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user) 
+            profile.first_session = 'No'
+            profile.save()
+            
+            messages.success(request, '¡Contraseña cambiada con éxito! Ya puedes usar el sistema.')
+            return redirect('check_profile')
+        else:
+            messages.error(request, 'Por favor corrige los errores.')
+    else:
+        form = PasswordChangeForm(request.user)
+    
+    context = {
+        'form': form
+    }
+    return render(request, 'usuario/cambiar_contraseña_obligatorio.html', context)

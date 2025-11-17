@@ -8,4 +8,5 @@ usuario_urlpatterns=[
     path('guardar_usuario/',views.guardar_usuario, name='guardar_usuario'),
     path('usuarios/eliminar/<int:usuario_id>/', views.eliminar_usuario, name='eliminar_usuario'),
     path('editar_usuario/<int:user_id>/', views.editar_usuario, name='editar_usuario'),
+    path('cambiar_contraseña/', views.cambiar_contraseña_obligatorio, name='cambiar_contraseña_obligatorio'),
 ]
