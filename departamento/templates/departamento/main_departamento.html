@@ -1,23 +1,4 @@
-{% extends 'core/base.html' %}
-{% load static %}
-{% block title %}Menú de Departamentos{% endblock %}
-{% block content %}
-<div class="row">
-    <div class="container mt-4">
-    <h2>¡Hola, {{ request.user.first_name|default:request.user.username }}!</h2>
-    
-</div>
+<h4>Menú Departamentos</h4>
 
-{% endblock %}
-
-
-
-{% if messages %}
-<div class="alert alert-success mt-3">
-    <ul class="mb-0">
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %}
+<a href="{% url 'incidencias_usuario_departamento' %}">Ver mis incidencias</a>
+<a href="{% url 'crear_encuesta' %}">Nueva Encuesta</a>

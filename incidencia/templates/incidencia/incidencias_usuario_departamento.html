@@ -1,98 +1,35 @@
-{% extends 'core/base.html' %}
-{% load static %}
-{% block title %}Incidencias de mi Departamento{% endblock %}
-{% block content %}
+<h4>Incidencias Asignadas a: {{ departamento.nombre_departamento }}</h4>
+<hr/>
 
-<div class="row mt-2 mb-2">
-    <div class="col-7">
-        <h4 class="text-secondary">Incidencias Asignadas a: {{ departamento.nombre_departamento }}</h4>
-    </div>
-</div>
-
-<hr>
-
-<form method="get" class="mb-3">
-    <label><strong>Filtrar por Estado:</strong></label>
-    <select name="state" onchange="this.form.submit()" class="form-select" style="max-width: 250px; display:inline-block;">
-        <option value="Todos" {% if state_actual == "Todos" %}selected{% endif %}>Todos</option>
-        
-        <option value="Activo" {% if state_actual == "Activo" %}selected{% endif %}>Activo (Pendiente)</option>
-        <option value="Aceptado" {% if state_actual == "Aceptado" %}selected{% endif %}>Aceptado</option>
-        <option value="Rechazado" {% if state_actual == "Rechazado" %}selected{% endif %}>Rechazado</option>
-        <option value="Bloqueado" {% if state_actual == "Bloqueado" %}selected{% endif %}>Bloqueado</option>
-    </select>
-</form>
-
-<div class="table-responsive">
-    <table class="table table-striped table-hover align-middle text-center">
-        <thead class="table-dark">
-            <tr>
-                <th scope="col">Título</th>
-                <th scope="col">Tipo</th>
-                <th scope="col">Ubicación</th> 
-                <th scope="col">Territorial</th>
-                <th scope="col">Estado</th>
-                <th scope="col">Acciones</th> </tr>
-        </thead>
-        <tbody>
-            {% for inc in incidencias %}
-            <tr>
-                <td>{{ inc.titulo }}</td>
-                <td>{{ inc.tipo }}</td>
-                <td>{{ inc.ubicacion|default:"(Sin ubicación)" }}</td> 
-                <td>
-                    {% if inc.territorial and inc.territorial.usuario %}
-                        {{ inc.territorial.usuario.username }}
-                    {% else %}
-                        (sin territorial)
-                    {% endif %}
-                </td>
-                <td>
-                    {% if inc.state == "Activo" %}
-                        <span class="badge bg-warning text-dark">{{ inc.get_state_display|default:"Activo (Pendiente)" }}</span>
-                    {% elif inc.state == "Aceptado" %}
-                        <span class="badge bg-success">{{ inc.get_state_display|default:inc.state }}</span>
-                    {% elif inc.state == "Rechazado" %}
-                        <span class="badge bg-danger">{{ inc.get_state_display|default:inc.state }}</span>
-                    {% elif inc.state == "Bloqueado" %}
-                        <span class="badge bg-dark">{{ inc.get_state_display|default:inc.state }}</span>
-                    {% else %}
-                        <span class="badge bg-secondary">{{ inc.state }}</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <div class="d-flex justify-content-center gap-2 flex-wrap">
-                        <a href="{% url 'ver_incidencia' inc.id %}" class="btn btn-outline-dark btn-sm">Ver</a>
-                        {% if inc.state == "Activo" %}
-                            <a href="{% url 'aceptar_incidencia' inc.id %}" class="btn btn-outline-success btn-sm">Aceptar</a>
-                            <a href="{% url 'rechazar_incidencia' inc.id %}" class="btn btn-outline-danger btn-sm">Rechazar</a>
-                        {% endif %}
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="text-muted">No hay incidencias con este filtro.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>Tipo</th>
+            <th>Ubicación</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for inc in incidencias %}
+        <tr>
+            <td>{{ inc.titulo }}</td>
+            <td>{{ inc.tipo }}</td>
+            <td>{{ inc.ubicacion }}</td>
+            <td>{{ inc.state }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="5">No tienes incidencias asignadas a tu departamento.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
 
 {% if messages %}
-<div class="container mt-3">
+    <ul>
     {% for message in messages %}
-    <div class="alert 
-        {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} 
-        alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+        <li style="color: green;">{{ message }}</li>
     {% endfor %}
-</div>
+    </ul>
 {% endif %}
-
-<div class="mt-3">
-    <a class="btn btn-outline-secondary" href="{% url 'check_profile' %}">Menú Principal</a>
-</div>
-{% endblock %}
+<br/>
+<a href="{% url 'gestion_admin' %}">Volver al menú</a>

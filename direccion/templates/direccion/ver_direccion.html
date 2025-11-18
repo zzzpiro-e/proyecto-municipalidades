@@ -1,7 +1,3 @@
-{% extends 'core/base.html' %}
-{% load static %}
-{% block title %}Menú de Departamentos{% endblock %}
-{% block content %}
 <h4>Ver Dirección</h4>
 <table border="1">
   <tr><th>Nombre</th><td>{{ direccion.nombre_direccion }}</td></tr>
@@ -12,14 +8,3 @@
 </table>
 <br>
 <a href="{% url 'gestion_direccion' %}">Volver a Direcciones</a>
-
-{% if messages %}
-<div class="alert alert-success mt-3">
-    <ul class="mb-0">
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %}
-{% endblock %}

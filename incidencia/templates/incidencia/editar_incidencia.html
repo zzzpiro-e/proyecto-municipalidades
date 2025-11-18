@@ -37,15 +37,4 @@
     <p><input type="submit" value="Guardar Cambios"></p>
 </form>
 
-{% if messages %}
-<div class="alert alert-success mt-3">
-    <ul class="mb-0">
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %}
-
-<a href="{% url 'gestion_incidencia' %}">Cancelar y Volver a la Lista</a>
-
+<a href="{% url 'main_incidencia' %}">Cancelar y Volver a la Lista</a>

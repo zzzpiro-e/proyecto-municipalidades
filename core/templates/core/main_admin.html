@@ -7,45 +7,6 @@
     <h2>¡Hola, {{ request.user.first_name|default:request.user.username }}!</h2>
     
 </div>
-<div class="row g-4">
-
-    <div class="col-md-4 col-xl-3">
-        <div class="card bg-dark text-white shadow p-3 rounded-3">
-            <h5 class="text-uppercase">Usuarios</h5>
-            <h2 class="fw-bold">{{ total_usuarios }}</h2>
-        </div>
-    </div>
-
-    <div class="col-md-4 col-xl-3">
-        <div class="card bg-dark text-white shadow p-3 rounded-3">
-            <h5 class="text-uppercase">Incidencias Totales</h5>
-            <h2 class="fw-bold">{{ total_incidencias }}</h2>
-        </div>
-    </div>
-
-    <div class="col-md-4 col-xl-3">
-        <div class="card bg-dark text-white shadow p-3 rounded-3">
-            <h5 class="text-uppercase">Derivadas</h5>
-            <h2 class="fw-bold">{{ incidencias_derivadas }}</h2>
-        </div>
-    </div>
-
-    <div class="col-md-4 col-xl-3">
-        <div class="card bg-dark text-white shadow p-3 rounded-3">
-            <h5 class="text-uppercase">Rechazadas</h5>
-            <h2 class="fw-bold">{{ incidencias_rechazadas }}</h2>
-        </div>
-    </div>
-
-    <div class="col-md-4 col-xl-3">
-        <div class="card bg-dark text-white shadow p-3 rounded-3">
-            <h5 class="text-uppercase">Finalizadas</h5>
-            <h2 class="fw-bold">{{ incidencias_finalizadas }}</h2>
-        </div>
-    </div>
-
-</div>
-
 
 </div>
 {% endblock %}

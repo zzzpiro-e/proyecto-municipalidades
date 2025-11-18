@@ -1,24 +1,4 @@
-{% extends 'core/base.html' %}
-{% load static %}
-{% block title %}Menú de Territoriales{% endblock %}
-{% block content %}
-<div class="row">
-    <div class="container mt-4">
-    <h2>¡Hola, {{ request.user.first_name|default:request.user.username }}!</h2>
-    
-</div>
-
-{% if messages %}
-<div class="alert alert-success mt-3">
-    <ul class="mb-0">
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %}
-
-{% endblock %}
-
-
-
+<h4></a4>Menú Territoriales</4>
+</hr>
+<br>
+<a href="{% url 'main_incidencia' %}"> Incidencias</a>

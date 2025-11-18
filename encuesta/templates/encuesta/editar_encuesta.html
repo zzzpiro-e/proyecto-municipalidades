@@ -1,26 +1,24 @@
-{% extends 'core/base.html' %}
-{% load static %}
-{% block title %}Editar Encuesta{% endblock %}
+<h4>Editar Encuesta</h4>
+<hr/>
 
-{% block content %}
 <form method="POST">
   {% csrf_token %}
   <input type="hidden" name="encuesta_id" value="{{ encuesta.id }}">
 
   <label>Nombre:</label><br>
-  <input type="text" name="nombre_encuesta" value="{{ encuesta.nombre_encuesta }}" required style="width: 30%;"><br><br>
+  <input type="text" name="nombre_encuesta" value="{{ encuesta.nombre_encuesta }}"><br><br>
 
   <label>Descripción:</label><br>
-  <textarea name="descripcion" required style="width: 30%;">{{ encuesta.descripcion }}</textarea><br><br>
+  <textarea name="descripcion">{{ encuesta.descripcion }}</textarea><br><br>
 
   <label>Tipo:</label><br>
-  <input type="text" name="tipo" value="{{ encuesta.tipo }}" required style="width: 30%;"><br><br>
+  <input type="text" name="tipo" value="{{ encuesta.tipo }}"><br><br>
 
   <label>Prioridad:</label><br>
-  <input type="text" name="prioridad" value="{{ encuesta.prioridad }}" required style="width: 30%;"><br><br>
+  <input type="text" name="prioridad" value="{{ encuesta.prioridad }}"><br><br>
 
   <label>Departamento:</label><br>
-  <select name="departamento" required style="width: 30%;">
+  <select name="departamento">
     {% for d in departamentos %}
       <option value="{{ d.id }}" {% if d.id == encuesta.departamento.id %}selected{% endif %}>
         {{ d.nombre_departamento }}
@@ -28,81 +26,8 @@
     {% endfor %}
   </select><br><br>
 
-  <h4>Preguntas existentes:</h4>
-  <div id="preguntas-existentes">
-    {% for pregunta in preguntas %}
-      <div class="pregunta-item">
-        <input type="hidden" name="pregunta_id[]" value="{{ pregunta.id }}">
-        <input type="text" name="pregunta_texto[]" value="{{ pregunta.titulo }}" required style="width: 30%;">
-        
-        
-
-      </div>
-    {% empty %}
-      <p>No hay preguntas en esta encuesta.</p>
-    {% endfor %}
-  </div>
-
-  <h4>Nuevas preguntas:</h4>
-  <div id="nuevas-preguntas">
-    <div class="pregunta-nueva">
-      <input type="text" name="nuevas_preguntas[]" placeholder="Agregar nueva pregunta" style="width: 30%;">
-      <button type="button" class="btn-eliminar-nueva"
-              style="background-color:#e63946; color:white; border:none; padding:4px 10px; border-radius:4px; cursor:pointer;">
-          X
-      </button>
-    </div>
-  </div>
-
-  <a href="#" id="agregar-pregunta" style="color: purple; text-decoration: none;">➕ Agregar otra pregunta</a>
-  <br><br>
-
-  <!-- Campo oculto donde se guardan IDs de preguntas eliminadas -->
-  <div id="eliminadas-container"></div>
-
   <button type="submit">Guardar cambios</button>
 </form>
 
 <br>
 <a href="{% url 'main_encuesta' %}">Volver</a>
-
-<script>
-document.getElementById('agregar-pregunta').addEventListener('click', function(e) {
-  e.preventDefault();
-  const container = document.getElementById('nuevas-preguntas');
-
-  const div = document.createElement('div');
-  div.classList.add('pregunta-nueva');
-
-  div.innerHTML = `
-    <input type="text" name="nuevas_preguntas[]" placeholder="Agregar nueva pregunta" style="width:30%;">
-    <button type="button" class="btn-eliminar-nueva"
-      style="background-color:#e63946; color:white; border:none; padding:4px 10px; border-radius:4px; cursor:pointer;">
-      X
-    </button>
-  `;
-
-  container.appendChild(div);
-});
-
-/* Eliminar preguntas existentes */
-document.addEventListener('click', function(e) {
-  if (e.target.classList.contains('btn-eliminar')) {
-      const id = e.target.dataset.id;
-
-      // Guarda ID en un input hidden para eliminar en backend
-      const eliminadas = document.getElementById('eliminadas-container');
-      eliminadas.innerHTML += `<input type="hidden" name="preguntas_eliminadas[]" value="${id}">`;
-
-      // Quitar visualmente
-      e.target.parentElement.remove();
-  }
-
-  // Eliminar nuevas preguntas antes de guardar
-  if (e.target.classList.contains('btn-eliminar-nueva')) {
-      e.target.parentElement.remove();
-  }
-});
-</script>
-
-{% endblock %}

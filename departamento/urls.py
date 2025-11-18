@@ -11,8 +11,5 @@ departamento_urlpatterns=[
     path('bloquear_departamento/<int:pk>/', views.bloquear_departamento, name='bloquear_departamento'),
     path('ver_departamento/<int:departamento_id>/', views.ver_departamento, name='ver_departamento'),
     path('ver_departamento_bloqueo/', views.ver_departamento_bloqueo, name='ver_departamento_bloqueo'),
-    path('cuadrillas_usuario_departamento/', views.cuadrillas_usuario_departamento, name='cuadrillas_usuario_departamento'),
-    
-
 ]
     
