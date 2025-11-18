@@ -4,6 +4,10 @@ from django.shortcuts import render,redirect, get_object_or_404
 from registration.models import Profile
 from django.contrib.auth.models import User, Group
 from core.models import Usuario
+from django.db import IntegrityError
+from territorial.models import Territorial
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 
 @login_required
 def main_usuario(request, usuario_id=None):
@@ -122,3 +126,80 @@ def eliminar_usuario(request, usuario_id):
     messages.success(request, f'Usuario {usuario.username} eliminado con éxito')
     return redirect('main_usuario')
 
+@login_required
+def editar_usuario(request, user_id=None):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+
+    if profile.group_id != 1:
+        return redirect('logout')
+    
+    usuario_a_editar = get_object_or_404(User, id=user_id)
+    try:
+        profile_a_editar, created = Profile.objects.get_or_create(user=usuario_a_editar)
+        if created:
+            profile_a_editar.group_id = 1 
+            profile_a_editar.save()
+    except Exception as e:
+        messages.error(request, f"Error crítico al obtener/crear el perfil: {e}")
+        return redirect('main_usuario')
+
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        
+        telefono = request.POST.get('telefono')
+        group_id = request.POST.get('group')
+        usuario_a_editar.first_name = first_name
+        usuario_a_editar.last_name = last_name
+        usuario_a_editar.email = email
+        
+        usuario_a_editar.save()
+
+        if usuario_a_editar.profile:
+            usuario_a_editar.profile.telefono = telefono
+            usuario_a_editar.profile.group_id = group_id
+            usuario_a_editar.profile.save()
+
+        messages.add_message(request, messages.INFO, 'Usuario actualizado con éxito.')
+        return redirect('main_usuario')
+
+    else:
+        grupos = Group.objects.all()
+        template_name = 'usuario/editar_usuario.html'
+        context = {
+            'usuario': usuario_a_editar,
+            'grupos': grupos
+        }
+        return render(request, template_name, context)
+    
+@login_required
+def cambiar_contraseña_obligatorio(request):
+    profile = request.user.profile
+
+    if not profile.first_session:
+        return redirect('check_profile')
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user) 
+            profile.first_session = 'No'
+            profile.save()
+            
+            messages.success(request, '¡Contraseña cambiada con éxito! Ya puedes usar el sistema.')
+            return redirect('check_profile')
+        else:
+            messages.error(request, 'Por favor corrige los errores.')
+    else:
+        form = PasswordChangeForm(request.user)
+    
+    context = {
+        'form': form
+    }
+    return render(request, 'usuario/cambiar_contraseña_obligatorio.html', context)

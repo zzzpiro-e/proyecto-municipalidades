@@ -72,6 +72,10 @@ def guardar_direccion(request):
             if nombre_direccion=='' or not usuario_id:
                 messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
                 return redirect('crear_direccion')
+            usuario_ocupado = Direccion.objects.filter(usuario_id=usuario_id).exists()
+            if usuario_ocupado:
+                messages.warning(request, 'Error: El usuario seleccionado ya es encargado de otra Dirección.')
+                return redirect('crear_direccion')
             direccion_save=Direccion(
                 nombre_direccion=nombre_direccion,
                 usuario_id=usuario_id,
