@@ -25,7 +25,6 @@ from incidencia.urls import incidencia_urlpatterns
 from usuario.urls import usuario_urlpatterns
 from cuadrilla.urls import cuadrilla_urlpatterns
 from encuesta.urls import encuesta_urlpatterns
-from multimedia.urls import multimedia_urlpatterns
 
 urlpatterns = [
     path("",include(core_urlpatterns)),
@@ -37,10 +36,6 @@ urlpatterns = [
     path("cuadrilla/",include(cuadrilla_urlpatterns)),
     path("incidencia/",include(incidencia_urlpatterns)),
     path('encuesta/', include(encuesta_urlpatterns)),
-
-    path("multimedia/",include(multimedia_urlpatterns)),
     path('accounts/',include('django.contrib.auth.urls')),
     path('accounts/',include('registration.urls')),
 ]
-
-
