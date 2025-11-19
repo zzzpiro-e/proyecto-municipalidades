@@ -269,3 +269,36 @@ def rechazar_incidencia(request, pk):
     else:
         messages.error(request, 'No tienes permiso para realizar esta acción.')
         return redirect('logout')
+    
+
+
+@login_required
+def gestion_incidencia_admin(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+
+    # Solo quienes pueden gestionar incidencias → ajusta si es necesario
+    if profile.group_id in [1, 2, 3, 4, 5]:
+
+        # Traer TODAS las incidencias, sin excluir estados
+        incidencias = Incidencia.objects.select_related(
+            'departamento',
+            'territorial'
+        ).order_by('-id')
+
+        # Construimos una estructura para indicar si está activa/bloqueada
+        for incidencia in incidencias:
+            incidencia.es_bloqueada = (incidencia.state == "Bloqueado")
+            incidencia.es_activa = (incidencia.state != "Bloqueado")
+
+        context = {
+            'incidencias': incidencias,
+            'profile': profile
+        }
+        return render(request, 'incidencia/gestion_incidencia_admin.html', context)
+
+    else:
+        return redirect('logout')
