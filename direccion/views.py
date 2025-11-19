@@ -4,6 +4,9 @@ from django.shortcuts import render,redirect,get_object_or_404
 from registration.models import Profile
 from direccion.models import Direccion
 from django.contrib.auth.models import User
+from departamento.models import Departamento
+from incidencia.models import Incidencia
+
 
 @login_required
 def main_direccion(request, direccion_id=None):
@@ -157,8 +160,68 @@ def bloquear_direccion(request, pk):
             direccion.state = "Activo"
             messages.add_message(request, messages.SUCCESS, f"La dirección {direccion.nombre_direccion} fue activada.")
         direccion.save()
-        return redirect('main_direccion')
+        return redirect('gestion_direccion')
     else:
         return redirect('logout')
     
     
+@login_required
+def departamento_e_incidencia_asociadas(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.error(request, 'Error al obtener el perfil.')
+        return redirect('login')
+
+    # Solo usuarios del grupo Dirección (group_id = 2)
+    if profile.group_id == 2:
+        # Buscar la dirección asociada al usuario actual
+        direccion = Direccion.objects.filter(usuario=request.user).first()
+        if not direccion:
+            messages.info(request, 'No tienes una dirección asignada.')
+            return redirect('main_direccion')
+
+        # Obtener los departamentos que pertenecen a esa dirección
+        departamentos = (
+            Departamento.objects.filter(direccion=direccion)
+            .select_related('usuario', 'direccion')
+            .order_by('id')
+        )
+
+        return render(
+            request,
+            'direccion/departamento_e_incidencia_asociadas.html',
+            {
+                'direccion': direccion,
+                'departamentos': departamentos
+            }
+        )
+    else:
+        return redirect('logout')
+
+
+
+
+@login_required
+def incidencias_direccion(request):
+    try:
+        # Obtenemos la dirección asociada al usuario actual
+        direccion_usuario = Direccion.objects.get(usuario=request.user)
+
+        # Buscamos todos los departamentos que pertenecen a esa dirección
+        departamentos = Departamento.objects.filter(direccion=direccion_usuario)
+
+        # Buscamos todas las incidencias de esos departamentos
+        incidencias_asociadas = Incidencia.objects.filter(departamento__in=departamentos)
+
+        context = {
+            'direccion': direccion_usuario,
+            'departamentos': departamentos,
+            'incidencias': incidencias_asociadas,
+        }
+
+        return render(request, 'direccion/incidencias_direccion.html', context)
+
+    except Direccion.DoesNotExist:
+        messages.error(request, 'No estás asignado a ninguna dirección.')
+        return redirect('main_direccion')
