@@ -138,7 +138,7 @@ def editar_departamento(request, departamento_id=None):
         departamento_para_editar = get_object_or_404(Departamento, id=departamento_id)
         direcciones = Direccion.objects.all()
         # Mostrar sólo usuarios del grupo 3 que NO tienen departamento asignado (misma lógica que crear)
-        usuarios = User.objects.filter(profile__group__id=3, departamento__isnull=True)
+        usuarios = User.objects.filter(profile__group__id=3)
 
         template_name = 'departamento/editar_departamento.html'
         context = {

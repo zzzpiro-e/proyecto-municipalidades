@@ -11,15 +11,15 @@
 
 <hr>
 
+<!-- 🔥 Filtro por estado -->
 <form method="get" class="mb-3">
-    <label><strong>Filtrar por Estado:</strong></label>
-    <select name="state" onchange="this.form.submit()" class="form-select" style="max-width: 250px; display:inline-block;">
-        <option value="Todos" {% if state_actual == "Todos" %}selected{% endif %}>Todos</option>
-        
-        <option value="Activo" {% if state_actual == "Activo" %}selected{% endif %}>Activo (Pendiente)</option>
-        <option value="Aceptado" {% if state_actual == "Aceptado" %}selected{% endif %}>Aceptado</option>
-        <option value="Rechazado" {% if state_actual == "Rechazado" %}selected{% endif %}>Rechazado</option>
-        <option value="Bloqueado" {% if state_actual == "Bloqueado" %}selected{% endif %}>Bloqueado</option>
+    <label><strong>Estado:</strong></label>
+    <select name="estado" onchange="this.form.submit()" class="form-select" style="max-width: 250px; display:inline-block;">
+        <option value="Todos" {% if estado_actual == "Todos" %}selected{% endif %}>Todos</option>
+        <option value="Pendiente" {% if estado_actual == "Pendiente" %}selected{% endif %}>Pendiente</option>
+        <option value="Asignada" {% if estado_actual == "Asignada" %}selected{% endif %}>Asignada</option>
+        <option value="Resuelta" {% if estado_actual == "Resuelta" %}selected{% endif %}>Resuelta</option>
+        <option value="Rechazada" {% if estado_actual == "Rechazada" %}selected{% endif %}>Rechazada</option>
     </select>
 </form>
 
@@ -63,8 +63,7 @@
                 <td>
                     <div class="d-flex justify-content-center gap-2 flex-wrap">
                         <a href="{% url 'ver_incidencia' inc.id %}" class="btn btn-outline-dark btn-sm">Ver</a>
-                        {% if inc.state == "Activo" %}
-                            <a href="{% url 'aceptar_incidencia' inc.id %}" class="btn btn-outline-success btn-sm">Aceptar</a>
+                        {% if inc.state == "Activo" and inc.estado != "Rechazada" %}
                             <a href="{% url 'rechazar_incidencia' inc.id %}" class="btn btn-outline-danger btn-sm">Rechazar</a>
                         {% endif %}
                     </div>

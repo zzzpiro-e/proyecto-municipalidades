@@ -18,15 +18,18 @@ def gestion_incidencia(request):
         return redirect('login')
 
     if profile.group_id in [1, 2, 3, 4, 5]:
-        incidencias = Incidencia.objects.exclude(
-            state__in=['Resuelto', 'Rechazado', 'Bloqueado']).select_related('departamento', 'territorial').order_by('-id')
+        estado_filtro = request.GET.get("estado", "Todos")
+        qs = Incidencia.objects.filter(state='Activo').select_related(
+            'departamento', 'territorial'
+        ).order_by('-id')
+        if estado_filtro != "Todos":
+            qs = qs.filter(estado=estado_filtro)
         context = {
-            'incidencias': incidencias,
-            'profile': profile
+            'incidencias': qs,
+            'profile': profile,
+            'estado_actual': estado_filtro
         }
         return render(request, 'incidencia/gestion_incidencia.html', context)
-    else:
-        return redirect('logout')
 
 @login_required
 def crear_incidencia(request):
@@ -162,7 +165,7 @@ def editar_incidencia(request, incidencia_id=None):
     except Profile.DoesNotExist:
         messages.add_message(request, messages.INFO, 'Error de perfil.')
         return redirect('login')
-    if profile.group_id == 1:
+    if profile.group_id == 1 or profile.group_id ==4:
         if request.method == 'POST':
             inc_id = request.POST.get('incidencia_id')
             incidencia_a_actualizar = get_object_or_404(Incidencia, id=inc_id)
@@ -199,14 +202,14 @@ def incidencias_usuario_departamento(request):
             return redirect('logout')
             
         departamento_usuario = Departamento.objects.get(usuario=request.user)
-        state_filtro = request.GET.get("state", "Todos") 
+        estado_filtro = request.GET.get("estado", "Todos") 
         qs = Incidencia.objects.filter(departamento=departamento_usuario)
-        if state_filtro != "Todos":
-            qs = qs.filter(state=state_filtro) 
+        if estado_filtro != "Todos":
+            qs = qs.filter(estado=estado_filtro) 
         context = {
             'incidencias': qs,
             'departamento': departamento_usuario,
-            'state_actual': state_filtro,
+            'estado_actual': estado_filtro,
         }
         return render(request, 'incidencia/incidencias_usuario_departamento.html', context)
     except Profile.DoesNotExist:
@@ -272,33 +275,4 @@ def rechazar_incidencia(request, pk):
     
 
 
-@login_required
-def gestion_incidencia_admin(request):
-    try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.add_message(request, messages.INFO, 'Error de perfil.')
-        return redirect('login')
 
-    # Solo quienes pueden gestionar incidencias → ajusta si es necesario
-    if profile.group_id in [1, 2, 3, 4, 5]:
-
-        # Traer TODAS las incidencias, sin excluir estados
-        incidencias = Incidencia.objects.select_related(
-            'departamento',
-            'territorial'
-        ).order_by('-id')
-
-        # Construimos una estructura para indicar si está activa/bloqueada
-        for incidencia in incidencias:
-            incidencia.es_bloqueada = (incidencia.state == "Bloqueado")
-            incidencia.es_activa = (incidencia.state != "Bloqueado")
-
-        context = {
-            'incidencias': incidencias,
-            'profile': profile
-        }
-        return render(request, 'incidencia/gestion_incidencia_admin.html', context)
-
-    else:
-        return redirect('logout')

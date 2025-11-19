@@ -1,33 +1,59 @@
 {% extends 'core/base.html' %}
 {% load static %}
-{% block title %}Menú de Departamentos{% endblock %}
+{% block title %}Crear Dirección{% endblock %}
+
 {% block content %}
-<h4>Crear Nueva Dirección</h4>
-<form method="post" action="{% url 'guardar_direccion' %}">
-    {% csrf_token %}
-    <p><input type="text" name="nombre_direccion" placeholder="Ingrese nombre de dirección"/></p>
+<div class="container-fluid">
 
-    <p>
-        <label for="usuario">Seleccione Usuario Encargado:</label><br>
-        <select name="usuario" id="usuario">
-            {% for usuario in usuarios %}
-                <option value="{{ usuario.id }}">{{ usuario.first_name }} {{ usuario.last_name }}
-                </option>
-            {% endfor %}
-        </select>
-    </p>
-    
-    <p><input type="submit" value="Crear"/></p>
-    <a href="{% url 'gestion_direccion' %}">Volver a menú Direcciones</a>
-</form>
+    <h4 class="text-secondary mb-3">Crear Nueva Dirección</h4>
+    <hr>
 
-{% if messages %}
-<div class="alert alert-success mt-3">
-    <ul class="mb-0">
+    <form method="POST" action="{% url 'guardar_direccion' %}" class="row g-3">
+        {% csrf_token %}
+
+        <!-- Columna izquierda -->
+        <div class="col-md-6">
+            <h5>Información de la Dirección</h5>
+
+            <div class="mb-3">
+                <label class="form-label">Nombre de la Dirección:</label>
+                <input type="text" name="nombre_direccion" class="form-control"
+                       placeholder="Ingrese nombre del direccion" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Seleccione Usuario Encargado:</label>
+                <select name="usuario" id="usuario" class="form-select" required>
+                    {% for usuario in usuarios %}
+                        <option value="{{ usuario.id }}">
+                            {{ usuario.username }} - {{ usuario.first_name }} {{ usuario.last_name }}
+                            
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        
+        <hr class="my-3">
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Crear Dirección</button>
+            <a href="{% url 'gestion_direccion' %}" class="btn btn-outline-secondary">Volver al menú</a>
+        </div>
+    </form>
+
+    {% if messages %}
+    <div class="container mt-3">
         {% for message in messages %}
-            <li>{{ message }}</li>
+        <div class="alert 
+            {% if message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}
+            alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
 {% endblock %}

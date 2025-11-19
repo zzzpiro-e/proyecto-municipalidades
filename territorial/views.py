@@ -13,7 +13,7 @@ def main_territorial(request):
         messages.info(request, 'Error de perfil.')
         return redirect('login')
 
-    if profile.group_id in [1, 4]:
+    if profile.group_id in [4]:
         territoriales = (Territorial.objects.select_related('usuario').order_by('id'))
         return render(
             request,
