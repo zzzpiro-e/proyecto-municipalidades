@@ -168,33 +168,41 @@ def crear_registro(request):
     except Cuadrilla.DoesNotExist:
         messages.error(request, "Tu usuario no está asociado a ninguna cuadrilla.")
         return redirect('home')
+
     incidencias = Incidencia.objects.filter(
-    asignacion__cuadrilla=cuadrilla
+        asignacion__cuadrilla=cuadrilla
     ).exclude(id__in=Registro_trabajo.objects.values_list('incidencia_id', flat=True))
-    
 
     if request.method == 'POST':
         incidencia_id = request.POST.get('incidencia')
         descripcion = request.POST.get('descripcion')
         fecha = request.POST.get('fecha')
+
         if not incidencia_id:
             messages.error(request, "Debes seleccionar una incidencia.")
             return redirect('crear_registro')
+
         incidencia = get_object_or_404(Incidencia, id=incidencia_id)
+
         Registro_trabajo.objects.create(
             incidencia=incidencia,
             cuadrilla=cuadrilla,
             descripcion=descripcion,
             fecha=fecha
         )
-        incidencia.estado='Resuelto'
+
+        # 🔥 CAMBIO REAL DEL ESTADO
+        incidencia.state = Incidencia.STATE_RESUELTO
         incidencia.save()
+
         messages.success(request, "Registro creado correctamente.")
-        return redirect('main_cuadrilla') 
+        return redirect('main_cuadrilla')
+
     return render(request, 'cuadrilla/crear_registro.html', {
         'incidencias': incidencias,
         'cuadrilla': cuadrilla
     })
+
 
 def ver_incidencias_cuadrilla(request):
     cuadrilla = Cuadrilla.objects.filter(usuario=request.user).first()
