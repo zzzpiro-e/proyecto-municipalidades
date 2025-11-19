@@ -1,0 +1,117 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Crear Nueva Incidencia{% endblock %}
+{% block content %}
+
+<div class="container-fluid">
+    <h4 class="text-secondary mb-3">Crear Nueva Incidencia</h4>
+    <hr>
+
+    <form method="POST" action="{% url 'guardar_incidencia' %}" enctype="multipart/form-data" class="row g-3">
+        {% csrf_token %}
+        
+        <div class="col-md-6">
+            <label for="titulo" class="form-label">Título:</label>
+            <input type="text" name="titulo" id="titulo" class="form-control" required>
+        </div>
+
+        <div class="col-md-6">
+            <label for="tipo" class="form-label">Tipo:</label>
+            <input type="text" name="tipo" id="tipo" class="form-control">
+        </div>
+        
+        <div class="col-md-6">
+            <label for="departamento" class="form-label">Departamento:</label>
+            <select name="departamento" id="departamento" class="form-select" required>
+                <option value="">Seleccione un departamento...</option>
+                {% for d in departamentos %}
+                <option value="{{ d.id }}">{{ d.nombre_departamento }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label for="encuesta" class="form-label">Encuesta:</label>
+            <select name="encuesta" id="encuesta" class="form-select" required>
+                <option value="">Seleccione una encuesta...</option>
+                {% for e in encuestas %}
+                <option value="{{ e.id }}">{{ e.nombre_encuesta }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-12">
+            <label for="ubicacion" class="form-label">Ubicación:</label>
+            <input type="text" name="ubicacion" id="ubicacion" class="form-control" placeholder="Calle Falsa 123, Comuna">
+        </div>
+
+        <div class="col-md-6">
+            <label for="latitud" class="form-label">Latitud:</label>
+            <input type="number" step="any" name="latitud" id="latitud" class="form-control">
+        </div>
+
+        <div class="col-md-6">
+            <label for="longitud" class="form-label">Longitud:</label>
+            <input type="number" step="any" name="longitud" id="longitud" class="form-control">
+        </div>
+
+        <hr class="my-3">
+        <h5 class="text-muted">Datos del Vecino</h5>
+
+        <div class="col-md-4">
+            <label for="nombre_vecino" class="form-label">Nombre del vecino:</label>
+            <input type="text" name="nombre_vecino" id="nombre_vecino" class="form-control">
+        </div>
+
+        <div class="col-md-4">
+            <label for="telefono_vecino" class="form-label">Teléfono del vecino:</label>
+            <input type="text" name="telefono_vecino" id="telefono_vecino" class="form-control">
+        </div>
+
+        <div class="col-md-4">
+            <label for="correo_vecino" class="form-label">Correo del vecino:</label>
+            <input type="email" name="correo_vecino" id="correo_vecino" class="form-control">
+        </div>
+
+        <hr class="my-3">
+        <h5 class="text-muted">Preguntas de la Encuesta Seleccionada</h5>
+
+        {% for pregunta in preguntas %}
+            <div class="col-12 mb-3">
+                <label for="respuesta_{{ pregunta.id }}" class="form-label">{{ pregunta.titulo }}</label>
+                <textarea 
+                    name="respuesta_{{ pregunta.id }}" 
+                    id="respuesta_{{ pregunta.id }}" 
+                    class="form-control" 
+                    rows="3" 
+                    required
+                ></textarea>
+            </div>
+        {% empty %}
+            <p class="text-info">No se encontraron preguntas de encuesta para adjuntar.</p>
+        {% endfor %}
+
+        <hr class="my-3">
+        <div class="col-12">
+            <label for="archivos" class="form-label">Subir Multimedia (Imágenes/Videos)</label>
+            <input class="form-control" type="file" name="archivos" id="archivos" multiple>
+        </div>
+
+        <div class="col-12 mt-4">
+            <button type="submit" class="btn btn-primary">Guardar incidencia</button>
+            
+            <a href="{% url 'main_territorial' %}">Volver</a>
+        </div>
+    </form>
+</div>
+
+{% if messages %}
+<div class="alert alert-info mt-3"> <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% endblock %}
