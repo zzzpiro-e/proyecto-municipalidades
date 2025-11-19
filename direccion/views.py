@@ -56,7 +56,7 @@ def crear_direccion(request):
         return redirect('login')
     if profile.group_id ==1:
         template_name = 'direccion/crear_direccion.html'
-        usuarios=User.objects.filter(profile__group__id=2)
+        usuarios=User.objects.filter(profile__group__id=2, direccion__isnull=True)
         return render(request,template_name,{"usuarios":usuarios})
     else: 
         return redirect('logout')
@@ -95,35 +95,45 @@ def guardar_direccion(request):
 @login_required
 def editar_direccion(request, direccion_id=None):
     try:
-        profile = Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request, messages.INFO, 'Error de perfil')
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
         return redirect('login')
-    if profile.group_id == 1:
-        if request.method == 'POST':
-            dir_id = request.POST.get('direccion_id')
-            nombre_direccion = request.POST.get('nombre_direccion')
-            usuario_id = request.POST.get("usuario")
-            if not nombre_direccion or not usuario_id:
-                messages.add_message(request, messages.INFO, 'No pueden quedar campos vacíos.')
-                return redirect('editar_direccion', direccion_id=dir_id)
-            direccion_a_actualizar = get_object_or_404(Direccion, id=dir_id)
-            direccion_a_actualizar.nombre_direccion = nombre_direccion
-            direccion_a_actualizar.usuario_id = usuario_id
-            direccion_a_actualizar.save()
-            messages.add_message(request, messages.INFO, 'Dirección actualizada con éxito.')
-            return redirect('gestion_direccion')
-        else:
-            direccion = get_object_or_404(Direccion, id=direccion_id)
-            usuarios = User.objects.filter(profile__group__id=2)
-            template_name = 'direccion/editar_direccion.html'
-            context = {
-                'direccion': direccion,
-                'usuarios': usuarios
-            }
-            return render(request, template_name, context)
-    else:
+
+    if profile.group_id != 1:
         return redirect('logout')
+
+    if request.method == 'POST':
+        dir_id = request.POST.get('direccion_id')
+        nombre_direccion = request.POST.get('nombre_direccion')
+        usuario_id = request.POST.get("usuario")
+
+        direccion_a_actualizar = get_object_or_404(Direccion, id=dir_id)
+        usuario_ya_asignado = Direccion.objects.filter(usuario_id=usuario_id).exclude(id=dir_id).exists()
+        if usuario_ya_asignado:
+            messages.add_message(request, messages.INFO, 'El usuario seleccionado ya tiene otro direccion asignado.')
+            return redirect('editar_direccion', direccion_id=dir_id)
+
+        direccion_a_actualizar.nombre_direccion = nombre_direccion
+        direccion_a_actualizar.usuario_id = usuario_id
+        direccion_a_actualizar.save()
+
+        messages.add_message(request, messages.INFO, 'direccion actualizado con éxito.')
+        return redirect('gestion_direccion')
+
+    else:
+        direccion_para_editar = get_object_or_404(Direccion, id=direccion_id)
+        direcciones = Direccion.objects.all()
+        # Mostrar sólo usuarios del grupo 3 que NO tienen direccion asignado (misma lógica que crear)
+        usuarios = User.objects.filter(profile__group__id=2)
+
+        template_name = 'direccion/editar_direccion.html'
+        context = {
+            'direccion': direccion_para_editar,
+            'direcciones': direcciones,
+            'usuarios': usuarios
+        }
+        return render(request, template_name, context)
     
 
 @login_required
@@ -205,19 +215,27 @@ def departamento_e_incidencia_asociadas(request):
 @login_required
 def incidencias_direccion(request):
     try:
-        # Obtenemos la dirección asociada al usuario actual
+        # Dirección del usuario actual
         direccion_usuario = Direccion.objects.get(usuario=request.user)
 
-        # Buscamos todos los departamentos que pertenecen a esa dirección
+        # Departamentos de esa dirección
         departamentos = Departamento.objects.filter(direccion=direccion_usuario)
 
-        # Buscamos todas las incidencias de esos departamentos
+        # --- FILTRO DE ESTADO ---
+        estado_filtro = request.GET.get("estado", "Todos")
+
+        # Query base: incidencias de los departamentos asociados
         incidencias_asociadas = Incidencia.objects.filter(departamento__in=departamentos)
+
+        # Aplicamos filtro por estado si corresponde
+        if estado_filtro != "Todos":
+            incidencias_asociadas = incidencias_asociadas.filter(estado=estado_filtro)
 
         context = {
             'direccion': direccion_usuario,
             'departamentos': departamentos,
             'incidencias': incidencias_asociadas,
+            'estado_filtro': estado_filtro,
         }
 
         return render(request, 'direccion/incidencias_direccion.html', context)

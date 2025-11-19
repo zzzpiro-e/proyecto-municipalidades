@@ -65,9 +65,9 @@ def main_admin(request):
         # --- Datos para el dashboard ---
         total_usuarios = User.objects.count()
         total_incidencias = Incidencia.objects.count()
-        incidencias_derivadas = Incidencia.objects.filter(state="Asignada").count()
-        incidencias_rechazadas = Incidencia.objects.filter(state="Rechazado").count()
-        incidencias_finalizadas = Incidencia.objects.filter(state="Resuelto").count()
+        incidencias_derivadas = Incidencia.objects.filter(estado="Asignada").count()
+        incidencias_rechazadas = Incidencia.objects.filter(estado="Rechazada").count()
+        incidencias_finalizadas = Incidencia.objects.filter(estado="Resuelta").count()
 
         context = {
             'total_usuarios': total_usuarios,

@@ -22,13 +22,9 @@
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <strong>Estado:</strong>
                     {% if incidencia.state == "Activo" %}
-                        <span class="badge bg-warning text-dark">{{ incidencia.get_state_display|default:"Activo (Pendiente)" }}</span>
-                    {% elif incidencia.state == "Aceptado" %}
-                        <span class="badge bg-success">{{ incidencia.get_state_display|default:incidencia.state }}</span>
-                    {% elif incidencia.state == "Rechazado" %}
-                        <span class="badge bg-danger">{{ incidencia.get_state_display|default:incidencia.state }}</span>
+                        <span class="badge bg-success text-dark">{{ incidencia.get_state_display|default:"Activo" }} - {{ incidencia.estado }}</span>
                     {% elif incidencia.state == "Bloqueado" %}
-                        <span class="badge bg-dark">{{ incidencia.get_state_display|default:incidencia.state }}</span>
+                        <span class="badge bg-dark">{{ incidencia.get_state_display|default:incidencia.state }} {{ incidencia.estado }}</span>
                     {% else %}
                         <span class="badge bg-secondary">{{ incidencia.state }}</span>
                     {% endif %}

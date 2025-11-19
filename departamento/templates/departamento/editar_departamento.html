@@ -1,54 +1,57 @@
-{%extends 'core/base.html'%}
-{% load static%}
-{% block title %}{% endblock %}
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Editar Departamento{% endblock %}
 {% block content %}
-<h4>Editar Departamento</h4>
-<hr>
 
-<form method="post" action="{% url 'editar_departamento_post' %}">
-    {% csrf_token %}
-    <input type="hidden" name="departamento_id" value="{{ departamento.id }}">
+<div class="container-fluid">
+    <h4 class="text-secondary mb-3">Editar Departamento</h4>
+    <hr>
 
-    <p>
-        <input type="text" name="nombre_departamento" placeholder="Nombre del departamento" value="{{ departamento.nombre_departamento }}" required>
-    </p>
-    
-    <p>
-        <select name="direccion" required>
-            <option value="">Seleccione una dirección</option>
-            {% for direccion in direcciones %}
-                <option value="{{ direccion.id }}" {% if direccion.id == departamento.direccion.id %}selected{% endif %}>
+    <form method="post" action="{% url 'editar_departamento_post' %}">
+        {% csrf_token %}
+        <input type="hidden" name="departamento_id" value="{{ departamento.id }}">
+
+        <div class="mb-3">
+            <label class="form-label">Nombre del Departamento</label>
+            <input type="text" name="nombre_departamento" class="form-control"
+                   value="{{ departamento.nombre_departamento }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Dirección</label>
+            <select name="direccion" class="form-select" required>
+                <option value="">Seleccione una dirección</option>
+                {% for direccion in direcciones %}
+                <option value="{{ direccion.id }}"
+                        {% if direccion.id == departamento.direccion.id %}selected{% endif %}>
                     {{ direccion.nombre_direccion }}
                 </option>
-            {% endfor %}
-        </select>
-    </p>
+                {% endfor %}
+            </select>
+        </div>
 
-    <p>
-        <select name="usuario" required>
-            <option value="">Seleccione un usuario encargado</option>
-            {% for usuario in usuarios %}
-                <option value="{{ usuario.id }}" {% if usuario.id == departamento.usuario.id %}selected{% endif %}>
+        <div class="mb-3">
+            <label class="form-label">Usuario Encargado</label>
+            <select name="usuario" class="form-select" required>
+                <option value="">Seleccione un usuario encargado</option>
+                {% for usuario in usuarios %}
+                <option value="{{ usuario.id }}"
+                        {% if usuario.id == departamento.usuario.id %}selected{% endif %}>
                     {{ usuario.username }}
                 </option>
-            {% endfor %}
-        </select>
-    </p>
+                {% endfor %}
+            </select>
+        </div>
 
-    <p>
-        <input type="submit" value="Guardar Cambios">
-    </p>
-</form>
+        <button class="btn btn-primary">Guardar Cambios</button>
+        <a href="{% url 'gestion_departamento' %}" class="btn btn-outline-secondary">Cancelar</a>
+    </form>
 
-<a href="{% url 'gestion_departamento' %}">Cancelar y Volver a la Lista</a>
-
-{% if messages %}
-<div class="alert alert-success mt-3">
-    <ul class="mb-0">
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
+    {% if messages %}
+    <div class="alert alert-success mt-3">
+        <ul class="mb-0">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
+
 {% endblock %}

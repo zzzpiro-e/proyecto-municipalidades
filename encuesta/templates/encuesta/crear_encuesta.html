@@ -3,104 +3,136 @@
 {% block title %}Crear Encuesta{% endblock %}
 
 {% block content %}
-<h4>Crear Nueva Encuesta</h4>
+<div class="container-fluid">
 
-<form method="post" action="{% url 'guardar_encuesta' %}">
-    {% csrf_token %}
-    <label>Nombre:</label><br>
-    <p><input type="text" name="nombre_encuesta" placeholder="Ingrese nombre de encuesta" required style="width: 30%;" /></p>
-    <label>Tipo:</label><br>
-    <p><input type="text" name="tipo" placeholder="Ingrese tipo de encuesta" required style="width: 30%;"/></p>
-    <label>Descripción:</label><br>
-    <p><textarea name="descripcion" placeholder="Ingrese descripcion para la encuesta" required style="width: 30%;"></textarea></p>
-    <label>Prioridad:</label><br>
-    <p><input type="text" name="prioridad" placeholder="Indique prioridad de la encuesta" required style="width: 30%;"/></p>
+    <h4 class="text-secondary mb-3">Crear Nueva Encuesta</h4>
+    <hr>
 
-    <h4>Preguntas:</h4>
-    <div id="preguntas-container">
-    <div class="pregunta-item">
-        <input type="text" name="preguntas[]" class="pregunta-input" placeholder="Escriba una pregunta" required style="width: 30%;">
-        
+    <form method="POST" action="{% url 'guardar_encuesta' %}" class="row g-3">
+        {% csrf_token %}
+
+        <!-- Columna izquierda -->
+        <div class="col-md-6">
+            <h5>Información General</h5>
+
+            <div class="mb-3">
+                <label class="form-label">Nombre de la Encuesta:</label>
+                <input type="text" name="nombre_encuesta" class="form-control" required
+                       placeholder="Ingrese nombre de encuesta">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Tipo:</label>
+                <input type="text" name="tipo" class="form-control" required
+                       placeholder="Ingrese tipo de encuesta">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Prioridad:</label>
+                <input type="text" name="prioridad" class="form-control" required
+                       placeholder="Indique prioridad">
+            </div>
         </div>
-    </div>
 
-    <a href="#" id="agregar-pregunta" style="color: purple; text-decoration: none;">➕ Agregar pregunta</a><br><br>
+        <!-- Columna derecha -->
+        <div class="col-md-6">
+            <h5>Descripción</h5>
 
-    {% if es_admin %}
-    <p>
-        <label for="departamento">Seleccione Un Departamento:</label><br>
-        <select name="departamento" id="departamento">
-            {% for departamento in departamentos %}
-                <option value="{{ departamento.id }}">{{ departamento.nombre_departamento }}</option>
-            {% endfor %}
-        </select>
-    </p>
-    {% endif %}
+            <div class="mb-3">
+                <label class="form-label">Descripción:</label>
+                <textarea name="descripcion" class="form-control" rows="6" required
+                          placeholder="Ingrese descripción de la encuesta"></textarea>
+            </div>
 
-    <p><input type="submit" value="Crear"/></p>
-</form>
+            {% if es_admin %}
+            <div class="mb-3">
+                <label class="form-label">Seleccione un Departamento:</label>
+                <select name="departamento" class="form-select" required>
+                    {% for departamento in departamentos %}
+                        <option value="{{ departamento.id }}">{{ departamento.nombre_departamento }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+        </div>
 
-<a href="{% url 'main_encuesta' %}">Volver al menú</a>
+        <!-- PREGUNTAS -->
+        <hr class="my-3">
+        <h5>Preguntas de la Encuesta</h5>
+        <div class="col-12">
+            <div id="preguntas-container" class="mb-2">
+                <div class="pregunta-item d-flex align-items-center mb-2">
+                    <input type="text" name="preguntas[]" class="form-control w-50"
+                           placeholder="Escriba una pregunta" required>
+                </div>
 
-{% if messages %}
-<div class="alert alert-success mt-3">
-    <ul class="mb-0">
+            </div>
+
+            <button id="agregar-pregunta" class="btn btn-outline-primary btn-sm" type="button">
+                ➕ Agregar pregunta
+            </button>
+        </div>
+        <hr class="my-3">
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Crear Encuesta</button>
+            <a href="{% url 'main_encuesta' %}" class="btn btn-outline-secondary">Volver al menú</a>
+        </div>
+
+    </form>
+
+    {% if messages %}
+    <div class="container mt-3">
         {% for message in messages %}
-            <li>{{ message }}</li>
+        <div class="alert 
+            {% if message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}
+            alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
 
+
+<!-- JS para agregar/eliminar preguntas -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
     const agregarBtn = document.getElementById('agregar-pregunta');
     const container = document.getElementById('preguntas-container');
 
-    if (!agregarBtn || !container) {
-        console.warn('Agregar pregunta o contenedor no encontrado en DOM.');
-        return;
-    }
-
-    function crearCampoPregunta(value = '') {
+    function crearCampoPregunta(valor = "") {
         const wrapper = document.createElement('div');
-        wrapper.className = 'pregunta-item';
-        wrapper.style.marginBottom = '6px';
+        wrapper.className = "pregunta-item d-flex align-items-center mb-2";
 
         const input = document.createElement('input');
-        input.type = 'text';
-        input.name = 'preguntas[]';
-        input.placeholder = 'Escriba una pregunta';
+        input.type = "text";
+        input.name = "preguntas[]";
+        input.className = "form-control w-50";
         input.required = true;
-        input.value = value;
-        input.style.width = '30%';
+        input.placeholder = "Escriba una pregunta";
+        input.value = valor;
 
         const btnEliminar = document.createElement('button');
-        btnEliminar.type = 'button';
-        btnEliminar.className = 'eliminar-pregunta btn btn-sm btn-danger';
-        btnEliminar.textContent = 'X';
-        btnEliminar.style.marginLeft = '8px';
+        btnEliminar.type = "button";
+        btnEliminar.className = "btn btn-sm btn-danger ms-2";
+        btnEliminar.textContent = "X";
 
-        btnEliminar.addEventListener('click', function () {
-            wrapper.remove();
-        });
+        btnEliminar.addEventListener("click", () => wrapper.remove());
 
         wrapper.appendChild(input);
         wrapper.appendChild(btnEliminar);
 
         return wrapper;
     }
-    //agregar preguntas
-    agregarBtn.addEventListener('click', function (e) {
-        e.preventDefault();
+
+    agregarBtn.addEventListener("click", () => {
         const nuevo = crearCampoPregunta();
         container.appendChild(nuevo);
     });
 
 });
 </script>
-
-
-
-
 {% endblock %}
