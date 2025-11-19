@@ -13,4 +13,5 @@ incidencia_urlpatterns=[
      path('ver_incidencia/<int:incidencia_id>/', views.ver_incidencia, name='ver_incidencia'),
      path('aceptar_incidenci/<int:pk>/', views.aceptar_incidencia, name='aceptar_incidencia'),
      path('rechazar_incidenci/<int:pk>/', views.rechazar_incidencia, name='rechazar_incidencia'),
+     path('gestion_incidencia_admin/', views.gestion_incidencia_admin, name='gestion_incidencia_admin'),
 ]
