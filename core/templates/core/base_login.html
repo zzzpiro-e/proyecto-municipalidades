@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Municipalidad generica</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(141, 153, 200, 0.838);
+        }
+
+        main {
+            flex: 1; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 0;
+        }
+
+        .login-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        footer {
+            background-color: #f8f9fa;
+            padding: 1rem 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .alert {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header class="bg-light text-black border py-4">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <span class="h5 mb-0 ms-4">Municipalidad</span>
+            <a href="#" class="me-4">
+                <img alt="logo" src="{% static 'core/images/logo_empresa.png' %}" class="img-fluid" style="max-height: 50px;">
+            </a>
+        </div>
+    </header>
+
+    <!-- CONTENIDO CENTRAL -->
+    <main>
+        <div class="login-card text-center">
+            {% if messages %}
+                <div class="alert alert-danger">
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-auto text-black">
+        <div class="container d-flex justify-content-between align-items-center">
+            <p class="mb-0">2025 Municipalidad. Todos los derechos reservados.</p>
+            <div>
+                <a href="#" class="text-black me-3">Política de privacidad</a>
+                <a href="#" class="text-black">Términos de servicio</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

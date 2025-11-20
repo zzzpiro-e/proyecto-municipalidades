@@ -1,28 +1,79 @@
-<h4>Crear Nueva cuadrilla</h4>
-<form method="post" action="{% url 'guardar_cuadrilla' %}">
-    {% csrf_token %}
-    <p><input type="text" name="nombre_cuadrilla" placeholder="Ingrese nombre de cuadrilla"/></p>
-    <p><input type="text" name="tipo" placeholder="Ingrese tipo de cuadrilla"/></p>
-    
-    <p>
-        <select name="usuario" id="usuario">
-        <option value="">Seleccione Usuario Encargado</option>
-            {% for usuario in usuarios %}
-                <option value="{{ usuario.id }}">{{ usuario.first_name }} {{ usuario.last_name }}
-                </option>
-            {% endfor %}
-        </select>
-    </p>
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Crear Cuadrilla{% endblock %}
+{% block content %}
 
+<div class="container-fluid">
+    <h4 class="text-secondary mb-3">Crear Nueva Cuadrilla</h4>
+    <hr>
 
-    <p>
-        <select name="departamento" id="departamento">
-        <option value="">Seleccione el departamento</option>
-            {% for departamento in departamentos %}
-                <option value="{{ departamento.id }}">{{ departamento.nombre_departamento }}</option>
-            {% endfor %}
-        </select>
-    </p>
+    <form method="POST" action="{% url 'guardar_cuadrilla' %}" class="row g-3">
+        {% csrf_token %}
 
-    <p><input type="submit" value="Crear"/></p>
-</form>
+        <!-- Nombre de la cuadrilla -->
+        <div class="col-md-6">
+            <label for="nombre_cuadrilla" class="form-label">Nombre de la Cuadrilla:</label>
+            <input type="text"
+                   name="nombre_cuadrilla"
+                   id="nombre_cuadrilla"
+                   class="form-control"
+                   placeholder="Ingrese nombre de la cuadrilla"
+                   required>
+        </div>
+
+        <!-- Tipo -->
+        <div class="col-md-6">
+            <label for="tipo" class="form-label">Tipo:</label>
+            <input type="text"
+                   name="tipo"
+                   id="tipo"
+                   class="form-control"
+                   placeholder="Ingrese tipo de cuadrilla"
+                   required>
+        </div>
+
+        <!-- Usuario encargado -->
+        <div class="col-md-6">
+            <label for="usuario" class="form-label">Usuario Encargado:</label>
+            <select name="usuario" id="usuario" class="form-select" required>
+                <option value="">Seleccione Usuario Encargado...</option>
+                {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}">
+                        {{ usuario.first_name }} {{ usuario.last_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Departamento -->
+        <div class="col-md-6">
+            <label for="departamento" class="form-label">Departamento:</label>
+            <select name="departamento" id="departamento" class="form-select" required>
+                <option value="">Seleccione un departamento...</option>
+                {% for departamento in departamentos %}
+                    <option value="{{ departamento.id }}">
+                        {{ departamento.nombre_departamento }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Botones -->
+        <div class="col-12 mt-4">
+            <button type="submit" class="btn btn-primary">Crear Cuadrilla</button>
+            <a href="{% url 'gestion_cuadrilla' %}" class="ms-3">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+{% if messages %}
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% endblock %}

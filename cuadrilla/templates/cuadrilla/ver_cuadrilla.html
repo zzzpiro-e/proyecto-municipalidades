@@ -1,28 +1,81 @@
-<h4>Ver Cuadrilla</h4>
-<hr>
-<table border="1">
-    <thead>
-        <tr>
-            <th>Nombre Cuadrilla</th>
-            <th>Tipo</th>
-            <th>Departamento</th>
-            <th>Usuario Asignado</th>
-            <th>Estado</th>
-            <th>Fecha de Creación</th>
-            <th>Fecha de Modificación</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>{{ cuadrillas.nombre_cuadrilla }}</td>
-            <td>{{ cuadrillas.tipo }}</td>
-            <td>{{ cuadrillas.departamento.nombre_departamento }}</td>
-            <td>{{ cuadrillas.usuario.username }}</td>
-            <td>{{ cuadrillas.state }}</td>
-            <td>{{ cuadrillas.created }}</td>
-            <td>{{ cuadrillas.updated }}</td>
-        </tr>
-    </tbody>
-</table>
-<br>
-<a href="{% url 'main_cuadrilla' %}">Volver</a>
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Detalle de la Cuadrilla{% endblock %}
+{% block content %}
+
+<div class="container-fluid">
+
+    <h4 class="text-secondary mb-3">Detalle de la Cuadrilla</h4>
+    <hr>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+
+            <h5>Información de la Cuadrilla</h5>
+
+            <ul class="list-group">
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Nombre Cuadrilla:</strong>
+                    <span>{{ cuadrillas.nombre_cuadrilla }}</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Tipo:</strong>
+                    <span>{{ cuadrillas.tipo }}</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Departamento:</strong>
+                    <span>{{ cuadrillas.departamento.nombre_departamento }}</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Usuario Asignado:</strong>
+                    <span>{{ cuadrillas.usuario.username }}</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Estado:</strong>
+                    <span>
+                        {% if cuadrillas.state == "Activo" %}
+                            <span class="badge bg-success text-dark">Activo</span>
+                        {% elif cuadrillas.state == "Bloqueado" %}
+                            <span class="badge bg-dark">Bloqueado</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ cuadrillas.state }}</span>
+                        {% endif %}
+                    </span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Fecha de Creación:</strong>
+                    <span>{{ cuadrillas.created|date:"Y-m-d H:i" }}</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Fecha de Modificación:</strong>
+                    <span>{{ cuadrillas.updated|date:"Y-m-d H:i" }}</span>
+                </li>
+
+            </ul>
+
+            <a href="{% url 'gestion_cuadrilla' %}" class="btn btn-outline-secondary mt-4">Volver</a>
+
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="alert alert-success mt-3">
+        <ul class="mb-0">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}
+

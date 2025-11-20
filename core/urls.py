@@ -11,10 +11,5 @@ core_urlpatterns = [
     path('', views.home, name='home'),    
     path('check_profile', views.check_profile, name='check_profile'), 
     path('main_admin', views.main_admin, name='main_admin'),
-    path('gestion_direccion/',views.gestion_direccion, name='gestion_direccion'),
-    path('gestion_departamento/',views.gestion_departamento, name='gestion_departamento'),
-    path('gestion_usuario/',views.gestion_usuario, name='gestion_usuario'),
-    path('gestion_territorial/',views.gestion_territorial, name='gestion_territorial'),
-    path('gestion_cuadrilla/',views.gestion_cuadrilla, name='gestion_cuadrilla'),  
+ 
     ]
-

@@ -1,23 +1,44 @@
-<h4>Editar Dirección</h4>
-<form method="post" action="{% url 'editar_direccion_post' %}">
-    {% csrf_token %}
-    <input type="hidden" name="direccion_id" value="{{ direccion.id }}">
-    <p>
-        <input type="text" name="nombre_direccion" placeholder="Nombre de la dirección" value="{{ direccion.nombre_direccion }}" required>
-    </p>
-    <p>
-        <select name="usuario" required>
-            <option value="">Seleccione un usuario encargado</option>
-            {% for usuario in usuarios %}
-                <option value="{{ usuario.id }}" {% if usuario.id == direccion.usuario.id %}selected{% endif %}>
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Editar Dirección{% endblock %}
+{% block content %}
+
+<div class="container-fluid">
+    <h4 class="text-secondary mb-3">Editar Dirección</h4>
+    <hr>
+
+    <form method="post" action="{% url 'editar_direccion_post' %}">
+        {% csrf_token %}
+        <input type="hidden" name="direccion_id" value="{{ direccion.id }}">
+
+        <div class="mb-3">
+            <label class="form-label">Nombre de la Dirección</label>
+            <input type="text" name="nombre_direccion" class="form-control"
+                   value="{{ direccion.nombre_direccion }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Usuario Encargado</label>
+            <select name="usuario" class="form-select" required>
+                <option value="">Seleccione un usuario encargado</option>
+                {% for usuario in usuarios %}
+                <option value="{{ usuario.id }}"
+                        {% if usuario.id == direccion.usuario.id %}selected{% endif %}>
                     {{ usuario.username }}
                 </option>
-            {% endfor %}
-        </select>
-    </p>
-    <p>
-        <input type="submit" value="Guardar Cambios">
-    </p>
-</form>
+                {% endfor %}
+            </select>
+        </div>
 
-<a href="{% url 'main_direccion' %}">Cancelar y Volver a la Lista</a>
+        <button class="btn btn-primary">Guardar Cambios</button>
+        <a href="{% url 'gestion_direccion' %}" class="btn btn-outline-secondary">Cancelar</a>
+    </form>
+
+    {% if messages %}
+    <div class="alert alert-success mt-3">
+        <ul class="mb-0">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

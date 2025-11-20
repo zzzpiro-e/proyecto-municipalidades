@@ -15,12 +15,20 @@
     <p>
         <input type="text" name="zona_asignada" placeholder="Zona Asignada" value="{{ territorial.zona_asignada }}">
     </p>
-    <p>
-        <textarea name="observaciones" placeholder="Observaciones">{{ territorial.observaciones }}</textarea>
-    </p>
+
     <p>
         <input type="submit" value="Guardar Cambios">
     </p>
 </form>
 
-<a href="{% url 'main_territorial' %}">Volver</a>
+{% if messages %}
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<a href="{% url 'gestion_territorial' %}">Volver</a>

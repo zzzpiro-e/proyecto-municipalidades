@@ -1,33 +1,163 @@
-<h4>Editar Encuesta</h4>
-<hr/>
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Editar Encuesta{% endblock %}
 
-<form method="POST">
-  {% csrf_token %}
-  <input type="hidden" name="encuesta_id" value="{{ encuesta.id }}">
+{% block content %}
+<div class="container-fluid">
 
-  <label>Nombre:</label><br>
-  <input type="text" name="nombre_encuesta" value="{{ encuesta.nombre_encuesta }}"><br><br>
+    <h4 class="text-secondary mb-3">Editar Encuesta</h4>
+    <hr>
 
-  <label>Descripción:</label><br>
-  <textarea name="descripcion">{{ encuesta.descripcion }}</textarea><br><br>
+    <form method="POST" class="row g-3">
+        {% csrf_token %}
+        <input type="hidden" name="encuesta_id" value="{{ encuesta.id }}">
 
-  <label>Tipo:</label><br>
-  <input type="text" name="tipo" value="{{ encuesta.tipo }}"><br><br>
+        <!-- Columna Izquierda -->
+        <div class="col-md-6">
+            <h5>Información General</h5>
 
-  <label>Prioridad:</label><br>
-  <input type="text" name="prioridad" value="{{ encuesta.prioridad }}"><br><br>
+            <div class="mb-3">
+                <label class="form-label">Nombre de la Encuesta:</label>
+                <input type="text" name="nombre_encuesta" class="form-control"
+                       value="{{ encuesta.nombre_encuesta }}" required>
+            </div>
 
-  <label>Departamento:</label><br>
-  <select name="departamento">
-    {% for d in departamentos %}
-      <option value="{{ d.id }}" {% if d.id == encuesta.departamento.id %}selected{% endif %}>
-        {{ d.nombre_departamento }}
-      </option>
-    {% endfor %}
-  </select><br><br>
+            <div class="mb-3">
+                <label class="form-label">Tipo:</label>
+                <input type="text" name="tipo" class="form-control"
+                       value="{{ encuesta.tipo }}" required>
+            </div>
 
-  <button type="submit">Guardar cambios</button>
-</form>
+            <div class="mb-3">
+                <label class="form-label">Prioridad:</label>
+                <input type="text" name="prioridad" class="form-control"
+                       value="{{ encuesta.prioridad }}" required>
+            </div>
+        </div>
 
-<br>
-<a href="{% url 'main_encuesta' %}">Volver</a>
+        <!-- Columna Derecha -->
+        <div class="col-md-6">
+            <h5>Descripción</h5>
+
+            <div class="mb-3">
+                <label class="form-label">Descripción:</label>
+                <textarea name="descripcion" rows="6" class="form-control" required>{{ encuesta.descripcion }}</textarea>
+            </div>
+
+            <div class="mb-3">
+    <label class="form-label">Departamento:</label>
+
+    {% if es_admin %}
+        <!-- Admin puede modificar -->
+        <select name="departamento" class="form-select" required>
+            {% for d in departamentos %}
+            <option value="{{ d.id }}"
+                {% if d.id == encuesta.departamento.id %}selected{% endif %}>
+                {{ d.nombre_departamento }}
+            </option>
+            {% endfor %}
+        </select>
+    {% else %}
+        <!-- Usuario de departamento: NO puede cambiarlo -->
+        <input type="text" class="form-control" value="{{ encuesta.departamento.nombre_departamento }}" disabled>
+        <input type="hidden" name="departamento" value="{{ encuesta.departamento.id }}">
+    {% endif %}
+</div>
+        </div>
+
+        <!-- Preguntas Existentes -->
+        <hr class="my-3">
+        <h5>Preguntas Existentes</h5>
+
+        <div id="preguntas-existentes" class="col-12 mb-2">
+
+            {% for pregunta in preguntas %}
+            <div class="pregunta-item d-flex align-items-center mb-2">
+                <input type="hidden" name="pregunta_id[]" value="{{ pregunta.id }}">
+
+                <input type="text" name="pregunta_texto[]" class="form-control w-50"
+                       value="{{ pregunta.titulo }}" required>
+
+                <button type="button"
+                        class="btn btn-sm btn-danger ms-2 btn-eliminar"
+                        data-id="{{ pregunta.id }}">
+                    X
+                </button>
+            </div>
+            {% empty %}
+            <p class="text-muted">No hay preguntas en esta encuesta.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Preguntas Nuevas -->
+        <h5>Nuevas Preguntas</h5>
+
+        <div id="nuevas-preguntas" class="col-12 mb-2">
+            <div class="pregunta-nueva d-flex align-items-center mb-2">
+                <input type="text" name="nuevas_preguntas[]" class="form-control w-50"
+                       placeholder="Agregar nueva pregunta">
+
+                <button type="button" class="btn btn-sm btn-danger ms-2 btn-eliminar-nueva">X</button>
+            </div>
+        </div>
+
+        <div class="col-12 mb-3">
+            <button id="agregar-pregunta" type="button" class="btn btn-outline-primary btn-sm">
+                ➕ Agregar otra pregunta
+            </button>
+        </div>
+
+        <!-- Campo oculto para IDs de preguntas eliminadas -->
+        <div id="eliminadas-container"></div>
+
+        <!-- Botones Finales -->
+        <hr class="my-3">
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <a href="{% url 'main_encuesta' %}" class="btn btn-outline-secondary">Volver al menú</a>
+        </div>
+
+    </form>
+</div>
+
+<!-- Scripts -->
+<script>
+// Agregar preguntas nuevas
+document.getElementById('agregar-pregunta').addEventListener('click', function () {
+    const container = document.getElementById('nuevas-preguntas');
+
+    const div = document.createElement('div');
+    div.className = "pregunta-nueva d-flex align-items-center mb-2";
+
+    div.innerHTML = `
+        <input type="text" name="nuevas_preguntas[]" class="form-control w-50"
+               placeholder="Agregar nueva pregunta">
+
+        <button type="button" class="btn btn-sm btn-danger ms-2 btn-eliminar-nueva">X</button>
+    `;
+
+    container.appendChild(div);
+});
+
+// Eliminar preguntas existentes O nuevas
+document.addEventListener('click', function (e) {
+
+    // Eliminar existente (se envía ID para borrarla del backend)
+    if (e.target.classList.contains('btn-eliminar')) {
+        const id = e.target.dataset.id;
+
+        const eliminadas = document.getElementById('eliminadas-container');
+        eliminadas.innerHTML += `<input type="hidden" name="preguntas_eliminadas[]" value="${id}">`;
+
+        e.target.parentElement.remove();
+    }
+
+    // Eliminar pregunta nueva (solo se borra visualmente)
+    if (e.target.classList.contains('btn-eliminar-nueva')) {
+        e.target.parentElement.remove();
+    }
+});
+</script>
+
+{% endblock %}

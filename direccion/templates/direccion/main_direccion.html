@@ -1,44 +1,22 @@
-<h4></a4>Menú Direcciones</4>
-</hr>
-<br/><br/>
-<a href="{%url 'crear_direccion' %}"> Nueva Dirección</a>
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Menú de Direcciones{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="container mt-4">
+    <h2>¡Hola, {{ request.user.first_name|default:request.user.username }}!</h2>
+    
+</div>
 
-<br>
-<hr/>
-<table border="1">
-    <thead>
-        <tr>
-            <th>Nombre de la Dirección</th>
-            <th>Encargado de la Dirección</th>
-            <th>Acciones</th>
-            <th>Estado</th>
-        </tr>
-    </thead>
-    {% for dir in direcciones %}
-        <tr>
-            <td>{{ dir.nombre_direccion }}</td>
-            <td>{{ dir.usuario.username }}</td>
-            <td>{{ dir.state }}</td>
-            <td>
-                <a href="{% url 'ver_direccion' dir.id %}">Ver</a> 
-                <a href="{% url 'editar_direccion' dir.id %}">Editar</a>
-                <a href="{% url 'bloquear_direccion' dir.id %}">
-                    {% if dir.state == "Activo" %}
-                    Bloquear
-                    {% else %}
-                    Activar
-                    {% endif %}
-            </td>
-        </tr>
-    {% endfor %}
-</table>
+{% endblock %}
+
 
 {% if messages %}
-  <ul>
-    {% for message in messages %}
-      <li style="color: green;">{{ message }}</li>
-    {% endfor %}
-  </ul>
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
 {% endif %}
-<br/>
-<a href="{% url 'main_admin' %}"> Volver a menú</a>

@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Detalle de Incidencia: {{ incidencia.titulo }}{% endblock %}
+{% block content %}
+
+<div class="container-fluid">
+    <h4 class="text-secondary mb-3">Detalle de Incidencia: {{ incidencia.titulo }}</h4>
+    <hr>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <h5>Detalles del Reporte</h5>
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Título:</strong>
+                    <span>{{ incidencia.titulo }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Tipo:</strong>
+                    <span>{{ incidencia.tipo }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Estado:</strong>
+                    {% if incidencia.state == "Activo" %}
+                        <span class="badge bg-success text-dark">{{ incidencia.get_state_display|default:"Activo" }} - {{ incidencia.estado }}</span>
+                    {% elif incidencia.state == "Bloqueado" %}
+                        <span class="badge bg-dark">{{ incidencia.get_state_display|default:incidencia.state }} {{ incidencia.estado }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ incidencia.state }}</span>
+                    {% endif %}
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Departamento Asignado:</strong>
+                    <span>{{ incidencia.departamento.nombre_departamento }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Reportado por (Territorial):</strong>
+                    <span>{{ incidencia.territorial.usuario.username }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Ubicación:</strong>
+                    <span>{{ incidencia.ubicacion|default:"No informada" }}</span>
+                </li>
+            </ul>
+
+            <h5 class="mt-4">Datos del Vecino</h5>
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Nombre:</strong> {{ incidencia.nombre_vecino|default:"No informado" }}</li>
+                <li class="list-group-item"><strong>Teléfono:</strong> {{ incidencia.telefono_vecino|default:"No informado" }}</li>
+                <li class="list-group-item"><strong>Correo:</strong> {{ incidencia.correo_vecino|default:"No informado" }}</li>
+            </ul>
+        </div>
+
+        <div class="col-md-6">
+            <h5>Archivos Multimedia Adjuntos</h5>
+            {% for archivo in incidencia.multimedia.all %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        {% if 'image' in archivo.tipo %}
+                            <img src="{{ archivo.path.url }}" class="img-fluid rounded" alt="Archivo de incidencia">
+                        {% elif 'video' in archivo.tipo %}
+                            <video controls width="100%" class="rounded">
+                                <source src="{{ archivo.path.url }}" type="{{ archivo.tipo }}">
+                                Tu navegador no soporta la etiqueta de video.
+                            </video>
+                        {% else %}
+                            <a href="{{ archivo.path.url }}" class="btn btn-outline-dark" target="_blank">
+                                Descargar Archivo: {{ archivo.path.name|cut:"incidencias_media/" }}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="alert alert-info">
+                    No hay archivos multimedia adjuntos para esta incidencia.
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <hr class="my-4">
+    <a href="{{ back_url }}" class="btn btn-outline-secondary">Volver al Listado</a>
+</div>
+{% endblock %}

@@ -13,7 +13,7 @@ def main_territorial(request):
         messages.info(request, 'Error de perfil.')
         return redirect('login')
 
-    if profile.group_id in [1, 4]:
+    if profile.group_id in [4]:
         territoriales = (Territorial.objects.select_related('usuario').order_by('id'))
         return render(
             request,
@@ -22,43 +22,20 @@ def main_territorial(request):
     return redirect('logout')
 
 @login_required
-def crear_territorial(request):
+def gestion_territorial(request):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except Profile.DoesNotExist:
-        messages.add_message(request, messages.INFO, 'Error')
+        messages.info(request, 'Error de perfil.')
         return redirect('login')
 
-    if profile.group_id == 1: 
-        template_name = 'territorial/crear_territorial.html'
-        usuarios = User.objects.filter(profile__group__id=4).order_by('username')
-        return render(request, template_name, {"usuarios": usuarios})
-    else:
-        return redirect('logout')
-
-
-@login_required
-def guardar_territorial(request):
-    if request.method != 'POST':
-        return redirect('main_territorial')
-
-    try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.add_message(request, messages.INFO, 'Error')
-        return redirect('login')
-
-    if profile.group_id != 1:
-        return redirect('logout')
-
-    Territorial.objects.create(
-        usuario_id=request.POST.get('usuario') or None,
-        zona_asignada=request.POST.get('zona_asignada') or '',
-        observaciones=request.POST.get('observaciones') or '',
-    )
-    messages.success(request, 'Territorial creado correctamente')
-    return redirect('main_territorial')
-
+    if profile.group_id ==1:
+        territoriales = (Territorial.objects.select_related('usuario').order_by('id'))
+        return render(
+            request,
+            'territorial/gestion_territorial.html',{'territoriales': territoriales}
+        )
+    return redirect('logout')
 
 @login_required
 def editar_territorial(request, territorial_id=None):

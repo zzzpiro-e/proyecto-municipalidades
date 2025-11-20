@@ -1,29 +1,68 @@
-<h4>Ver Departamento</h4>
-<table border="1">
-  <thead>
-    <tr>
-      <th>Nombre del Departamento</th>
-      <th>Encargado</th>
-      <th>Estado</th>
-      <th>Fecha de Creación</th>
-      <th>Fecha de Modificación</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>{{ departamentos.nombre_departamento }}</td>
-      <td>
-        {% if departamentos.usuario %}
-          {{ departamentos.usuario.username }}
-        {% else %}
-          (sin usuario)
-        {% endif %}
-      </td>
-      <td>{{departamentos.state}}</td>
-      <td>{{departamentos.created|date:"Y-m-d H:i"}}</td>
-      <td>{{departamentos.updated|date:"Y-m-d H:i"}}</td>
-    </tr>
-  </tbody>
-</table>
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Detalle del Departamento{% endblock %}
+{% block content %}
 
-<a href="{% url 'main_departamento' %}">Volver</a>
+<div class="container-fluid">
+
+    <h4 class="text-secondary mb-3">Detalle del Departamento</h4>
+    <hr>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+
+            <h5>Información del Departamento</h5>
+
+            <ul class="list-group">
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Nombre:</strong>
+                    <span>{{ departamentos.nombre_departamento }}</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Encargado:</strong>
+                    <span>
+                        {% if departamentos.usuario %}
+                            {{ departamentos.usuario.username }}
+                        {% else %}
+                            (sin usuario)
+                        {% endif %}
+                    </span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Estado:</strong>
+                    <span class="badge bg-secondary">{{ departamentos.state }}</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Fecha de Creación:</strong>
+                    <span>{{ departamentos.created|date:"Y-m-d H:i" }}</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Fecha de Modificación:</strong>
+                    <span>{{ departamentos.updated|date:"Y-m-d H:i" }}</span>
+                </li>
+
+            </ul>
+
+            <a href="{% url 'gestion_departamento' %}" class="btn btn-outline-secondary mt-4">Volver</a>
+
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="alert alert-success mt-3">
+        <ul class="mb-0">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

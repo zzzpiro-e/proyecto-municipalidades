@@ -1,0 +1,91 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Gestión de Departamentos{% endblock %}
+{% block content %}
+
+<div class="row mt-2 mb-2">
+    <div class="col-7">
+        <h4 class="text-secondary">Gestión de Departamentos</h4>
+    </div>
+    <div class="col-5 d-flex justify-content-end gap-2">
+        <a href="{% url 'crear_departamento' %}" class="btn btn-dark">Nuevo Departamento</a>
+        <a href="{% url 'ver_departamento_bloqueo' %}" class="btn btn-outline-danger">Ver Bloqueados</a>
+    </div>
+</div>
+
+<hr>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle text-center">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Dirección</th>
+                <th scope="col">Encargado</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in departamentos %}
+            <tr>
+                <td>{{ d.nombre_departamento }}</td>
+                <td>
+                    {% if d.direccion %}
+                        {{ d.direccion.nombre_direccion }}
+                    {% else %}
+                        (sin dirección)
+                    {% endif %}
+                </td>
+                <td>
+                    {% if d.usuario %}
+                        {{ d.usuario.username }}
+                    {% else %}
+                        (sin encargado)
+                    {% endif %}
+                </td>
+                <td>
+                    {% if d.state == "Activo" %}
+                        <span class="badge bg-success">{{ d.state }}</span>
+                    {% else %}
+                        <span class="badge bg-danger">{{ d.state }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <a class="btn btn-outline-dark btn-sm" href="{% url 'ver_departamento' d.id %}">Ver</a>
+                        <a class="btn btn-outline-primary btn-sm" href="{% url 'editar_departamento' d.id %}">Editar</a>
+                        <a class="btn btn-outline-danger btn-sm" href="{% url 'bloquear_departamento' d.id %}">
+                            {% if d.state == "Activo" %}
+                                Bloquear
+                            {% else %}
+                                Activar
+                            {% endif %}
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-muted">No hay departamentos registrados</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if messages %}
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<div class="mt-3">
+    <a class="btn btn-outline-secondary" href="{% url 'main_admin' %}">Menú Principal</a>
+</div>
+
+{% endblock %}

@@ -2,8 +2,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render,redirect,get_object_or_404
 from registration.models import Profile
-from cuadrilla.models import Cuadrilla
+from cuadrilla.models import Cuadrilla, Registro_trabajo
 from departamento.models import Departamento
+from incidencia.models import Incidencia
+from asignacion.models import Asignacion
 from django.contrib.auth.models import User
 
 
@@ -15,12 +17,25 @@ def main_cuadrilla(request):
         messages.info(request, 'Error')
         return redirect('login')
 
-    if profile.group_id in [1,5]:
+    if profile.group_id ==5:
         cuadrillas = (Cuadrilla.objects.select_related('usuario', 'departamento').order_by('id'))
         return render(request, 'cuadrilla/main_cuadrilla.html', {'cuadrillas': cuadrillas})
     else:
         return redirect('logout')
 
+@login_required
+def gestion_cuadrilla(request):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.info(request, 'Error')
+        return redirect('login')
+
+    if profile.group_id ==1:
+        cuadrillas = (Cuadrilla.objects.select_related('usuario', 'departamento').order_by('id'))
+        return render(request, 'cuadrilla/gestion_cuadrilla.html', {'cuadrillas': cuadrillas})
+    else:
+        return redirect('logout')
     
 def crear_cuadrilla(request):
     try:
@@ -31,7 +46,7 @@ def crear_cuadrilla(request):
     if profile.group_id ==1:
         departamentos=Departamento.objects.all()
         template_name = 'cuadrilla/crear_cuadrilla.html'
-        usuarios=User.objects.filter(profile__group__id=5)
+        usuarios=User.objects.filter(profile__group__id=5, cuadrilla__isnull=True)
         return render(request,template_name,{"departamentos":departamentos, "usuarios":usuarios})
     else: 
         return redirect('logout')
@@ -62,7 +77,7 @@ def guardar_cuadrilla(request):
                 )
             cuadrilla_save.save()
             messages.add_message(request,messages.INFO,'cuadrilla creado con exito')
-            return redirect('main_cuadrilla')
+            return redirect('gestion_cuadrilla')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
             return redirect('check_group_main')
@@ -72,41 +87,51 @@ def guardar_cuadrilla(request):
 @login_required
 def editar_cuadrilla(request, cuadrilla_id=None):
     try:
-        profile = Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request, messages.INFO, 'Error de perfil')
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
         return redirect('login')
-    if profile.group_id == 1:
-        if request.method == 'POST':
-            c_id = request.POST.get('cuadrilla_id')
-            nombre_cuadrilla = request.POST.get('nombre_cuadrilla')
-            tipo = request.POST.get('tipo')
-            departamento_id = request.POST.get('departamento')
-            usuario_id = request.POST.get("usuario")
-            if not all([nombre_cuadrilla, tipo, departamento_id, usuario_id]):
-                messages.add_message(request, messages.INFO, 'No pueden quedar campos vacíos.')
-                return redirect('editar_cuadrilla', cuadrilla_id=c_id)
-            cuadrilla_a_actualizar = get_object_or_404(Cuadrilla, id=c_id)
-            cuadrilla_a_actualizar.nombre_cuadrilla = nombre_cuadrilla
-            cuadrilla_a_actualizar.tipo = tipo
-            cuadrilla_a_actualizar.departamento_id = departamento_id
-            cuadrilla_a_actualizar.usuario_id = usuario_id
-            cuadrilla_a_actualizar.save()
-            messages.add_message(request, messages.INFO, 'Cuadrilla actualizada con éxito.')
-            return redirect('main_cuadrilla')
-        else:
-            cuadrilla = get_object_or_404(Cuadrilla, id=cuadrilla_id)
-            departamentos = Departamento.objects.all()
-            usuarios = User.objects.filter(profile__group__id=5)
-            template_name = 'cuadrilla/editar_cuadrilla.html'
-            context = {
-                'cuadrilla': cuadrilla,
-                'departamentos': departamentos,
-                'usuarios': usuarios
-            }
-            return render(request, template_name, context)
-    else:
+
+    if profile.group_id != 1:
         return redirect('logout')
+
+    if request.method == 'POST':
+        cua_id = request.POST.get('cuadrilla_id')
+        nombre_cuadrilla = request.POST.get('nombre_cuadrilla')
+        tipo=request.POST.get('tipo')
+        departamento_id = request.POST.get('departamento')
+        usuario_id = request.POST.get("usuario")
+
+        cuadrilla_a_actualizar = get_object_or_404(Cuadrilla, id=cua_id)
+
+        # Validación: si se intentó seleccionar un usuario que ya tiene cuadrilla distinto al actual -> bloquear
+        usuario_ya_asignado = Cuadrilla.objects.filter(usuario_id=usuario_id).exclude(id=cua_id).exists()
+        if usuario_ya_asignado:
+            messages.add_message(request, messages.INFO, 'El usuario seleccionado ya tiene otra cuadrilla asignada.')
+            return redirect('editar_cuadrilla', cuadrilla_id=cua_id)
+
+        cuadrilla_a_actualizar.nombre_cuadrilla = nombre_cuadrilla
+        cuadrilla_a_actualizar.tipo = tipo
+        cuadrilla_a_actualizar.departamento_id = departamento_id
+        cuadrilla_a_actualizar.usuario_id = usuario_id
+        cuadrilla_a_actualizar.save()
+
+        messages.add_message(request, messages.INFO, 'cuadrilla actualizada con éxito.')
+        return redirect('gestion_cuadrilla')
+
+    else:
+        cuadrilla_para_editar = get_object_or_404(Cuadrilla, id= cuadrilla_id)
+        departamentos = Departamento.objects.all()
+        # Mostrar sólo usuarios del grupo 3 que NO tienen cuadrilla asignado (misma lógica que crear)
+        usuarios = User.objects.filter(profile__group__id=5)
+
+        template_name = 'cuadrilla/editar_cuadrilla.html'
+        context = {
+            'cuadrilla': cuadrilla_para_editar,
+            'departamentos': departamentos,
+            'usuarios': usuarios
+        }
+        return render(request, template_name, context)
 
 @login_required
 def ver_cuadrilla(request, cuadrilla_id: int):
@@ -142,7 +167,53 @@ def bloquear_cuadrilla(request, pk):
             cuadrilla.state = "Activo"
             messages.add_message(request, messages.SUCCESS, f"La cuadrilla {cuadrilla.nombre_cuadrilla} fue activada.")
         cuadrilla.save()
-        return redirect('main_cuadrilla')
+        return redirect('gestion_cuadrilla')
     else:
         return redirect('logout')
 
+@login_required
+def crear_registro(request):
+    try:
+        cuadrilla = Cuadrilla.objects.get(usuario=request.user)
+    except Cuadrilla.DoesNotExist:
+        messages.error(request, "Tu usuario no está asociado a ninguna cuadrilla.")
+        return redirect('home')
+    incidencias = Incidencia.objects.filter(
+    asignacion__cuadrilla=cuadrilla
+    ).exclude(id__in=Registro_trabajo.objects.values_list('incidencia_id', flat=True))
+    
+
+    if request.method == 'POST':
+        incidencia_id = request.POST.get('incidencia')
+        descripcion = request.POST.get('descripcion')
+        fecha = request.POST.get('fecha')
+        if not incidencia_id:
+            messages.error(request, "Debes seleccionar una incidencia.")
+            return redirect('crear_registro')
+        incidencia = get_object_or_404(Incidencia, id=incidencia_id)
+        Registro_trabajo.objects.create(
+            incidencia=incidencia,
+            cuadrilla=cuadrilla,
+            descripcion=descripcion,
+            fecha=fecha
+        )
+        incidencia.estado='Resuelto'
+        incidencia.save()
+        messages.success(request, "Registro creado correctamente.")
+        return redirect('main_cuadrilla') 
+    return render(request, 'cuadrilla/crear_registro.html', {
+        'incidencias': incidencias,
+        'cuadrilla': cuadrilla
+    })
+
+def ver_incidencias_cuadrilla(request):
+    cuadrilla = Cuadrilla.objects.filter(usuario=request.user).first()
+    asignaciones = Asignacion.objects.filter(cuadrilla=cuadrilla).select_related('incidencia')
+    context = {
+        'asignaciones': asignaciones
+    }
+    return render(request, 'cuadrilla/ver_incidencias_cuadrilla.html', context)
+def ver_registro(request):
+    cuadrilla = Cuadrilla.objects.filter(usuario=request.user).first()
+    registros = Registro_trabajo.objects.filter(cuadrilla=cuadrilla).order_by('-fecha')
+    return render(request, 'cuadrilla/ver_registro.html', {'registros': registros})

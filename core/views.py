@@ -10,7 +10,7 @@ from django.http import (HttpResponse, HttpResponseBadRequest,
 from django.shortcuts import redirect, render #permite renderizar vistas basadas en funciones o redireccionar a otras funciones
 from django.template import RequestContext # contexto del sistema
 from django.views.decorators.csrf import csrf_exempt #decorador que nos permitira realizar conexiones csrf
-
+from incidencia.models import Incidencia
 from registration.models import Profile #importa el modelo profile, el que usaremos para los perfiles de usuarios
 
 
@@ -26,16 +26,27 @@ def pre_check_profile(request):
 @login_required
 def check_profile(request):  
     try:
-        profile = Profile.objects.filter(user_id=request.user.id).get()    
-    except:
-        messages.add_message(request, messages.INFO, 'Hubo un error con su usuario, por favor contactese con los administradores')              
+        profile, created = Profile.objects.get_or_create(user_id=request.user.id)
+        if created and not request.user.is_superuser:
+            messages.error(request, 'Su perfil no tiene un rol asignado')
+            return redirect('logout')
+            
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Hubo un error con su usuario')
         return redirect('login')
-    if profile.group_id == 1:        
+    if profile.first_session == 'Si':
+        messages.warning(request, 'Por seguridad, debes cambiar tu contraseña antes de continuar.')
+        return redirect('cambiar_contraseña_obligatorio')
+    if profile.group_id == 1:
         return redirect('main_admin')
     elif profile.group_id==2:
         return redirect('main_direccion')
     elif profile.group_id==3:
         return redirect('main_departamento')
+    elif profile.group_id==4:
+        return redirect('main_territorial')
+    elif profile.group_id==5:
+        return redirect('main_cuadrilla')
     else:
         return redirect('logout')
 
@@ -43,75 +54,34 @@ def check_profile(request):
 @login_required
 def main_admin(request):  
     try:
-        profile = Profile.objects.filter(user_id=request.user.id).get()    
-    except:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
         messages.add_message(request, messages.INFO, 'Hubo un error con su usuario, por favor contactese con los administradores')              
         return redirect('login')
-    if profile.group_id == 1:        
-        template_name = 'core/main_admin.html'
-        return render(request,template_name)
+
+    # Solo admin (group_id = 1)
+    if profile.group_id == 1:
+
+        # --- Datos para el dashboard ---
+        total_usuarios = User.objects.count()
+        total_incidencias = Incidencia.objects.count()
+        incidencias_derivadas = Incidencia.objects.filter(estado="Asignada").count()
+        incidencias_rechazadas = Incidencia.objects.filter(estado="Rechazada").count()
+        incidencias_finalizadas = Incidencia.objects.filter(estado="Resuelta").count()
+
+        context = {
+            'total_usuarios': total_usuarios,
+            'total_incidencias': total_incidencias,
+            'incidencias_derivadas': incidencias_derivadas,
+            'incidencias_rechazadas': incidencias_rechazadas,
+            'incidencias_finalizadas': incidencias_finalizadas,
+            'profile': profile
+        }
+
+        return render(request, 'core/main_admin.html', context)
+
     else:
         return redirect('logout')
+
     
-def gestion_direccion(request):
-    try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
-        return redirect('login')
-    if profile.group_id ==1:
-        template_name = 'core/gestion_direccion.html'
-        return render(request,template_name)
-    else: 
-        return redirect('logout')
     
-def gestion_departamento(request):
-    try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
-        return redirect('login')
-    if profile.group_id ==1:
-        template_name = 'core/gestion_departamento.html'
-        return render(request,template_name)
-    else: 
-        return redirect('logout')
-    
-def gestion_usuario(request):
-    try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
-        return redirect('login')
-    if profile.group_id ==1:
-        template_name = 'core/gestion_usuario.html'
-        return render(request,template_name)
-    else: 
-        return redirect('logout')
-
-def gestion_territorial(request):
-    try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
-        return redirect('login')
-    if profile.group_id == 1:
-        template_name = 'core/gestion_territorial.html'
-        return render(request,template_name)
-    else: 
-        return redirect('logout')
-
-def gestion_cuadrilla(request):
-    try:
-        profile= Profile.objects.filter(user_id=request.user.id).get()
-    except:
-        messages.add_message(request,messages.INFO, 'Error')
-        return redirect('login')
-    if profile.group_id == 1:
-        template_name = 'core/gestion_cuadrilla.html'
-        return render(request,template_name)
-    else: 
-        return redirect('logout')
-
-
-

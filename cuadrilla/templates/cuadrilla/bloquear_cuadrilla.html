@@ -30,4 +30,14 @@
 </table>
 
 <br>
-<a href="{% url 'main_cuadrilla' %}">Volver a menú Cuadrillas</a>
+<a href="{% url 'gestion_cuadrilla' %}">Volver a menú Cuadrillas</a>
+
+{% if messages %}
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}

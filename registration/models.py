@@ -7,7 +7,8 @@ from django.shortcuts import get_object_or_404, redirect
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, default=1) 
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, default=1)
+    telefono = models.CharField(max_length=20, null=True, blank=True)
     token_app_session = models.CharField(max_length = 240,null=True, blank=True, default='')
     first_session = models.CharField(max_length = 240,null=True, blank=True, default='Si')
 

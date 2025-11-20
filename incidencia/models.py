@@ -17,6 +17,9 @@ class Incidencia(models.Model):
         (STATE_BLOQUEADO, 'Bloqueado'),
         (STATE_ASIGNADA, 'Asignada'),
         (STATE_RESUELTO, 'Resuelto'),
+       
+        (STATE_BLOQUEADO, 'Bloqueado'),
+
     ]
     departamento=models.ForeignKey(Departamento, on_delete=models.CASCADE)
     territorial=models.ForeignKey(Territorial, on_delete=models.CASCADE)
@@ -32,7 +35,7 @@ class Incidencia(models.Model):
     state=models.CharField(max_length=100,null=True,blank=True,choices=STATE_CHOICES,default=STATE_PENDIENTE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now=True)
-
+    estado=models.CharField(max_length=100,null=True,blank=True,default='Pendiente')
     state=models.CharField(
         max_length=100,
         null=True,
@@ -79,6 +82,7 @@ class MultimediaIncidencia(models.Model):
         ordering = ['-created']
 
     def __str__(self):
+
         return f"{self.get_tipo_display()} de Incidencia {self.incidencia.id}"
     
 

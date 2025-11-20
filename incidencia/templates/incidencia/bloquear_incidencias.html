@@ -1,31 +1,42 @@
-<h4>Incidencias Bloqueadas</h4>
-<a href="{% url 'main_incidencia' %}">Volver</a>
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Incidencias Bloqueadas{% endblock %}
+{% block content %}
 
-<br><br>
-
-<table border="1">
-  <thead>
-    <tr>
-      <th>Título</th>
-      <th>Departamento</th>
-      <th>Territorial</th>
-      <th>Estado</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle text-center">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Título</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Departamento</th>
+                <th scope="col">Territorial</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Acciones</th>
+            </tr>
+        </thead>
   <tbody>
     {% for i in incidencias %}
       <tr>
         <td>{{ i.titulo }}</td>
+        <td>{{ i.tipo }}</td>
         <td>{{ i.departamento.nombre_departamento }}</td>
         <td>{{ i.territorial.usuario.username }}</td>
         <td>{{ i.state }}</td>
         <td>
-          <a href="{% url 'bloquear_incidencia' i.id %}">Activar</a>
+          <a href="">Ver</a>
+          <a href="{% url 'editar_incidencia' i.id %}">Editar</a>
+          <a href="{% url 'bloquear_incidencia' i.id %}">
+            {% if i.state == "Activo" %}
+              Bloquear
+            {% else %}
+              Activar
+            {% endif %}
+          </a>
         </td>
       </tr>
     {% empty %}
-      <tr><td colspan="5">No hay incidencias bloqueadas</td></tr>
+      <tr><td colspan="5">No hay registros</td></tr>
     {% endfor %}
   </tbody>
 </table>
@@ -37,3 +48,7 @@
     {% endfor %}
   </ul>
 {% endif %}
+
+<br>
+<a href="{% url 'gestion_incidencia' %}">Volver al menú</a>
+{% endblock %}
