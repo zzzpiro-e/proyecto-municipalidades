@@ -4,7 +4,6 @@ from territorial.models import Territorial
 from encuesta.models import Encuesta
 
 
-
 class Incidencia(models.Model):
     STATE_PENDIENTE = 'Pendiente'
     STATE_ACEPTADO = 'Aceptado'
@@ -13,12 +12,8 @@ class Incidencia(models.Model):
     STATE_ASIGNADA = 'Asignada'
     STATE_RESUELTO = 'Resuelto'
     STATE_CHOICES = [
-        (STATE_PENDIENTE, 'Pendiente'),
-        (STATE_ACEPTADO, 'Aceptado'),
-        (STATE_RECHAZADO, 'Rechazado'),
+       
         (STATE_BLOQUEADO, 'Bloqueado'),
-        (STATE_ASIGNADA, 'Asignada'),
-        (STATE_RESUELTO, 'Resuelto'),
     ]
     departamento=models.ForeignKey(Departamento, on_delete=models.CASCADE)
     territorial=models.ForeignKey(Territorial, on_delete=models.CASCADE)
@@ -34,7 +29,8 @@ class Incidencia(models.Model):
     state=models.CharField(max_length=100,null=True,blank=True,choices=STATE_CHOICES,default=STATE_PENDIENTE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now=True)
-    
+    estado=models.CharField(max_length=100,null=True,blank=True,default='Pendiente')
+
     state=models.CharField(
         max_length=100,
         null=True,
@@ -54,11 +50,31 @@ class Incidencia(models.Model):
     def __str__(self):
         return self.titulo
     
-    def filtrar_incidencias_departamento_por_estado(departamento, state):
+    def filtrar_incidencias_departamento_por_estado(departamento, estado):
         qs = Incidencia.objects.filter(departamento=departamento)
 
-        if state and state != "Todos":
-            qs = qs.filter(state=state)
+        if estado and estado != "Todos":
+            qs = qs.filter(state=estado) 
 
         return qs
-    
+
+class MultimediaIncidencia(models.Model):
+    incidencia = models.ForeignKey(Incidencia, on_delete=models.CASCADE, related_name='multimedia')
+    TIPO_CHOICES = [
+        ('imagen', 'Imagen'),
+        ('video', 'Video'),
+        ('audio', 'Audio'),
+        ('otro', 'Otro'),
+    ]
+    tipo = models.CharField(max_length=50, choices=TIPO_CHOICES, default='imagen')
+    path = models.FileField(upload_to='archivos_incidencias/%Y/%m/%d/') 
+    created = models.DateTimeField(auto_now_add=True)
+    updated= models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Archivo Multimedia'
+        verbose_name_plural = 'Archivos Multimedia'
+        ordering = ['-created']
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} de Incidencia {self.incidencia.id}"

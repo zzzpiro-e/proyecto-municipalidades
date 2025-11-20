@@ -15,6 +15,7 @@ def main_encuesta(request):
         return redirect('login')
     if profile.group_id == 1:
         encuestas = Encuesta.objects.select_related('departamento').order_by('-id')
+    
     elif profile.group_id == 3:
         try:
             departamento_usuario = Departamento.objects.get(usuario=request.user)
@@ -23,11 +24,14 @@ def main_encuesta(request):
             ).select_related('departamento').order_by('-id')
         except Departamento.DoesNotExist:
             messages.error(request, 'No estás asignado a ningún departamento.')
-            return redirect('main_departamento')
+            return redirect('logout')
     else:
         return redirect('logout')
-    return render(request, 'encuesta/main_encuesta.html', {'encuestas': encuestas})
-
+    context = {
+        'encuestas': encuestas,
+        'profile': profile
+    }
+    return render(request, 'encuesta/main_encuesta.html', context)
 
 def crear_encuesta(request):
     try:
@@ -49,7 +53,6 @@ def bloquear_encuesta(request, pk):
     except Profile.DoesNotExist:
         messages.error(request, 'Error de perfil')
         return redirect('login')
-
     if profile.group_id in [1,3]:
         encuesta = get_object_or_404(Encuesta, id=pk)
         if encuesta.state == 'Activo':
@@ -116,7 +119,6 @@ def guardar_encuesta(request):
     else:
         return redirect('logout')
 
-
 @login_required
 def editar_encuesta(request, encuesta_id=None):
     try:
@@ -124,47 +126,37 @@ def editar_encuesta(request, encuesta_id=None):
     except Profile.DoesNotExist:
         messages.add_message(request, messages.INFO, 'Error de perfil.')
         return redirect('login')
-
     if profile.group_id in [1,3]:
         if request.method == 'POST':
             encuesta_id_post = request.POST.get('encuesta_id')
             encuesta_a_actualizar = get_object_or_404(Encuesta, id=encuesta_id_post)
-
             if encuesta_a_actualizar.state != 'Bloqueado':
                 messages.warning(request, 'Solo se pueden editar encuestas bloqueadas.')
                 return redirect('main_encuesta')
-
             encuesta_a_actualizar.nombre_encuesta = request.POST.get('nombre_encuesta')
             encuesta_a_actualizar.descripcion = request.POST.get('descripcion')
             encuesta_a_actualizar.tipo = request.POST.get('tipo')
             encuesta_a_actualizar.prioridad = request.POST.get('prioridad')
             encuesta_a_actualizar.departamento_id = request.POST.get('departamento')
             encuesta_a_actualizar.save()
-
             preguntas_ids = request.POST.getlist('pregunta_id[]')
             preguntas_textos = request.POST.getlist('pregunta_texto[]')
-
             for pid, texto in zip(preguntas_ids, preguntas_textos):
                 if texto.strip():
                     pregunta = get_object_or_404(Pregunta, id=pid)
                     pregunta.titulo = texto
                     pregunta.save()
-
             nuevas_preguntas = request.POST.getlist('nuevas_preguntas[]')
             for titulo in nuevas_preguntas:
                 if titulo.strip():
                     Pregunta.objects.create(encuesta=encuesta_a_actualizar, titulo=titulo)
-
             messages.add_message(request, messages.INFO, 'Encuesta actualizada con éxito.')
             return redirect('main_encuesta')
-
         else:
             encuesta_para_editar = get_object_or_404(Encuesta, id=encuesta_id)
-
             if encuesta_para_editar.state != 'Bloqueado':
                 messages.warning(request, 'Solo se pueden editar encuestas bloqueadas.')
                 return redirect('main_encuesta')
-
             departamentos = Departamento.objects.all()
             preguntas=Pregunta.objects.filter(encuesta=encuesta_para_editar)
             template_name = 'encuesta/editar_encuesta.html'

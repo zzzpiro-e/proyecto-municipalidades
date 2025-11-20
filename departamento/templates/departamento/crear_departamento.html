@@ -1,43 +1,72 @@
-{%extends 'core/base.html'%}
-{% load static%}
-{% block title %}{% endblock %}
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Crear Departamento{% endblock %}
+
 {% block content %}
-<h4>Crear Nuevo Departamento</h4>
-<form method="post" action="{% url 'guardar_departamento' %}">
-    {% csrf_token %}
-    <p><input type="text" name="nombre_departamento" placeholder="Ingrese nombre de departamento"/></p>
-    
-    <p>
-        <label for="usuario">Seleccione Usuario Encargado:</label><br>
-        <select name="usuario" id="usuario">
-            {% for usuario in usuarios %}
-                <option value="{{ usuario.id }}">{{ usuario.username }} - {{ usuario.first_name }} {{ usuario.last_name }} 
-                </option>
-            {% endfor %}
-        </select>
-    </p>
+<div class="container-fluid">
 
+    <h4 class="text-secondary mb-3">Crear Nuevo Departamento</h4>
+    <hr>
 
-    <p>
-        <label for="direccion">Seleccione Dirección:</label><br>
-        <select name="direccion" id="direccion">
-            {% for direccion in direcciones %}
-                <option value="{{ direccion.id }}">{{ direccion.nombre_direccion }}</option>
-            {% endfor %}
-        </select>
-    </p>
+    <form method="POST" action="{% url 'guardar_departamento' %}" class="row g-3">
+        {% csrf_token %}
 
-    <p><input type="submit" value="Crear"/></p>
-</form>
-<a href="{% url 'gestion_departamento' %}">Volver al menú</a>
+        <!-- Columna izquierda -->
+        <div class="col-md-6">
+            <h5>Información del Departamento</h5>
 
-{% if messages %}
-<div class="alert alert-success mt-3">
-    <ul class="mb-0">
+            <div class="mb-3">
+                <label class="form-label">Nombre del Departamento:</label>
+                <input type="text" name="nombre_departamento" class="form-control"
+                       placeholder="Ingrese nombre del departamento" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Seleccione Usuario Encargado:</label>
+                <select name="usuario" id="usuario" class="form-select" required>
+                    {% for usuario in usuarios %}
+                        <option value="{{ usuario.id }}">
+                            {{ usuario.username }} - {{ usuario.first_name }} {{ usuario.last_name }}
+                            
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Columna derecha -->
+        <div class="col-md-6">
+            <h5>Dirección Asociada</h5>
+
+            <div class="mb-3">
+                <label class="form-label">Seleccione Dirección:</label>
+                <select name="direccion" id="direccion" class="form-select" required>
+                    {% for direccion in direcciones %}
+                        <option value="{{ direccion.id }}">{{ direccion.nombre_direccion }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <hr class="my-3">
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Crear Departamento</button>
+            <a href="{% url 'gestion_departamento' %}" class="btn btn-outline-secondary">Volver al menú</a>
+        </div>
+    </form>
+
+    {% if messages %}
+    <div class="container mt-3">
         {% for message in messages %}
-            <li>{{ message }}</li>
+        <div class="alert 
+            {% if message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}
+            alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
 {% endblock %}

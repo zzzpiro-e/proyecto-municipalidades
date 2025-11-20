@@ -1,10 +1,15 @@
 {% extends 'core/base.html' %}
 {% load static %}
-{% block title %}{% endblock %}
+{% block title %}Incidencias de mi Departamento{% endblock %}
 {% block content %}
 
-<h4>Incidencias Asignadas a: {{ departamento.nombre_departamento }}</h4>
-<hr/>
+<div class="row mt-2 mb-2">
+    <div class="col-7">
+        <h4 class="text-secondary">Incidencias Asignadas a: {{ departamento.nombre_departamento }}</h4>
+    </div>
+</div>
+
+<hr>
 
 <!-- 🔥 Filtro por estado -->
 <form method="get" class="mb-3">
@@ -13,7 +18,8 @@
         <option value="Todos" {% if estado_actual == "Todos" %}selected{% endif %}>Todos</option>
         <option value="Pendiente" {% if estado_actual == "Pendiente" %}selected{% endif %}>Pendiente</option>
         <option value="Asignada" {% if estado_actual == "Asignada" %}selected{% endif %}>Asignada</option>
-        <option value="Resuelto" {% if estado_actual == "Resuelto" %}selected{% endif %}>Resuelto</option>
+        <option value="Resuelta" {% if estado_actual == "Resuelta" %}selected{% endif %}>Resuelta</option>
+        <option value="Rechazada" {% if estado_actual == "Rechazada" %}selected{% endif %}>Rechazada</option>
     </select>
 </form>
 
@@ -23,35 +29,69 @@
             <tr>
                 <th scope="col">Título</th>
                 <th scope="col">Tipo</th>
-                <th scope="col">Ubicación</th>
+                <th scope="col">Ubicación</th> 
+                <th scope="col">Territorial</th>
                 <th scope="col">Estado</th>
-            </tr>
+                <th scope="col">Acciones</th> </tr>
         </thead>
         <tbody>
-        {% for inc in incidencias %}
+            {% for inc in incidencias %}
             <tr>
                 <td>{{ inc.titulo }}</td>
                 <td>{{ inc.tipo }}</td>
-                <td>{{ inc.ubicacion }}</td>
-                <td>{{ inc.state }}</td>
+                <td>{{ inc.ubicacion|default:"(Sin ubicación)" }}</td> 
+                <td>
+                    {% if inc.territorial and inc.territorial.usuario %}
+                        {{ inc.territorial.usuario.username }}
+                    {% else %}
+                        (sin territorial)
+                    {% endif %}
+                </td>
+                <td>
+                    {% if inc.state == "Activo" %}
+                        <span class="badge bg-warning text-dark">{{ inc.get_state_display|default:"Activo (Pendiente)" }}</span>
+                    {% elif inc.state == "Aceptado" %}
+                        <span class="badge bg-success">{{ inc.get_state_display|default:inc.state }}</span>
+                    {% elif inc.state == "Rechazado" %}
+                        <span class="badge bg-danger">{{ inc.get_state_display|default:inc.state }}</span>
+                    {% elif inc.state == "Bloqueado" %}
+                        <span class="badge bg-dark">{{ inc.get_state_display|default:inc.state }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ inc.state }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <a href="{% url 'ver_incidencia' inc.id %}" class="btn btn-outline-dark btn-sm">Ver</a>
+                        {% if inc.state == "Activo" and inc.estado != "Rechazada" %}
+                            <a href="{% url 'rechazar_incidencia' inc.id %}" class="btn btn-outline-danger btn-sm">Rechazar</a>
+                        {% endif %}
+                    </div>
+                </td>
             </tr>
-        {% empty %}
-            <tr><td colspan="5">No tienes incidencias con este filtro.</td></tr>
-        {% endfor %}
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-muted">No hay incidencias con este filtro.</td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>
 
 {% if messages %}
-    <ul>
+<div class="container mt-3">
     {% for message in messages %}
-        <li style="color: green;">{{ message }}</li>
+    <div class="alert 
+        {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} 
+        alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     {% endfor %}
-    </ul>
+</div>
 {% endif %}
 
-<br/>
-<a href="{% url 'main_departamento' %}">Volver al menú</a>
-
+<div class="mt-3">
+    <a class="btn btn-outline-secondary" href="{% url 'check_profile' %}">Menú Principal</a>
+</div>
 {% endblock %}
-

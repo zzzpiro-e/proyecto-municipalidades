@@ -1,0 +1,33 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Departamentos de {{ direccion.nombre_direccion }}</h2>
+    <hr>
+
+    {% if departamentos %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre del Departamento</th>
+                    <th>Encargado</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in departamentos %}
+                    <tr>
+                        <td>{{ d.id }}</td>
+                        <td>{{ d.nombre_departamento }}</td>
+                        <td>{{ d.usuario.get_full_name|default:d.usuario.username }}</td>
+                        <td>{{ d.state }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay departamentos asociados a esta dirección.</p>
+    {% endif %}
+</div>
+{% endblock %}

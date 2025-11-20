@@ -1,25 +1,63 @@
 {% extends 'core/base.html' %}
 {% load static %}
-{% block title %}Menú de Departamentos{% endblock %}
+{% block title %}Detalle de Dirección: {{ direccion.nombre_direccion }}{% endblock %}
 {% block content %}
-<h4>Ver Dirección</h4>
-<table border="1">
-  <tr><th>Nombre</th><td>{{ direccion.nombre_direccion }}</td></tr>
-  <tr><th>Usuario</th><td>{{ direccion.usuario.username }}</td></tr>
-  <tr><th>Fecha de Creación</th><td>{{ direccion.created }}</td></tr>
-  <tr><th>Fecha de Modificación</th><td>{{ direccion.updated }}</td></tr>
-  <tr><th>Estado</th><td>{{ direccion.state }}</td></tr>
-</table>
-<br>
-<a href="{% url 'gestion_direccion' %}">Volver a Direcciones</a>
 
-{% if messages %}
-<div class="alert alert-success mt-3">
-    <ul class="mb-0">
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
+<div class="container-fluid">
+
+    <h4 class="text-secondary mb-3">Detalle de Dirección</h4>
+    <hr>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+
+            <h5>Información de la Dirección</h5>
+            <ul class="list-group">
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Nombre:</strong>
+                    <span>{{ direccion.nombre_direccion }}</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Usuario Encargado:</strong>
+                    <span>{{ direccion.usuario.username }}</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Fecha de Creación:</strong>
+                    <span>{{ direccion.created }}</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Fecha de Modificación:</strong>
+                    <span>{{ direccion.updated }}</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Estado:</strong>
+                    <span class="badge bg-secondary">{{ direccion.state }}</span>
+                </li>
+
+            </ul>
+
+            <a href="{% url 'gestion_direccion' %}" class="btn btn-outline-secondary mt-4">
+                Volver a Direcciones
+            </a>
+
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="alert alert-success mt-3">
+        <ul class="mb-0">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
 </div>
-{% endif %}
+
 {% endblock %}

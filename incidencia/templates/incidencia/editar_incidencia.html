@@ -1,43 +1,86 @@
-{%extends 'core/base.html'%}
-{% load static%}
+{% extends 'core/base.html' %}
+{% load static %}
 {% block title %}Editar Incidencia{% endblock %}
 {% block content %}
 
-<form method="post" action="{% url 'editar_incidencia_post' %}">
-    {% csrf_token %}
-    <input type="hidden" name="incidencia_id" value="{{ incidencia.id }}">
+<div class="container-fluid">
+    <h4 class="text-secondary mb-3">Editar Incidencia</h4>
+    <hr>
 
-    <p><input type="text" name="titulo" placeholder="Título de la incidencia" value="{{ incidencia.titulo }}" required></p>
-    <p><input type="text" name="tipo" placeholder="Tipo" value="{{ incidencia.tipo }}" required></p>
-    <p><input type="text" name="ubicacion" placeholder="Ubicación" value="{{ incidencia.ubicacion }}"></p>
-    
-    <p>
-        <select name="departamento" required>
-            <option value="">Seleccione un departamento</option>
-            {% for depto in departamentos %}
-                <option value="{{ depto.id }}" {% if depto.id == incidencia.departamento.id %}selected{% endif %}>{{ depto.nombre_departamento }}</option>
-            {% endfor %}
-        </select>
-    </p>
-    <p>
-        <select name="territorial" required>
-            <option value="">Seleccione un territorial</option>
-            {% for terr in territoriales %}
-                <option value="{{ terr.id }}" {% if terr.id == incidencia.territorial.id %}selected{% endif %}>{{ terr.usuario.username }}</option>
-            {% endfor %}
-        </select>
-    </p>
-    <p>
-        <select name="encuesta" required>
-            <option value="">Seleccione una encuesta</option>
-            {% for enc in encuestas %}
-                <option value="{{ enc.id }}" {% if enc.id == incidencia.encuesta.id %}selected{% endif %}>{{ enc.nombre_encuesta }}</option>
-            {% endfor %}
-        </select>
-    </p>
-    
-    <p><input type="submit" value="Guardar Cambios"></p>
-</form>
+    <form method="POST" action="{% url 'editar_incidencia_post' %}" class="row g-3">
+        {% csrf_token %}
+        <input type="hidden" name="incidencia_id" value="{{ incidencia.id }}">
+
+        <!-- Título -->
+        <div class="col-md-6">
+            <label for="titulo" class="form-label">Título:</label>
+            <input type="text" name="titulo" id="titulo" class="form-control"
+                   value="{{ incidencia.titulo }}" required>
+        </div>
+
+        <!-- Tipo -->
+        <div class="col-md-6">
+            <label for="tipo" class="form-label">Tipo:</label>
+            <input type="text" name="tipo" id="tipo" class="form-control"
+                   value="{{ incidencia.tipo }}" required>
+        </div>
+
+        <!-- Ubicación -->
+        <div class="col-12">
+            <label for="ubicacion" class="form-label">Ubicación:</label>
+            <input type="text" name="ubicacion" id="ubicacion"
+                   class="form-control" value="{{ incidencia.ubicacion }}">
+        </div>
+
+        <!-- Departamento -->
+        <div class="col-md-6">
+            <label for="departamento" class="form-label">Departamento:</label>
+            <select name="departamento" id="departamento" class="form-select" required>
+                <option value="">Seleccione un departamento...</option>
+                {% for depto in departamentos %}
+                    <option value="{{ depto.id }}"
+                        {% if depto.id == incidencia.departamento.id %}selected{% endif %}>
+                        {{ depto.nombre_departamento }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Territorial (no editable)-->
+        <div class="col-md-6">
+            <label for="territorial" class="form-label">Territorial:</label>
+            <input type="text"
+                class="form-control"
+                value="{{ incidencia.territorial.usuario.username }}"
+                disabled>
+            <input type="hidden"
+                name="territorial"
+                value="{{ incidencia.territorial.id }}">
+        </div>
+
+
+        <!-- Encuesta -->
+        <div class="col-md-12">
+            <label for="encuesta" class="form-label">Encuesta:</label>
+            <select name="encuesta" id="encuesta" class="form-select" required>
+                <option value="">Seleccione una encuesta...</option>
+                {% for enc in encuestas %}
+                    <option value="{{ enc.id }}"
+                        {% if enc.id == incidencia.encuesta.id %}selected{% endif %}>
+                        {{ enc.nombre_encuesta }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Botones -->
+        <div class="col-12 mt-4">
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <button type="submit" class="btn btn-primary" href="{% url 'ver_incidencias_bloqueo' %}" class="ms-3">Cancelar</button>
+        </div>
+
+    </form>
+</div>
 
 {% if messages %}
 <div class="alert alert-success mt-3">
@@ -49,5 +92,5 @@
 </div>
 {% endif %}
 
-<a href="{% url 'gestion_incidencia' %}">Cancelar y Volver a la Lista</a>
 {% endblock %}
+

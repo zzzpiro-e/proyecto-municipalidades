@@ -26,11 +26,18 @@ def pre_check_profile(request):
 @login_required
 def check_profile(request):  
     try:
-        profile = Profile.objects.filter(user_id=request.user.id).get()    
-    except:
-        messages.add_message(request, messages.INFO, 'Hubo un error con su usuario, por favor contactese con los administradores')              
+        profile, created = Profile.objects.get_or_create(user_id=request.user.id)
+        if created and not request.user.is_superuser:
+            messages.error(request, 'Su perfil no tiene un rol asignado')
+            return redirect('logout')
+            
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Hubo un error con su usuario')
         return redirect('login')
-    if profile.group_id == 1:        
+    if profile.first_session == 'Si':
+        messages.warning(request, 'Por seguridad, debes cambiar tu contraseña antes de continuar.')
+        return redirect('cambiar_contraseña_obligatorio')
+    if profile.group_id == 1:
         return redirect('main_admin')
     elif profile.group_id==2:
         return redirect('main_direccion')
@@ -58,9 +65,9 @@ def main_admin(request):
         # --- Datos para el dashboard ---
         total_usuarios = User.objects.count()
         total_incidencias = Incidencia.objects.count()
-        incidencias_derivadas = Incidencia.objects.filter(state="Asignada").count()
-        incidencias_rechazadas = Incidencia.objects.filter(state="Rechazada").count()
-        incidencias_finalizadas = Incidencia.objects.filter(state="Resuelto").count()
+        incidencias_derivadas = Incidencia.objects.filter(estado="Asignada").count()
+        incidencias_rechazadas = Incidencia.objects.filter(estado="Rechazada").count()
+        incidencias_finalizadas = Incidencia.objects.filter(estado="Resuelta").count()
 
         context = {
             'total_usuarios': total_usuarios,
@@ -68,6 +75,7 @@ def main_admin(request):
             'incidencias_derivadas': incidencias_derivadas,
             'incidencias_rechazadas': incidencias_rechazadas,
             'incidencias_finalizadas': incidencias_finalizadas,
+            'profile': profile
         }
 
         return render(request, 'core/main_admin.html', context)

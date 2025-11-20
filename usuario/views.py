@@ -1,10 +1,14 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render,redirect, get_object_or_404
+from django.urls import reverse
 from registration.models import Profile
 from django.contrib.auth.models import User, Group
 from core.models import Usuario
+from django.db import IntegrityError
 from territorial.models import Territorial
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 
 @login_required
 def main_usuario(request, usuario_id=None):
@@ -21,7 +25,8 @@ def main_usuario(request, usuario_id=None):
                 .order_by('id')
         )
         return render(request, 'usuario/main_usuario.html', {
-            'usuarios': usuarios
+            'usuarios': usuarios,
+            'profile': profile
         })
     else:
         return redirect('logout')
@@ -33,15 +38,12 @@ def ver_usuario(request, user_id= None):
     except Profile.DoesNotExist:
         messages.info(request, 'Error')
         return redirect('login')
-
     if profile.group_id != 1:
         return redirect('logout')
-
     usuario = get_object_or_404(
-        User.objects.prefetch_related('groups'),
+        User.objects.select_related('profile', 'profile__group'),
         pk=user_id
     )
-
     return render(request, 'usuario/ver_usuario.html', {
         'usuario': usuario
     })
@@ -64,69 +66,63 @@ def guardar_usuario(request):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except:
-        messages.error(request, "Error")
+        messages.error(request, "Error de perfil")
         return redirect('check_profile')
 
     if profile.group_id == 1:
         if request.method == 'POST':
-
             username = request.POST.get('username')
-            password = request.POST.get('password')
             first_name = request.POST.get('first_name')
             last_name = request.POST.get("last_name")
             email = request.POST.get("email")
             group_id = request.POST.get('group_id')
-            zona = request.POST.get('zona')  # <-- zona como texto
+            zona = request.POST.get('zona')
+            telefono = request.POST.get('telefono')
 
-            if username=='' or password=='' or first_name=='' or last_name=='' or email=='' or not group_id:
-                messages.info(request, 'Debes ingresar toda la información')
+            if username=='' or first_name=="" or last_name=="" or email=="" or not group_id:
+                messages.add_message(request,messages.INFO, 'Debes ingresar toda la información, no pueden quedar campos vacíos')
                 return redirect('crear_usuario')
 
-            # Crear usuario
-            usuario_save = User.objects.create_user(
-                username=username,
-                first_name=first_name,
-                last_name=last_name,
-                password=password,
-                email=email
-            )
-
-            # Crear perfil
+            try:
+                usuario_save=User.objects.create_user(
+                    username=username,
+                    first_name=first_name,
+                    last_name=last_name,
+                    password=username, 
+                    email=email
+                )
+            except IntegrityError:
+                messages.error(request, f'Error: El nombre de usuario "{username}" ya existe.')
+                return redirect('crear_usuario')
+            
             perfil_save = Profile.objects.create(
                 user=usuario_save,
-                group_id=group_id
+                group_id=group_id,
+                telefono=telefono
             )
 
-            # Si es territorial, crea Territorial con zona charfield
             group_obj = Group.objects.get(id=group_id)
             if group_obj.name == "Territorial":
-                
                 if not zona:
                     messages.error(request, "Debe ingresar zona para usuarios territoriales.")
+                    usuario_save.delete() 
                     return redirect("crear_usuario")
 
                 Territorial.objects.create(
                     usuario=usuario_save,
-                    zona_asignada=zona   # <-- zona es texto
+                    zona_asignada=zona 
                 )
 
             messages.success(request, "Usuario creado con éxito")
             return redirect('main_usuario')
 
-        messages.error(request, "Solicitud inválida")
-        return redirect('check_group_main')
+        messages.error(request, "Solicitud inválida (no-POST)")
+        return redirect('check_profile')
 
     return redirect('logout')
 
-
-
-
 @login_required
 def eliminar_usuario(request, usuario_id):
-    """
-    Elimina únicamente el usuario seleccionado.
-    Solo admin puede ejecutar.
-    """
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except Profile.DoesNotExist:
@@ -137,7 +133,88 @@ def eliminar_usuario(request, usuario_id):
         return redirect('logout')
 
     usuario = get_object_or_404(User, pk=usuario_id)
+    if usuario.id == request.user.id:
+        messages.error(request, 'No puedes eliminar tu propia cuenta.')
+        return redirect('main_usuario')
+        
     usuario.delete()
     messages.success(request, f'Usuario {usuario.username} eliminado con éxito')
     return redirect('main_usuario')
 
+@login_required
+def editar_usuario(request, user_id=None):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        return redirect('login')
+
+    if profile.group_id != 1:
+        return redirect('logout')
+    
+    usuario_a_editar = get_object_or_404(User, id=user_id)
+    try:
+        profile_a_editar, created = Profile.objects.get_or_create(user=usuario_a_editar)
+        if created:
+            profile_a_editar.group_id = 1 
+            profile_a_editar.save()
+    except Exception as e:
+        messages.error(request, f"Error crítico al obtener/crear el perfil: {e}")
+        return redirect('main_usuario')
+
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        
+        telefono = request.POST.get('telefono')
+        group_id = request.POST.get('group')
+        usuario_a_editar.first_name = first_name
+        usuario_a_editar.last_name = last_name
+        usuario_a_editar.email = email
+        
+        usuario_a_editar.save()
+
+        if usuario_a_editar.profile:
+            usuario_a_editar.profile.telefono = telefono
+            usuario_a_editar.profile.group_id = group_id
+            usuario_a_editar.profile.save()
+
+        messages.add_message(request, messages.INFO, 'Usuario actualizado con éxito.')
+        return redirect('main_usuario')
+
+    else:
+        grupos = Group.objects.all()
+        template_name = 'usuario/editar_usuario.html'
+        context = {
+            'usuario': usuario_a_editar,
+            'grupos': grupos
+        }
+        return render(request, template_name, context)
+    
+@login_required
+def cambiar_contraseña_obligatorio(request):
+    profile = request.user.profile
+
+    if not profile.first_session:
+        return redirect('check_profile')
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user) 
+            profile.first_session = 'No'
+            profile.save()
+            
+            messages.success(request, '¡Contraseña cambiada con éxito! Ya puedes usar el sistema.')
+            return redirect('check_profile')
+        else:
+            messages.error(request, 'Por favor corrige los errores.')
+    else:
+        form = PasswordChangeForm(request.user)
+    
+    context = {
+        'form': form
+    }
+    return render(request, 'usuario/cambiar_contraseña_obligatorio.html', context)

@@ -25,8 +25,11 @@ from incidencia.urls import incidencia_urlpatterns
 from usuario.urls import usuario_urlpatterns
 from cuadrilla.urls import cuadrilla_urlpatterns
 from encuesta.urls import encuesta_urlpatterns
+from django.conf import settings
+from django.conf.urls.static import static
 from asignacion.urls import asignacion_urlpatterns
 from pregunta.urls import pregunta_urlpatterns
+
 
 urlpatterns = [
     path("",include(core_urlpatterns)),
@@ -43,3 +46,6 @@ urlpatterns = [
     path('accounts/',include('django.contrib.auth.urls')),
     path('accounts/',include('registration.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

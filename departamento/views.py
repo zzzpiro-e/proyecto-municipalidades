@@ -108,32 +108,46 @@ def editar_departamento(request, departamento_id=None):
     except Profile.DoesNotExist:
         messages.add_message(request, messages.INFO, 'Error de perfil.')
         return redirect('login')
-    if profile.group_id == 1:
-        if request.method == 'POST':
-            depto_id = request.POST.get('departamento_id')
-            nombre_departamento = request.POST.get('nombre_departamento')
-            direccion_id = request.POST.get('direccion')
-            usuario_id = request.POST.get("usuario")
-            departamento_a_actualizar = get_object_or_404(Departamento, id=depto_id)
-            departamento_a_actualizar.nombre_departamento = nombre_departamento
-            departamento_a_actualizar.direccion_id = direccion_id
-            departamento_a_actualizar.usuario_id = usuario_id
-            departamento_a_actualizar.save()
-            messages.add_message(request, messages.INFO, 'Departamento actualizado con éxito.')
-            return redirect('gestion_departamento')
-        else:
-            departamento_para_editar = get_object_or_404(Departamento, id=departamento_id)
-            direcciones = Direccion.objects.all()
-            usuarios = User.objects.filter(profile__group__id=3)
-            template_name = 'departamento/editar_departamento.html'
-            context = {
-                'departamento': departamento_para_editar,
-                'direcciones': direcciones,
-                'usuarios': usuarios
-            }
-            return render(request, template_name, context)
-    else:
+
+    if profile.group_id != 1:
         return redirect('logout')
+
+    if request.method == 'POST':
+        depto_id = request.POST.get('departamento_id')
+        nombre_departamento = request.POST.get('nombre_departamento')
+        direccion_id = request.POST.get('direccion')
+        usuario_id = request.POST.get("usuario")
+
+        departamento_a_actualizar = get_object_or_404(Departamento, id=depto_id)
+
+        # Validación: si se intentó seleccionar un usuario que ya tiene departamento distinto al actual -> bloquear
+        usuario_ya_asignado = Departamento.objects.filter(usuario_id=usuario_id).exclude(id=depto_id).exists()
+        if usuario_ya_asignado:
+            messages.add_message(request, messages.INFO, 'El usuario seleccionado ya tiene otro departamento asignado.')
+            return redirect('editar_departamento', departamento_id=depto_id)
+
+        departamento_a_actualizar.nombre_departamento = nombre_departamento
+        departamento_a_actualizar.direccion_id = direccion_id
+        departamento_a_actualizar.usuario_id = usuario_id
+        departamento_a_actualizar.save()
+
+        messages.add_message(request, messages.INFO, 'Departamento actualizado con éxito.')
+        return redirect('gestion_departamento')
+
+    else:
+        departamento_para_editar = get_object_or_404(Departamento, id=departamento_id)
+        direcciones = Direccion.objects.all()
+        # Mostrar sólo usuarios del grupo 3 que NO tienen departamento asignado (misma lógica que crear)
+        usuarios = User.objects.filter(profile__group__id=3)
+
+        template_name = 'departamento/editar_departamento.html'
+        context = {
+            'departamento': departamento_para_editar,
+            'direcciones': direcciones,
+            'usuarios': usuarios
+        }
+        return render(request, template_name, context)
+
 
 @login_required
 def bloquear_departamento(request, pk):
