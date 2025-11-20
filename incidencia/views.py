@@ -28,6 +28,7 @@ def gestion_incidencia(request):
             'incidencias': qs,
             'profile': profile,
             'estado_actual': estado_filtro
+            
         }
         return render(request, 'incidencia/gestion_incidencia.html', context)
 

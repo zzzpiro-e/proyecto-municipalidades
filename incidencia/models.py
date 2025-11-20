@@ -50,13 +50,7 @@ class Incidencia(models.Model):
     def __str__(self):
         return self.titulo
     
-    def filtrar_incidencias_departamento_por_estado(departamento, estado):
-        qs = Incidencia.objects.filter(departamento=departamento)
-
-        if estado and estado != "Todos":
-            qs = qs.filter(state=estado) 
-
-        return qs
+    
 
 class MultimediaIncidencia(models.Model):
     incidencia = models.ForeignKey(Incidencia, on_delete=models.CASCADE, related_name='multimedia')

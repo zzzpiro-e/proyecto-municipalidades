@@ -7,7 +7,21 @@
     <div class="col-7">
         <h4 class="text-secondary">Gestión de Usuarios</h4>
     </div>
-    <div class="col-5 d-flex justify-content-end">
+    <div class="col-3 d-flex align-items-center">
+        <form method="get" class="d-flex align-items-center">
+            <label class="me-2"><strong>Grupo:</strong></label>
+            <select name="rol" onchange="this.form.submit()" 
+                    class="form-select" style="max-width: 250px;">
+                <option value="Todos" {% if rol_actual == "Todos" %}selected{% endif %}>Todos</option>
+                <option value="Admin" {% if rol_actual == "Admin" %}selected{% endif %}>Admin</option>
+                <option value="Direccion" {% if rol_actual == "Direccion" %}selected{% endif %}>Direccion</option>
+                <option value="Departamento" {% if rol_actual == "Departamento" %}selected{% endif %}>Departamento</option>
+                <option value="Territorial" {% if rol_actual == "Territorial" %}selected{% endif %}>Territorial</option>
+                <option value="Cuadrilla" {% if rol_actual == "Cuadrilla" %}selected{% endif %}>Cuadrilla</option>
+            </select>
+        </form>
+    </div>
+    <div class="col-2 d-flex justify-content-end">
         <a href="{% url 'crear_usuario' %}" class="btn btn-dark">Nuevo Usuario</a>
     </div>
 </div>
