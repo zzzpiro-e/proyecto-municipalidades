@@ -9,6 +9,8 @@ from django.db import IntegrityError
 from territorial.models import Territorial
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
+from django.core.paginator import Paginator
+
 
 @login_required
 def main_usuario(request, usuario_id=None):
@@ -19,17 +21,20 @@ def main_usuario(request, usuario_id=None):
         return redirect('login')
 
     if profile.group_id == 1:
-        usuarios = (
-            User.objects
-                .prefetch_related('groups')  
-                .order_by('id')
-        )
+
+        usuarios_list = User.objects.order_by('id')
+
+        paginator = Paginator(usuarios_list, 6)  
+        page_number = request.GET.get('page')
+        usuarios = paginator.get_page(page_number)
+
         return render(request, 'usuario/main_usuario.html', {
             'usuarios': usuarios,
             'profile': profile
         })
     else:
         return redirect('logout')
+
     
 @login_required
 def ver_usuario(request, user_id= None):

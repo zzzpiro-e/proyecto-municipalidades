@@ -6,6 +6,7 @@ from direccion.models import Direccion
 from django.contrib.auth.models import User
 from departamento.models import Departamento
 from incidencia.models import Incidencia
+from django.core.paginator import Paginator
 
 
 @login_required
@@ -36,17 +37,21 @@ def gestion_direccion(request, direccion_id=None):
         messages.info(request, 'Error')
         return redirect('login')
 
-    if profile.group_id ==1:
-        direccion_listado = (
-            Direccion.objects.select_related('usuario').order_by('id')
-        )
+    if profile.group_id == 1:
+        direccion_listado = Direccion.objects.select_related('usuario').order_by('id')
+
+        paginator = Paginator(direccion_listado, 6)
+        page_number = request.GET.get('page')
+        direcciones = paginator.get_page(page_number)
+
         return render(
             request,
             'direccion/gestion_direccion.html',
-            {'direcciones': direccion_listado}   
+            {'direcciones': direcciones}
         )
     else:
         return redirect('logout')
+
 
 def crear_direccion(request):
     try:
@@ -183,29 +188,32 @@ def departamento_e_incidencia_asociadas(request):
         messages.error(request, 'Error al obtener el perfil.')
         return redirect('login')
 
-    # Solo usuarios del grupo Dirección (group_id = 2)
     if profile.group_id == 2:
-        # Buscar la dirección asociada al usuario actual
         direccion = Direccion.objects.filter(usuario=request.user).first()
         if not direccion:
             messages.info(request, 'No tienes una dirección asignada.')
             return redirect('main_direccion')
 
-        # Obtener los departamentos que pertenecen a esa dirección
-        departamentos = (
+        qs = (
             Departamento.objects.filter(direccion=direccion)
             .select_related('usuario', 'direccion')
             .order_by('id')
         )
+
+        paginator = Paginator(qs, 6)  
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
 
         return render(
             request,
             'direccion/departamento_e_incidencia_asociadas.html',
             {
                 'direccion': direccion,
-                'departamentos': departamentos
+                'departamentos': page_obj,   
+                'page_obj': page_obj
             }
         )
+
     else:
         return redirect('logout')
 
@@ -215,27 +223,32 @@ def departamento_e_incidencia_asociadas(request):
 @login_required
 def incidencias_direccion(request):
     try:
-        # Dirección del usuario actual
+
         direccion_usuario = Direccion.objects.get(usuario=request.user)
 
-        # Departamentos de esa dirección
+
         departamentos = Departamento.objects.filter(direccion=direccion_usuario)
 
-        # --- FILTRO DE ESTADO ---
+
         estado_filtro = request.GET.get("estado", "Todos")
 
-        # Query base: incidencias de los departamentos asociados
+ 
         incidencias_asociadas = Incidencia.objects.filter(departamento__in=departamentos)
 
-        # Aplicamos filtro por estado si corresponde
+
         if estado_filtro != "Todos":
             incidencias_asociadas = incidencias_asociadas.filter(estado=estado_filtro)
+
+
+        paginator = Paginator(incidencias_asociadas, 6)  # 10 incidencias por página
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
 
         context = {
             'direccion': direccion_usuario,
             'departamentos': departamentos,
-            'incidencias': incidencias_asociadas,
-            'estado_filtro': estado_filtro,
+            'incidencias': page_obj,          
+            'estado_actual': estado_filtro,   
         }
 
         return render(request, 'direccion/incidencias_direccion.html', context)

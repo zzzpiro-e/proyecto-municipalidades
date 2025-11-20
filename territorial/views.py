@@ -4,6 +4,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from registration.models import Profile
 from .models import Territorial
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 
 @login_required
 def main_territorial(request):
@@ -21,6 +22,7 @@ def main_territorial(request):
         )
     return redirect('logout')
 
+
 @login_required
 def gestion_territorial(request):
     try:
@@ -29,13 +31,24 @@ def gestion_territorial(request):
         messages.info(request, 'Error de perfil.')
         return redirect('login')
 
-    if profile.group_id ==1:
-        territoriales = (Territorial.objects.select_related('usuario').order_by('id'))
+    if profile.group_id == 1:
+        qs = Territorial.objects.select_related('usuario').order_by('id')
+
+        paginator = Paginator(qs, 6)  
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+
         return render(
             request,
-            'territorial/gestion_territorial.html',{'territoriales': territoriales}
+            'territorial/gestion_territorial.html',
+            {
+                'territoriales': page_obj,
+                'page_obj': page_obj
+            }
         )
+
     return redirect('logout')
+
 
 @login_required
 def editar_territorial(request, territorial_id=None):

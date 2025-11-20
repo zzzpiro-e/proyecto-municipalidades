@@ -7,6 +7,7 @@ from departamento.models import Departamento
 from incidencia.models import Incidencia
 from asignacion.models import Asignacion
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 
 
 @login_required
@@ -31,9 +32,27 @@ def gestion_cuadrilla(request):
         messages.info(request, 'Error')
         return redirect('login')
 
-    if profile.group_id ==1:
-        cuadrillas = (Cuadrilla.objects.select_related('usuario', 'departamento').order_by('id'))
-        return render(request, 'cuadrilla/gestion_cuadrilla.html', {'cuadrillas': cuadrillas})
+    if profile.group_id == 1:
+
+        cuadrillas_list = (
+            Cuadrilla.objects
+            .select_related('usuario', 'departamento')
+            .order_by('id')
+        )
+
+        paginator = Paginator(cuadrillas_list, 6)
+        page_number = request.GET.get('page')
+        cuadrillas = paginator.get_page(page_number)
+
+        return render(
+            request,
+            'cuadrilla/gestion_cuadrilla.html',
+            {
+                'cuadrillas': cuadrillas,
+                'profile': profile
+            }
+        )
+
     else:
         return redirect('logout')
     
@@ -201,7 +220,7 @@ def crear_registro(request):
             fecha=fecha
         )
 
-        # 🔥 CAMBIO REAL DEL ESTADO
+
         incidencia.state = Incidencia.STATE_RESUELTO
         incidencia.save()
 
@@ -216,11 +235,19 @@ def crear_registro(request):
 
 def ver_incidencias_cuadrilla(request):
     cuadrilla = Cuadrilla.objects.filter(usuario=request.user).first()
-    asignaciones = Asignacion.objects.filter(cuadrilla=cuadrilla).select_related('incidencia')
+
+    asignaciones_qs = Asignacion.objects.filter(cuadrilla=cuadrilla).select_related('incidencia')
+
+
+    paginator = Paginator(asignaciones_qs, 6)  
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'asignaciones': asignaciones
+        'asignaciones': page_obj
     }
     return render(request, 'cuadrilla/ver_incidencias_cuadrilla.html', context)
+
 def ver_registro(request):
     cuadrilla = Cuadrilla.objects.filter(usuario=request.user).first()
     registros = Registro_trabajo.objects.filter(cuadrilla=cuadrilla).order_by('-fecha')
