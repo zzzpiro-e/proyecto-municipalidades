@@ -21,6 +21,7 @@ def main_usuario(request, usuario_id=None):
     if profile.group_id == 1:
         usuarios = (
             User.objects
+                .exclude(id=request.user.id) 
                 .prefetch_related('groups')  
                 .order_by('id')
         )
