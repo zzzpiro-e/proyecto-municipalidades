@@ -19,19 +19,24 @@ def main_usuario(request, usuario_id=None):
         return redirect('login')
 
     if profile.group_id == 1:
+        rol_filtro = request.GET.get("rol", "Todos")
         usuarios = (
-            User.objects
-                .exclude(id=request.user.id) 
-                .prefetch_related('groups')  
-                .order_by('id')
+           User.objects
+        .exclude(id=request.user.id)
+        .select_related("profile__group")  # trae profile y group
+        .order_by("id")
         )
-        return render(request, 'usuario/main_usuario.html', {
+        if rol_filtro != "Todos":
+            usuarios = usuarios.filter(profile__group__name=rol_filtro)
+        context = {
             'usuarios': usuarios,
-            'profile': profile
-        })
+            'profile': profile,
+            'rol_actual': rol_filtro
+        }
+        return render(request, 'usuario/main_usuario.html',context)
     else:
         return redirect('logout')
-    
+
 @login_required
 def ver_usuario(request, user_id= None):
     try:
@@ -147,51 +152,43 @@ def editar_usuario(request, user_id=None):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
     except Profile.DoesNotExist:
-        messages.add_message(request, messages.INFO, 'Error de perfil.')
+        messages.error(request, "Error de perfil.")
         return redirect('login')
-
     if profile.group_id != 1:
         return redirect('logout')
-    
-    usuario_a_editar = get_object_or_404(User, id=user_id)
-    try:
-        profile_a_editar, created = Profile.objects.get_or_create(user=usuario_a_editar)
-        if created:
-            profile_a_editar.group_id = 1 
-            profile_a_editar.save()
-    except Exception as e:
-        messages.error(request, f"Error crítico al obtener/crear el perfil: {e}")
-        return redirect('main_usuario')
+    usuario = get_object_or_404(User, id=user_id)
+    territorial = Territorial.objects.filter(usuario=usuario).first()
 
-    if request.method == 'POST':
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        email = request.POST.get('email')
-        
-        telefono = request.POST.get('telefono')
-        group_id = request.POST.get('group')
-        usuario_a_editar.first_name = first_name
-        usuario_a_editar.last_name = last_name
-        usuario_a_editar.email = email
-        
-        usuario_a_editar.save()
+    if request.method == "POST":
+        usuario.first_name = request.POST.get("first_name")
+        usuario.last_name = request.POST.get("last_name")
+        usuario.email = request.POST.get("email")
+        usuario.save()
+        usuario.profile.telefono = request.POST.get("telefono")
+        nuevo_group_id = request.POST.get("group")
+        usuario.profile.group_id = nuevo_group_id
+        usuario.profile.save()
+        if nuevo_group_id == "4":
+            zona = request.POST.get("zona_asignada")
+            if not territorial:
+                territorial = Territorial(usuario=usuario)
+            territorial.zona_asignada = zona
+            territorial.save()
+        else:
+            if territorial:
+                territorial.delete()
 
-        if usuario_a_editar.profile:
-            usuario_a_editar.profile.telefono = telefono
-            usuario_a_editar.profile.group_id = group_id
-            usuario_a_editar.profile.save()
-
-        messages.add_message(request, messages.INFO, 'Usuario actualizado con éxito.')
-        return redirect('main_usuario')
-
+        messages.success(request, "Usuario actualizado correctamente.")
+        return redirect("main_usuario")
     else:
         grupos = Group.objects.all()
-        template_name = 'usuario/editar_usuario.html'
         context = {
-            'usuario': usuario_a_editar,
-            'grupos': grupos
+            "usuario": usuario,
+            "grupos": grupos,
+            "territorial": territorial,
         }
-        return render(request, template_name, context)
+        return render(request, "usuario/editar_usuario.html", context)
+
     
 @login_required
 def cambiar_contraseña_obligatorio(request):
@@ -219,3 +216,21 @@ def cambiar_contraseña_obligatorio(request):
         'form': form
     }
     return render(request, 'usuario/cambiar_contraseña_obligatorio.html', context)
+
+@login_required
+def ver_perfil(request):
+    profile = request.user.profile
+
+    if request.method == "POST":
+        request.user.email = request.POST.get("email")
+        request.user.save()
+
+        profile.telefono = request.POST.get("telefono")
+        profile.save()
+
+        messages.success(request, "Perfil actualizado correctamente.")
+        return redirect("ver_perfil")
+
+    return render(request, "usuario/ver_perfil.html")
+
+
