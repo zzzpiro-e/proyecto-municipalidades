@@ -12,7 +12,7 @@
             <tr>
                 <th scope="col">Título</th>
                 <th scope="col">Tipo</th>
-                <th scope="col">Ubicacion</th>
+                <th scope="col">Ubicación</th>
                 <th scope="col">Estado</th>
                 <th scope="col">Fecha Asignación</th>
             </tr>
@@ -25,26 +25,56 @@
             <td>{{ asignacion.incidencia.ubicacion }}</td>
             <td>{{ asignacion.incidencia.state }}</td>
             <td>{{ asignacion.fecha_asignacion }}</td>
-            
-            
           </tr>
         {% endfor %}
       </tbody>
     </table>
+    </div>
+
+<div class="d-flex justify-content-center mt-3">
+    <nav>
+        <ul class="pagination">
+
+            {% if asignaciones.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ asignaciones.previous_page_number }}">Anterior</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Anterior</span>
+                </li>
+            {% endif %}
+
+            {% for num in asignaciones.paginator.page_range %}
+                {% if asignaciones.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if asignaciones.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ asignaciones.next_page_number }}">Siguiente</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Siguiente</span>
+                </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+</div>
+
   {% else %}
     <p>No hay registros aún.</p>
   {% endif %}
 </div>
+
 <a href="{% url 'main_cuadrilla' %}">Volver</a>
 {% endblock %}
-
-{% if messages %}
-<div class="alert alert-success mt-3">
-    <ul class="mb-0">
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %}
-

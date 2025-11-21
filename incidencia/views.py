@@ -8,6 +8,8 @@ from departamento.models import Departamento
 from territorial.models import Territorial
 from encuesta.models import Encuesta
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
+
 
 @login_required
 def gestion_incidencia(request):
@@ -18,19 +20,30 @@ def gestion_incidencia(request):
         return redirect('login')
 
     if profile.group_id in [1, 2, 3, 4, 5]:
+
         estado_filtro = request.GET.get("estado", "Todos")
+
         qs = Incidencia.objects.filter(state='Activo').select_related(
             'departamento', 'territorial'
         ).order_by('-id')
+
         if estado_filtro != "Todos":
             qs = qs.filter(estado=estado_filtro)
+
+        paginator = Paginator(qs, 6)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+
         context = {
-            'incidencias': qs,
+            'incidencias': page_obj,     
             'profile': profile,
-            'estado_actual': estado_filtro
-            
+
+            'estado_actual': estado_filtro,
+            'page_obj': page_obj,        
+
         }
         return render(request, 'incidencia/gestion_incidencia.html', context)
+
 
 @login_required
 def crear_incidencia(request):
@@ -203,22 +216,36 @@ def incidencias_usuario_departamento(request):
             return redirect('logout')
             
         departamento_usuario = Departamento.objects.get(usuario=request.user)
+
+        
         estado_filtro = request.GET.get("estado", "Todos") 
+
         qs = Incidencia.objects.filter(departamento=departamento_usuario)
+
         if estado_filtro != "Todos":
-            qs = qs.filter(estado=estado_filtro) 
+            qs = qs.filter(estado=estado_filtro)
+
+        paginator = Paginator(qs.order_by('-id'), 6)  
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+
         context = {
-            'incidencias': qs,
+            'incidencias': page_obj,
             'departamento': departamento_usuario,
             'estado_actual': estado_filtro,
+            'page_obj': page_obj
         }
+
         return render(request, 'incidencia/incidencias_usuario_departamento.html', context)
+
     except Profile.DoesNotExist:
         messages.add_message(request, messages.INFO, 'Error de perfil.')
         return redirect('login')
+
     except Departamento.DoesNotExist:
         messages.error(request, 'No estás asignado a ningún departamento.')
         return redirect('logout')
+
 
 @login_required
 def ver_incidencia(request, incidencia_id):

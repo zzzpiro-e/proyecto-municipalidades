@@ -7,7 +7,7 @@ from direccion.models import Direccion
 from cuadrilla.models import Cuadrilla, Registro_trabajo
 from incidencia.models import Incidencia
 from django.contrib.auth.models import User
-
+from django.core.paginator import Paginator
 
 @login_required
 def main_departamento(request):
@@ -31,9 +31,24 @@ def gestion_departamento(request):
         messages.info(request, 'Error')
         return redirect('login')
 
-    if profile.group_id ==1:
-        departamentos = (Departamento.objects.select_related('usuario', 'direccion').order_by('id'))
-        return render(request, 'departamento/gestion_departamento.html',{'departamentos': departamentos})
+    if profile.group_id == 1:
+
+        departamentos_list = (
+            Departamento.objects
+            .select_related('usuario', 'direccion')
+            .order_by('id')
+        )
+
+        paginator = Paginator(departamentos_list, 6)
+        page_number = request.GET.get('page')
+        departamentos = paginator.get_page(page_number)
+
+        return render(
+            request,
+            'departamento/gestion_departamento.html',
+            {'departamentos': departamentos}
+        )
+
     else:
         return redirect('logout')
 
@@ -182,23 +197,34 @@ def ver_departamento_bloqueo(request):
         return render(request, 'departamento/bloquear_departamento.html', {'departamentos': departamentos})
     return redirect('logout')
 
+
 @login_required
 def cuadrillas_usuario_departamento(request):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
+
         if profile.group_id != 3:
             messages.error(request, 'No tienes permiso para acceder a esta página.')
             return redirect('main_departamento')
+
         departamento_usuario = Departamento.objects.get(usuario=request.user)
-        cuadrillas_pertenecientes = Cuadrilla.objects.filter(departamento=departamento_usuario)
+
+        qs = Cuadrilla.objects.filter(departamento=departamento_usuario)
+
+        paginator = Paginator(qs, 6)
+        page_number = request.GET.get("page")
+        cuadrillas_paginadas = paginator.get_page(page_number)
+
         context = {
-            'cuadrillas': cuadrillas_pertenecientes,
+            'cuadrillas': cuadrillas_paginadas,
             'departamento': departamento_usuario,
         }
         return render(request, 'departamento/cuadrillas_usuario_departamento.html', context)
+
     except Profile.DoesNotExist:
         messages.add_message(request, messages.INFO, 'Error de perfil.')
         return redirect('login')
+
     except Departamento.DoesNotExist:
         messages.error(request, 'No estás asignado a ningún departamento.')
         return redirect('main_departamento')

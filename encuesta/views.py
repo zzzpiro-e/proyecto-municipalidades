@@ -5,6 +5,7 @@ from registration.models import Profile
 from .models import Encuesta
 from departamento.models import Departamento
 from pregunta.models import Pregunta
+from django.core.paginator import Paginator
 
 @login_required
 def main_encuesta(request):
@@ -13,13 +14,15 @@ def main_encuesta(request):
     except Profile.DoesNotExist:
         messages.error(request, 'Error de perfil.')
         return redirect('login')
-    if profile.group_id == 1:
-        encuestas = Encuesta.objects.select_related('departamento').order_by('-id')
+
     
+    if profile.group_id == 1:
+        qs = Encuesta.objects.select_related('departamento').order_by('-id')
+
     elif profile.group_id == 3:
         try:
             departamento_usuario = Departamento.objects.get(usuario=request.user)
-            encuestas = Encuesta.objects.filter(
+            qs = Encuesta.objects.filter(
                 departamento=departamento_usuario
             ).select_related('departamento').order_by('-id')
         except Departamento.DoesNotExist:
@@ -27,10 +30,17 @@ def main_encuesta(request):
             return redirect('logout')
     else:
         return redirect('logout')
+
+    paginator = Paginator(qs, 6)  
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'encuestas': encuestas,
-        'profile': profile
+        'encuestas': page_obj,  
+        'profile': profile,
+        'page_obj': page_obj
     }
+
     return render(request, 'encuesta/main_encuesta.html', context)
 
 def crear_encuesta(request):

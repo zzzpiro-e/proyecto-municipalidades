@@ -7,6 +7,7 @@ from departamento.models import Departamento
 from incidencia.models import Incidencia
 from asignacion.models import Asignacion
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 
 
 @login_required
@@ -31,9 +32,27 @@ def gestion_cuadrilla(request):
         messages.info(request, 'Error')
         return redirect('login')
 
-    if profile.group_id ==1:
-        cuadrillas = (Cuadrilla.objects.select_related('usuario', 'departamento').order_by('id'))
-        return render(request, 'cuadrilla/gestion_cuadrilla.html', {'cuadrillas': cuadrillas})
+    if profile.group_id == 1:
+
+        cuadrillas_list = (
+            Cuadrilla.objects
+            .select_related('usuario', 'departamento')
+            .order_by('id')
+        )
+
+        paginator = Paginator(cuadrillas_list, 6)
+        page_number = request.GET.get('page')
+        cuadrillas = paginator.get_page(page_number)
+
+        return render(
+            request,
+            'cuadrilla/gestion_cuadrilla.html',
+            {
+                'cuadrillas': cuadrillas,
+                'profile': profile
+            }
+        )
+
     else:
         return redirect('logout')
     
@@ -178,41 +197,55 @@ def crear_registro(request):
     except Cuadrilla.DoesNotExist:
         messages.error(request, "Tu usuario no está asociado a ninguna cuadrilla.")
         return redirect('home')
+
     incidencias = Incidencia.objects.filter(
-    asignacion__cuadrilla=cuadrilla
+        asignacion__cuadrilla=cuadrilla
     ).exclude(id__in=Registro_trabajo.objects.values_list('incidencia_id', flat=True))
-    
 
     if request.method == 'POST':
         incidencia_id = request.POST.get('incidencia')
         descripcion = request.POST.get('descripcion')
         fecha = request.POST.get('fecha')
+
         if not incidencia_id:
             messages.error(request, "Debes seleccionar una incidencia.")
             return redirect('crear_registro')
+
         incidencia = get_object_or_404(Incidencia, id=incidencia_id)
+
         Registro_trabajo.objects.create(
             incidencia=incidencia,
             cuadrilla=cuadrilla,
             descripcion=descripcion,
             fecha=fecha
         )
-        incidencia.state='Resuelto'
+        incidencia.state = Incidencia.STATE_RESUELTO
         incidencia.save()
+        
         messages.success(request, "Registro creado correctamente.")
-        return redirect('main_cuadrilla') 
+        return redirect('main_cuadrilla')
+
     return render(request, 'cuadrilla/crear_registro.html', {
         'incidencias': incidencias,
         'cuadrilla': cuadrilla
     })
 
+
 def ver_incidencias_cuadrilla(request):
     cuadrilla = Cuadrilla.objects.filter(usuario=request.user).first()
-    asignaciones = Asignacion.objects.filter(cuadrilla=cuadrilla).select_related('incidencia')
+
+    asignaciones_qs = Asignacion.objects.filter(cuadrilla=cuadrilla).select_related('incidencia')
+
+
+    paginator = Paginator(asignaciones_qs, 6)  
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'asignaciones': asignaciones
+        'asignaciones': page_obj
     }
     return render(request, 'cuadrilla/ver_incidencias_cuadrilla.html', context)
+
 def ver_registro(request):
     cuadrilla = Cuadrilla.objects.filter(usuario=request.user).first()
     registros = Registro_trabajo.objects.filter(cuadrilla=cuadrilla).order_by('-fecha')
