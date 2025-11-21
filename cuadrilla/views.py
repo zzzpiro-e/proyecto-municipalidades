@@ -266,4 +266,24 @@ def ver_incidencias_cuadrilla(request):
 def ver_registro(request):
     cuadrilla = Cuadrilla.objects.filter(usuario=request.user).first()
     registros = Registro_trabajo.objects.filter(cuadrilla=cuadrilla).order_by('-fecha')
-    return render(request, 'cuadrilla/ver_registro.html', {'registros': registros})
+
+    paginator = Paginator(registros, 6)  
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'cuadrilla/ver_registro.html', {'registros': page_obj})
+
+@login_required
+def detalle_registro(request, id):
+    registro = get_object_or_404(
+        Registro_trabajo,
+        id=id,
+        cuadrilla__usuario=request.user
+    )
+
+    multimedia = MultimediaRegistro.objects.filter(registro=registro)
+
+    return render(request, 'cuadrilla/detalle_registro.html', {
+        'registro': registro,
+        'multimedia': multimedia
+    })

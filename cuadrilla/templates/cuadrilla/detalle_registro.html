@@ -1,0 +1,94 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Detalle de Registro: {{ registro.incidencia.titulo }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h4 class="text-secondary mb-3">Detalle del Registro de Trabajo</h4>
+    <hr>
+
+    <div class="row g-4">
+
+        <!-- Columna izquierda: info del registro -->
+        <div class="col-md-6">
+            <h5>Datos del Registro</h5>
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Incidencia:</strong>
+                    <span>{{ registro.incidencia.titulo }}</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Fecha del Registro:</strong>
+                    <span>{{ registro.fecha }}</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Cuadrilla:</strong>
+                    <span>{{ registro.cuadrilla.nombre_cuadrilla }}</span>
+                </li>
+                
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Incidencia Resuelta Por:</strong>
+                    <span>{{ registro.cuadrilla.usuario.first_name }} {{ registro.cuadrilla.usuario.last_name }}</span>
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Descripción del Trabajo:</strong>
+                    <p class="mt-2 mb-0">{{ registro.descripcion }}</p>
+                </li>
+            </ul>
+
+            <h5 class="mt-4">Estado de la Incidencia</h5>
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Estado actual:</strong>
+                    <span class="badge bg-success text-dark">{{ registro.incidencia.estado }}</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Columna derecha: multimedia -->
+        <div class="col-md-6">
+            <h5>Archivos Multimedia Adjuntos</h5>
+
+            {% for archivo in multimedia %}
+                <div class="card mb-3">
+                    <div class="card-body">
+
+                        {% if archivo.tipo == "imagen" %}
+                            <img src="{{ archivo.path.url }}" class="img-fluid rounded" alt="Imagen del registro">
+
+                        {% elif archivo.tipo == "video" %}
+                            <video controls width="100%" class="rounded">
+                                <source src="{{ archivo.path.url }}">
+                                Tu navegador no soporta la etiqueta de video.
+                            </video>
+
+                        {% elif archivo.tipo == "audio" %}
+                            <audio controls class="w-100 mt-2">
+                                <source src="{{ archivo.path.url }}">
+                                Tu navegador no soporta audio HTML5.
+                            </audio>
+
+                        {% else %}
+                            <a href="{{ archivo.path.url }}" target="_blank" class="btn btn-outline-dark">
+                                Descargar archivo: {{ archivo.path.name|cut:"registros_media/" }}
+                            </a>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            {% empty %}
+                <div class="alert alert-info">
+                    No hay archivos multimedia adjuntos para este registro.
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <hr class="my-4">
+    <a href="{% url 'ver_registro' %}" class="btn btn-outline-secondary">Volver</a>
+</div>
+{% endblock %}
