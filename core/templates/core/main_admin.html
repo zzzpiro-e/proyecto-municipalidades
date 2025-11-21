@@ -1,51 +1,59 @@
-{%extends 'core/base.html'%}
-{% load static%}
+{% extends 'core/base.html' %}
+{% load static %}
 {% block title %}{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="container mt-4">
+<div class="container mt-4">
+
     <h2>¡Hola, {{ request.user.first_name|default:request.user.username }}!</h2>
-    
-</div>
-<div class="row g-4">
+    <h4 class="text-secondary mb-3">Dashboard de Incidencias y Usuarios</h4>
+    <hr>
 
-    <div class="col-md-4 col-xl-3">
-        <div class="card bg-dark text-white shadow p-3 rounded-3">
-            <h5 class="text-uppercase">Usuarios</h5>
-            <h2 class="fw-bold">{{ total_usuarios }}</h2>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-center">
+                <h6 class="text-muted">Total Usuarios</h6>
+                <h3>{{ total_usuarios }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-center">
+                <h6 class="text-muted">Total Incidencias</h6>
+                <h3>{{ total_incidencias }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-center">
+                <h6 class="text-muted">Pendientes</h6>
+                <h3 class="text-warning">{{ incidencias_pendientes }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-center">
+                <h6 class="text-muted">Asignadas</h6>
+                <h3 class="text-info">{{ incidencias_derivadas }}</h3>
+            </div>
         </div>
     </div>
 
-    <div class="col-md-4 col-xl-3">
-        <div class="card bg-dark text-white shadow p-3 rounded-3">
-            <h5 class="text-uppercase">Incidencias Totales</h5>
-            <h2 class="fw-bold">{{ total_incidencias }}</h2>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-center">
+                <h6 class="text-muted">Rechazadas</h6>
+                <h3 class="text-danger">{{ incidencias_rechazadas }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-center">
+                <h6 class="text-muted">Resueltas</h6>
+                <h3 class="text-success">{{ incidencias_finalizadas }}</h3>
+            </div>
         </div>
     </div>
-
-    <div class="col-md-4 col-xl-3">
-        <div class="card bg-dark text-white shadow p-3 rounded-3">
-            <h5 class="text-uppercase">Derivadas</h5>
-            <h2 class="fw-bold">{{ incidencias_derivadas }}</h2>
-        </div>
-    </div>
-
-    <div class="col-md-4 col-xl-3">
-        <div class="card bg-dark text-white shadow p-3 rounded-3">
-            <h5 class="text-uppercase">Rechazadas</h5>
-            <h2 class="fw-bold">{{ incidencias_rechazadas }}</h2>
-        </div>
-    </div>
-
-    <div class="col-md-4 col-xl-3">
-        <div class="card bg-dark text-white shadow p-3 rounded-3">
-            <h5 class="text-uppercase">Finalizadas</h5>
-            <h2 class="fw-bold">{{ incidencias_finalizadas }}</h2>
-        </div>
-    </div>
-
-</div>
-
 
 </div>
 {% endblock %}
