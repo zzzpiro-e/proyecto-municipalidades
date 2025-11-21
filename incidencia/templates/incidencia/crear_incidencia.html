@@ -72,6 +72,30 @@
             <label for="correo_vecino" class="form-label">Correo del vecino:</label>
             <input type="email" name="correo_vecino" id="correo_vecino" class="form-control">
         </div>
+        
+        <div class="col-12 mt-3">
+            
+                <hr class="my-3">
+                    <h5 class="text-muted">Preguntas</h5>
+                <div class="card-body" id="preguntas-container">
+
+                    {% for e in encuestas %}
+                        <div class="bloque-preguntas" data-encuesta="{{ e.id }}" style="display:none;">
+                            {% if e.preguntas.all %}
+                                {% for p in e.preguntas.all %}
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ p.titulo }}</label>
+                                        <input type="text" name="respuesta_{{ p.id }}" class="form-control">
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted">Esta encuesta no tiene preguntas.</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                </div>
+            </div>
 
         <hr class="my-3">
         <div class="col-12">
@@ -96,4 +120,16 @@
 </div>
 {% endif %}
 
+<!-- SCRIPT PARA MOSTRAR LAS PREGUNTAS -->
+<script>
+document.getElementById('encuesta').addEventListener('change', function() {
+    let seleccion = this.value;
+
+    document.querySelectorAll('.bloque-preguntas').forEach(div => {
+        div.style.display = div.dataset.encuesta === seleccion ? 'block' : 'none';
+    });
+});
+</script>
+
 {% endblock %}
+

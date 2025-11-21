@@ -1,24 +1,49 @@
 {% extends 'core/base.html' %}
 {% load static %}
-{% block title %}Menú de Territoriales{% endblock %}
+
+{% block title %}Dashboard Territorial{% endblock %}
+
 {% block content %}
+
 <div class="row">
     <div class="container mt-4">
     <h2>¡Hola, {{ request.user.first_name|default:request.user.username }}!</h2>
     
 </div>
+<h4 class="text-secondary mb-3">Dashboard de Incidencias</h4>
+    <hr>
 
-{% if messages %}
-<div class="alert alert-success mt-3">
-    <ul class="mb-0">
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow p-3">
+                <h6 class="text-muted">Total Incidencias</h6>
+                <h3>{{ total }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3">
+                <h6 class="text-muted">Pendientes</h6>
+                <h3 class="text-warning">{{ pendientes }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3">
+                <h6 class="text-muted">Asignadas</h6>
+                <h3 class="text-info">{{ asignadas }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3">
+                <h6 class="text-muted">Resueltas</h6>
+                <h3 class="text-success">{{ resueltas }}</h3>
+            </div>
+        </div>
+    </div>
+
 </div>
-{% endif %}
+
 
 {% endblock %}
-
-
-

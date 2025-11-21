@@ -34,3 +34,24 @@ class Registro_trabajo(models.Model):
 
     def __str__(self):
         return f"Trabajo de {self.cuadrilla} en {self.incidencia}"
+    
+class MultimediaRegistro(models.Model):
+    registro= models.ForeignKey(Registro_trabajo, on_delete=models.CASCADE, related_name='multimedia')
+    TIPO_CHOICES = [
+        ('imagen', 'Imagen'),
+        ('video', 'Video'),
+        ('audio', 'Audio'),
+        ('otro', 'Otro'),
+    ]
+    tipo = models.CharField(max_length=50, choices=TIPO_CHOICES, default='imagen')
+    path = models.FileField(upload_to='archivos_registros/%Y/%m/%d/') 
+    created = models.DateTimeField(auto_now_add=True)
+    updated= models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Archivo Multimedia'
+        verbose_name_plural = 'Archivos Multimedia'
+        ordering = ['-created']
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} de registro {self.registro.id}"

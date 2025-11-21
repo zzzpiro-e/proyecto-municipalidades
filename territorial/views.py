@@ -5,22 +5,30 @@ from registration.models import Profile
 from .models import Territorial
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
+from incidencia.models import Incidencia
 
 @login_required
 def main_territorial(request):
     try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.info(request, 'Error de perfil.')
-        return redirect('login')
+        territorial = Territorial.objects.get(usuario=request.user)
+    except Territorial.DoesNotExist:
+        messages.error(request, "No tienes registro territorial asociado.")
+        return redirect("login")
+    incidencias = Incidencia.objects.filter(territorial=territorial)
+    total = incidencias.count()
+    pendientes = incidencias.filter(estado="Pendiente").count()
+    asignadas = incidencias.filter(estado="Asignada").count()
+    resueltas = incidencias.filter(estado="Resuelta").count()
 
-    if profile.group_id in [4]:
-        territoriales = (Territorial.objects.select_related('usuario').order_by('id'))
-        return render(
-            request,
-            'territorial/main_territorial.html',{'territoriales': territoriales}
-        )
-    return redirect('logout')
+    context = {
+        "total": total,
+        "pendientes": pendientes,
+        "asignadas": asignadas,
+        "resueltas": resueltas,
+        "territorial": territorial,
+    }
+
+    return render(request, "territorial/main_territorial.html", context)
 
 
 @login_required

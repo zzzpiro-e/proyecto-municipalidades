@@ -59,12 +59,11 @@ def main_admin(request):
         messages.add_message(request, messages.INFO, 'Hubo un error con su usuario, por favor contactese con los administradores')              
         return redirect('login')
 
-    # Solo admin (group_id = 1)
     if profile.group_id == 1:
 
-        # --- Datos para el dashboard ---
         total_usuarios = User.objects.count()
         total_incidencias = Incidencia.objects.count()
+        incidencias_pendientes=Incidencia.objects.filter(estado="Pendiente").count()
         incidencias_derivadas = Incidencia.objects.filter(estado="Asignada").count()
         incidencias_rechazadas = Incidencia.objects.filter(estado="Rechazada").count()
         incidencias_finalizadas = Incidencia.objects.filter(estado="Resuelta").count()
@@ -75,6 +74,7 @@ def main_admin(request):
             'incidencias_derivadas': incidencias_derivadas,
             'incidencias_rechazadas': incidencias_rechazadas,
             'incidencias_finalizadas': incidencias_finalizadas,
+            'incidencias_pendientes': incidencias_pendientes,
             'profile': profile
         }
 
