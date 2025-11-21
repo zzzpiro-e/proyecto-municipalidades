@@ -19,7 +19,7 @@ def asignar_incidencia(request, cuadrilla_id):
             incidencia=incidencia,
         )
 
-        incidencia.state = "Asignada"
+        incidencia.estado = "Asignada"
         incidencia.save()
 
         return redirect("main_departamento")

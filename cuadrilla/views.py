@@ -213,14 +213,11 @@ def crear_registro(request):
 
         incidencia = get_object_or_404(Incidencia, id=incidencia_id)
 
-        registro_save=Registro_trabajo.objects(
+        registro_save = Registro_trabajo.objects.create(
             incidencia=incidencia,
             cuadrilla=cuadrilla,
-            descripcion=descripcion,
-            fecha=fecha
+            descripcion=descripcion
         )
-
-        registro_save.save()
 
         incidencia.estado='Resuelta'
         incidencia.save()
