@@ -1,27 +1,64 @@
-{%extends 'core/base.html'%}
-{% load static%}
-{% block title %}{% endblock %}
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Crear Registro de Trabajo{% endblock %}
 {% block content %}
-<h4>Registrar Trabajo de Incidencia</h4>
-<form method="post" action="{% url 'crear_registro' %}">
-    {% csrf_token %}
-    <p>
-        <select name="incidencia" id="incidencia">
-        <option value="">Seleccione La Incidencia Resuelta</option>
-            {% for incidencia in incidencias %}
-                <option value="{{ incidencia.id }}">{{ incidencia.titulo }} {{ incidencia.ubicacion }}
+
+<div class="container-fluid">
+
+    <h4 class="text-secondary mb-3">Registrar Trabajo de Incidencia</h4>
+    <hr>
+
+    <form method="POST" action="{% url 'crear_registro' %}" enctype="multipart/form-data" class="row g-3">
+        {% csrf_token %}
+
+        <!-- Selección de incidencia -->
+        <div class="col-md-6">
+            <label for="incidencia" class="form-label">Incidencia resuelta:</label>
+            <select name="incidencia" id="incidencia" class="form-select" required>
+                <option value="">Seleccione una incidencia...</option>
+                {% for incidencia in incidencias %}
+                <option value="{{ incidencia.id }}">
+                    {{ incidencia.titulo }} - {{ incidencia.ubicacion }}
                 </option>
-            {% endfor %}
-        </select>
-    </p>
+                {% endfor %}
+            </select>
+        </div>
 
-    <p><textarea name="descripcion" placeholder="Ingrese descripción para el registro de trabajo"></textarea></p>
+        <div class="col-md-6">
+            <label for="fecha" class="form-label">Fecha del trabajo:</label>
+            <input type="text"
+                   id="fecha"
+                   class="form-control"
+                   value="{% now 'Y-m-d H:i' %}"
+                   disabled>
+        </div>
 
-    <p><input type="submit" value="Guardar"/></p>
-    <a href="{% url 'main_cuadrilla' %}">Cancelar y Volver</a>
-</form>
+        <!-- Descripción -->
+        <div class="col-12 mt-3">
+            <label for="descripcion" class="form-label">Descripción del trabajo realizado:</label>
+            <textarea name="descripcion" id="descripcion" class="form-control" rows="4"
+                placeholder="Detalle las acciones realizadas..." required></textarea>
+        </div>
+
+        <hr class="my-3">
+
+        <!-- Subida de archivos -->
+        <div class="col-12">
+            <label for="archivos" class="form-label">Subir Multimedia (Imágenes / Videos / Audio):</label>
+            <input class="form-control" type="file" name="archivos" id="archivos" multiple>
+        </div>
+
+        <!-- Botones -->
+        <div class="col-12 mt-4">
+            <button type="submit" class="btn btn-primary">Guardar registro</button>
+            <a href="{% url 'main_cuadrilla' %}" class="btn btn-link">Volver</a>
+        </div>
+
+    </form>
+</div>
+
 {% if messages %}
-<div class="alert alert-success mt-3">
+<div class="alert alert-info mt-3">
     <ul class="mb-0">
         {% for message in messages %}
             <li>{{ message }}</li>
@@ -29,4 +66,5 @@
     </ul>
 </div>
 {% endif %}
+
 {% endblock %}

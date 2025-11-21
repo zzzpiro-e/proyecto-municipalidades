@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render,redirect,get_object_or_404
 from registration.models import Profile
-from cuadrilla.models import Cuadrilla, Registro_trabajo
+from cuadrilla.models import Cuadrilla, Registro_trabajo,MultimediaRegistro
 from departamento.models import Departamento
 from incidencia.models import Incidencia
 from asignacion.models import Asignacion
@@ -191,14 +191,35 @@ def crear_registro(request):
             messages.error(request, "Debes seleccionar una incidencia.")
             return redirect('crear_registro')
         incidencia = get_object_or_404(Incidencia, id=incidencia_id)
-        Registro_trabajo.objects.create(
+
+        registro_save=Registro_trabajo.objects(
             incidencia=incidencia,
             cuadrilla=cuadrilla,
             descripcion=descripcion,
             fecha=fecha
         )
-        incidencia.state='Resuelto'
+        registro_save.save()
+
+        incidencia.estado='Resuelta'
         incidencia.save()
+
+        archivos_subidos = request.FILES.getlist('archivos')
+            
+        for archivo in archivos_subidos:
+            content_type = archivo.content_type
+            tipo_simple = 'otro'
+            if content_type.startswith('image'):
+                tipo_simple = 'imagen'
+            elif content_type.startswith('video'):
+                tipo_simple = 'video'
+            elif content_type.startswith('audio'):
+                tipo_simple = 'audio'
+                
+            MultimediaRegistro.objects.create(
+                registro=registro_save,
+                tipo=tipo_simple,
+                path=archivo
+            )
         messages.success(request, "Registro creado correctamente.")
         return redirect('main_cuadrilla') 
     return render(request, 'cuadrilla/crear_registro.html', {

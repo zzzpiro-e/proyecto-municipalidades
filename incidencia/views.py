@@ -8,6 +8,7 @@ from departamento.models import Departamento
 from territorial.models import Territorial
 from encuesta.models import Encuesta
 from django.contrib.auth.models import User
+from pregunta.models import Pregunta, Respuesta
 
 @login_required
 def gestion_incidencia(request):
@@ -101,6 +102,20 @@ def guardar_incidencia(request):
                 encuesta_id=encuesta_id
             )
             incidencia_save.save() 
+
+            preguntas = Pregunta.objects.filter(encuesta_id=encuesta_id)
+            
+            for p in preguntas:
+                campo = f"respuesta_{p.id}"
+                contenido = request.POST.get(campo, "").strip()
+
+                if contenido:
+                    Respuesta.objects.create(
+                    incidencia=incidencia_save,
+                    pregunta=p,
+                    contenido=contenido
+                )
+
             archivos_subidos = request.FILES.getlist('archivos')
             
             for archivo in archivos_subidos:
