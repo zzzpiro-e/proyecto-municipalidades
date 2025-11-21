@@ -13,7 +13,6 @@
                 <th scope="col">Incidencia</th>
                 <th scope="col">Cuadrilla</th>
                 <th scope="col">Fecha</th>
-                <th scope="col">Descripción</th>
                 <th scope="col">Acciones</th>
             </tr>
         </thead>
@@ -23,7 +22,6 @@
             <td>{{ registro.incidencia }}</td>
             <td>{{ registro.cuadrilla }}</td>
             <td>{{ registro.fecha|date:"d/m/Y H:i" }}</td>
-            <td>{{ registro.descripcion }}</td>
             <td>
                     <div class="d-flex justify-content-center gap-2 flex-wrap">
                         <a href="{% url 'detalle_registro' registro.id %}" class="btn btn-outline-dark btn-sm">Ver</a>
@@ -34,7 +32,11 @@
           </tr>
         {% endfor %}
 
-        <div class="d-flex justify-content-center mt-3">
+        
+      </tbody>
+    </table>
+
+    <div class="d-flex justify-content-center mt-3">
     <nav>
         <ul class="pagination">
 
@@ -73,11 +75,11 @@
         </ul>
     </nav>
 </div>
-      </tbody>
-    </table>
+    
   {% else %}
     <p>No hay registros aún.</p>
   {% endif %}
+
 </div>
 <a href="{% url 'main_cuadrilla' %}">Volver</a>
 {% endblock %}

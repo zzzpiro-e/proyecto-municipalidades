@@ -41,7 +41,24 @@
                     <strong>Ubicación:</strong>
                     <span>{{ incidencia.ubicacion|default:"No informada" }}</span>
                 </li>
-            </ul>
+
+                <h5 class="mt-4">Encuesta Respondida</h5>
+
+                <ul class="list-group">
+                    {% for pregunta in preguntas %}
+                    <li class="list-group-item">
+                    <strong>{{ pregunta.titulo }}</strong><br>
+
+                        {% for r in incidencia.respuesta_set.all %}
+                            {% if r.pregunta_id == pregunta.id %}
+                            <span class="text">{{ r.contenido }}</span>
+                            {% endif %}
+                    {% empty %}
+                    <span class="text-muted">Sin respuesta</span>
+                        {% endfor %}
+                </li>
+                    {% endfor %}
+</ul> 
 
             <h5 class="mt-4">Datos del Vecino</h5>
             <ul class="list-group">

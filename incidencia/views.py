@@ -269,9 +269,19 @@ def ver_incidencia(request, incidencia_id):
             incidencia = get_object_or_404(Incidencia, id=incidencia_id)
             fallback_url = reverse('main_admin') 
             back_url = request.META.get('HTTP_REFERER', fallback_url)
+            
+            preguntas = incidencia.encuesta.preguntas.all()
+            respuestas = incidencia.respuesta_set.all()
+
+            respuestas_por_pregunta = {
+            r.pregunta_id: r for r in respuestas
+            }
+
             context = {
                 'incidencia': incidencia,
-                'back_url': back_url
+                'back_url': back_url,
+                'preguntas':preguntas,
+                'respuestas_por_pregunta':respuestas_por_pregunta   
             }
             return render(request, 'incidencia/ver_incidencia.html', context)
         else:

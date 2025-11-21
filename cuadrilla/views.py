@@ -13,16 +13,31 @@ from django.core.paginator import Paginator
 @login_required
 def main_cuadrilla(request):
     try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.info(request, 'Error')
-        return redirect('login')
+        cuadrilla = Cuadrilla.objects.get(usuario=request.user)
+    except Cuadrilla.DoesNotExist:
+        messages.error(request, "Tu usuario no está asociado a ninguna cuadrilla.")
+        return redirect('home')
 
-    if profile.group_id ==5:
-        cuadrillas = (Cuadrilla.objects.select_related('usuario', 'departamento').order_by('id'))
-        return render(request, 'cuadrilla/main_cuadrilla.html', {'cuadrillas': cuadrillas})
-    else:
-        return redirect('logout')
+    # 2. Incidencias asignadas (por Asignacion)
+    asignadas = Incidencia.objects.filter(
+        asignacion__cuadrilla=cuadrilla
+    ).count()
+
+    # 3. Incidencias resueltas (por Registro_trabajo)
+    resueltas = Registro_trabajo.objects.filter(
+        cuadrilla=cuadrilla
+    ).count()
+
+    # 4. Pendientes = asignadas - resueltas
+    # (solo cuenta pendientes que *tienen asignación* a esta cuadrilla)
+    pendientes = asignadas - resueltas
+
+    return render(request, 'cuadrilla/main_cuadrilla.html', {
+        'cuadrilla': cuadrilla,
+        'asignadas': asignadas,
+        'resueltas': resueltas,
+        'pendientes': pendientes,
+    })
 
 @login_required
 def gestion_cuadrilla(request):

@@ -8,6 +8,32 @@
     
 </div>
 
+<h4 class="text-secondary mb-3">Dashboard de Incidencias</h4>
+    <hr>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3">
+                <h6 class="text-muted">Asignadas</h6>
+                <h3 class="text-info">{{ asignadas }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3">
+                <h6 class="text-muted">Por resolver</h6>
+                <h3 class="text-info">{{ pendientes }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3">
+                <h6 class="text-muted">Resueltas</h6>
+                <h3 class="text-success">{{ resueltas }}</h3>
+            </div>
+        </div>
+    </div>
+
+
 {% endblock %}
 
 
