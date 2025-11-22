@@ -81,7 +81,7 @@
 </header>
 
 
-    <!-- CONTENIDO PRINCIPAL -->
+    
     <div class="row col-12 m-0">
         <div class="col-2 p-0">
             <div class="d-flex flex-column flex-shrink-0 p-2 text-white bg-dark sidebar">
@@ -118,7 +118,7 @@
                     <!-- ======================= TERRITORIAL ======================= -->
                     {% elif user.profile.group_id == 4 %}
                         <li><a href="{% url 'crear_incidencia' %}" class="nav-link text-white">Crear Incidencia</a></li>
-                        <li><a href="#" class="nav-link text-white">Mis Incidencias Creadas</a></li>
+                        <li><a href="{% url 'gestion_incidencia' %}" class="nav-link text-white">Mis Incidencias Creadas</a></li>
                         <li><a href="{% url 'login' %}" class="nav-link text-white">Cerrar sesión</a></li>
                     <!-- ======================= CUADRILLA ======================= -->
                     {% elif user.profile.group_id == 5 %}

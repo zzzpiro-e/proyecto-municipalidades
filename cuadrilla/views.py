@@ -214,7 +214,7 @@ def crear_registro(request):
         return redirect('home')
 
     incidencias = Incidencia.objects.filter(
-        asignacion__cuadrilla=cuadrilla
+        asignacion__cuadrilla=cuadrilla,state='Activo'
     ).exclude(id__in=Registro_trabajo.objects.values_list('incidencia_id', flat=True))
 
     if request.method == 'POST':
@@ -266,7 +266,7 @@ def crear_registro(request):
 def ver_incidencias_cuadrilla(request):
     cuadrilla = Cuadrilla.objects.filter(usuario=request.user).first()
 
-    asignaciones_qs = Asignacion.objects.filter(cuadrilla=cuadrilla).select_related('incidencia')
+    asignaciones_qs = Asignacion.objects.filter(cuadrilla=cuadrilla,incidencia__state='Activo').select_related('incidencia')
 
 
     paginator = Paginator(asignaciones_qs, 6)  

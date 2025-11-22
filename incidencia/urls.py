@@ -11,7 +11,7 @@ incidencia_urlpatterns=[
      path('bloquear_incidencia/<int:pk>/', views.bloquear_incidencia, name='bloquear_incidencia'),
      path('ver_incidencias_bloqueo/',views.ver_incidencias_bloqueo, name='ver_incidencias_bloqueo'),
      path('ver_incidencia/<int:incidencia_id>/', views.ver_incidencia, name='ver_incidencia'),
-     path('aceptar_incidenci/<int:pk>/', views.aceptar_incidencia, name='aceptar_incidencia'),
      path('rechazar_incidenci/<int:pk>/', views.rechazar_incidencia, name='rechazar_incidencia'),
+     path('incidencias/eliminar/<int:incidencia_id>/', views.eliminar_incidencia, name='eliminar_incidencia'),
      
 ]

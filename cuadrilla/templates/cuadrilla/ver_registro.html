@@ -27,7 +27,7 @@
                         <a href="{% url 'detalle_registro' registro.id %}" class="btn btn-outline-dark btn-sm">Ver</a>
                         
                     </div>
-                </td>
+            </td>
 
           </tr>
         {% endfor %}
@@ -81,7 +81,9 @@
   {% endif %}
 
 </div>
-<a href="{% url 'main_cuadrilla' %}">Volver</a>
+<div class="mt-3">
+    <a class="btn btn-outline-secondary" href="{% url 'main_cuadrilla' %}">Menú Principal</a>
+</div>
 {% endblock %}
 
 {% if messages %}

@@ -10,6 +10,7 @@ from encuesta.models import Encuesta
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from pregunta.models import Pregunta, Respuesta
+from asignacion.models import Asignacion
 
 @login_required
 def gestion_incidencia(request):
@@ -25,7 +26,14 @@ def gestion_incidencia(request):
 
         qs = Incidencia.objects.filter(state='Activo').select_related(
             'departamento', 'territorial'
-        ).order_by('-id')
+        ).order_by('estado')
+
+        if profile.group_id == 4:  
+            try:
+                territorial = Territorial.objects.get(usuario=request.user)
+                qs = qs.filter(territorial=territorial)
+            except Territorial.DoesNotExist:
+                qs = qs.none()
 
         if estado_filtro != "Todos":
             qs = qs.filter(estado=estado_filtro)
@@ -145,7 +153,7 @@ def guardar_incidencia(request):
                     tipo=tipo_simple,
                     path=archivo
                 )
-            messages.add_message(request,messages.INFO,'Incidencia y archivos creados con éxito.')
+            messages.add_message(request,messages.INFO,'Incidencia creada con éxito.')
             return redirect('main_territorial')
         else:
             messages.add_message(request,messages.INFO,'No se pudo realizar la solicitud, intente nuevamente')
@@ -161,12 +169,16 @@ def bloquear_incidencia(request, pk):
         messages.error(request, 'Error de perfil')
         return redirect('login')
 
-    if profile.group_id == 1: 
+    if profile.group_id in [1,4]: 
         incidencia = get_object_or_404(Incidencia, id=pk)
         if incidencia.state == 'Activo':
             incidencia.state = 'Bloqueado'
             messages.success(request, f'La incidencia "{incidencia.titulo}" fue bloqueada.')
-        else:
+        elif incidencia.state == 'Bloqueado' and incidencia.estado == 'Rechazada':
+            incidencia.estado='Pendiente'
+            incidencia.state = 'Activo'
+            messages.success(request, f'La incidencia "{incidencia.titulo}" fue activada.')
+        elif incidencia.state == 'Bloqueado':
             incidencia.state = 'Activo'
             messages.success(request, f'La incidencia "{incidencia.titulo}" fue activada.')
         incidencia.save()
@@ -181,10 +193,21 @@ def ver_incidencias_bloqueo(request):
         messages.error(request, 'Error de perfil')
         return redirect('login')
 
-    if profile.group_id == 1:
-        incidencias = Incidencia.objects.filter(state='Bloqueado').select_related('departamento', 'territorial', 'encuesta')
-        return render(request, 'incidencia/bloquear_incidencias.html', {'incidencias': incidencias})
-    return redirect('logout')
+    if profile.group_id not in [1, 4]:
+        return redirect('logout')
+    qs = Incidencia.objects.filter(state='Bloqueado').select_related(
+        'departamento', 'territorial', 'encuesta'
+    )
+    if profile.group_id == 4:
+        try:
+            territorial = Territorial.objects.get(usuario=request.user)
+            qs = qs.filter(territorial=territorial)
+        except Territorial.DoesNotExist:
+            qs = qs.none()
+
+    return render(request, 'incidencia/bloquear_incidencias.html', {
+        'incidencias': qs
+    })
 
 @login_required
 def editar_incidencia(request, incidencia_id=None):
@@ -193,10 +216,19 @@ def editar_incidencia(request, incidencia_id=None):
     except Profile.DoesNotExist:
         messages.add_message(request, messages.INFO, 'Error de perfil.')
         return redirect('login')
-    if profile.group_id == 1 or profile.group_id ==4:
+    
+    if profile.group_id == 1 or profile.group_id == 4:
+
         if request.method == 'POST':
+
             inc_id = request.POST.get('incidencia_id')
             incidencia_a_actualizar = get_object_or_404(Incidencia, id=inc_id)
+
+            # ← Debes volver a obtener las respuestas aquí
+            respuestas = Respuesta.objects.filter(
+                incidencia=incidencia_a_actualizar
+            ).select_related("pregunta")
+
             incidencia_a_actualizar.departamento_id = request.POST.get('departamento')
             incidencia_a_actualizar.territorial_id = request.POST.get('territorial')
             incidencia_a_actualizar.encuesta_id = request.POST.get('encuesta')
@@ -204,22 +236,38 @@ def editar_incidencia(request, incidencia_id=None):
             incidencia_a_actualizar.tipo = request.POST.get('tipo')
             incidencia_a_actualizar.ubicacion = request.POST.get('ubicacion')
             incidencia_a_actualizar.save()
+
+            for r in respuestas:
+                nuevo_contenido = request.POST.get(f"respuesta_{r.pregunta.id}", "").strip()
+                r.contenido = nuevo_contenido
+                r.save()
+
             messages.add_message(request, messages.INFO, 'Incidencia actualizada con éxito.')
             return redirect('gestion_incidencia')
+
         else:
             incidencia = get_object_or_404(Incidencia, id=incidencia_id)
+
+            respuestas = Respuesta.objects.filter(
+                incidencia=incidencia
+            ).select_related("pregunta")
+
             departamentos = Departamento.objects.all()
             territoriales = Territorial.objects.all()
             encuestas = Encuesta.objects.all()
+
             context = {
                 'incidencia': incidencia,
                 'departamentos': departamentos,
                 'territoriales': territoriales,
-                'encuestas': encuestas
+                'encuestas': encuestas,
+                'respuestas': respuestas
             }
             return render(request, 'incidencia/editar_incidencia.html', context)
+
     else:
         return redirect('logout')
+
 
 @login_required
 def incidencias_usuario_departamento(request):
@@ -238,8 +286,10 @@ def incidencias_usuario_departamento(request):
 
         if estado_filtro != "Todos":
             qs = qs.filter(estado=estado_filtro)
+        
+        
 
-        paginator = Paginator(qs.order_by('-id'), 6)  
+        paginator = Paginator(qs.order_by('estado'), 6)  
         page_number = request.GET.get("page")
         page_obj = paginator.get_page(page_number)
 
@@ -272,7 +322,7 @@ def ver_incidencia(request, incidencia_id):
             
             preguntas = incidencia.encuesta.preguntas.all()
             respuestas = incidencia.respuesta_set.all()
-
+            encuestas = Encuesta.objects.filter(incidencia=incidencia)
             respuestas_por_pregunta = {
             r.pregunta_id: r for r in respuestas
             }
@@ -281,7 +331,8 @@ def ver_incidencia(request, incidencia_id):
                 'incidencia': incidencia,
                 'back_url': back_url,
                 'preguntas':preguntas,
-                'respuestas_por_pregunta':respuestas_por_pregunta   
+                'respuestas_por_pregunta':respuestas_por_pregunta, 
+                'encuestas':encuestas  
             }
             return render(request, 'incidencia/ver_incidencia.html', context)
         else:
@@ -292,23 +343,6 @@ def ver_incidencia(request, incidencia_id):
         return redirect('login')
     
 @login_required
-def aceptar_incidencia(request, pk):
-    try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.error(request, 'Error de perfil')
-        return redirect('login')
-    if profile.group_id == 3: 
-        incidencia = get_object_or_404(Incidencia, id=pk)
-        incidencia.state = Incidencia.STATE_ACEPTADO 
-        incidencia.save()
-        messages.success(request, f'La incidencia "{incidencia.titulo}" fue aceptada.')
-        return redirect('incidencias_usuario_departamento') 
-    else:
-        messages.error(request, 'No tienes permiso para realizar esta acción.')
-        return redirect('logout')
-
-@login_required
 def rechazar_incidencia(request, pk):
     try:
         profile = Profile.objects.get(user_id=request.user.id)
@@ -317,10 +351,36 @@ def rechazar_incidencia(request, pk):
         return redirect('login')
     if profile.group_id == 3: 
         incidencia = get_object_or_404(Incidencia, id=pk)
-        incidencia.state = Incidencia.STATE_RECHAZADO
+        incidencia.estado = "Rechazada"
+        incidencia.state = "Bloqueado"
         incidencia.save()
+        asignacion = Asignacion.objects.filter(incidencia=incidencia).first()
+        if asignacion:
+            asignacion.delete()
         messages.success(request, f'La incidencia "{incidencia.titulo}" fue rechazada.')
         return redirect('incidencias_usuario_departamento')
     else:
         messages.error(request, 'No tienes permiso para realizar esta acción.')
         return redirect('logout')
+    
+@login_required
+def eliminar_incidencia(request, incidencia_id):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.error(request, 'Error de perfil')
+        return redirect('login')
+    if profile.group_id != 4:
+        return redirect('logout')
+    incidencia = get_object_or_404(Incidencia, pk=incidencia_id)
+    if incidencia.estado == 'Resuelta':
+        messages.error(request, 'No puedes eliminar una incidencia que ya está resuelta.')
+        return redirect('gestion_incidencia')
+    asignacion = Asignacion.objects.filter(incidencia=incidencia).first()
+    if asignacion:
+        asignacion.delete()
+    titulo = incidencia.titulo
+    incidencia.delete()
+
+    messages.success(request, f'La incidencia "{titulo}" fue eliminada con éxito.')
+    return redirect('gestion_incidencia')

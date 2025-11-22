@@ -45,6 +45,12 @@
                 <h5 class="mt-4">Encuesta Respondida</h5>
 
                 <ul class="list-group">
+                    {% for enc in encuestas %}
+                    <li class="list-group-item">
+                    <strong>{{ enc.nombre_encuesta }}</strong><br>
+                    {% endfor %}
+    
+                <ul class="list-group">
                     {% for pregunta in preguntas %}
                     <li class="list-group-item">
                     <strong>{{ pregunta.titulo }}</strong><br>

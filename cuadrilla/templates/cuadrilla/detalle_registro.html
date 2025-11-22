@@ -91,4 +91,14 @@
     <hr class="my-4">
     <a href="{% url 'ver_registro' %}" class="btn btn-outline-secondary">Volver</a>
 </div>
+
+{% if messages %}
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 {% endblock %}

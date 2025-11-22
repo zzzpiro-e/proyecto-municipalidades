@@ -29,6 +29,8 @@
                 <th scope="col">Tipo</th>
                 <th scope="col">Ubicación</th>
                 <th scope="col">Estado</th>
+                <th scope="col">Acciones</th>
+                
             </tr>
         </thead>
         <tbody>
@@ -39,6 +41,21 @@
                     <td>{{ inc.tipo }}</td>
                     <td>{{ inc.ubicacion }}</td>
                     <td>{{ inc.estado }}</td>
+                    <td>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <a href="{% url 'ver_incidencia' inc.id %}" class="btn btn-outline-dark btn-sm">Ver</a>
+                        {% if profile.group_id == 1 or profile.group_id == 4 %}
+                            
+                            <a href="{% url 'bloquear_incidencia' inc.id %}" class="btn btn-outline-danger btn-sm">
+                                {% if inc.state == "Activo" %}
+                                    Bloquear
+                                {% else %}
+                                    Activar
+                                {% endif %}
+                            </a>
+                        {% endif %}
+                    </div>
+                </td>
                 </tr>
             {% empty %}
                 <tr><td colspan="5">No hay incidencias asociadas a esta dirección.</td></tr>
@@ -93,6 +110,18 @@
 </nav>
 
 <br/>
-<a href="{% url 'main_direccion' %}">Volver al menú</a>
+<div class="mt-3">
+    <a class="btn btn-outline-secondary" href="{% url 'main_direccion' %}">Menú Principal</a>
+</div>
+
+{% if messages %}
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 
 {% endblock %}

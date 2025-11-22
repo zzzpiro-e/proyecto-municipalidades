@@ -7,78 +7,92 @@
     <h4 class="text-secondary mb-3">Editar Incidencia</h4>
     <hr>
 
-    <form method="POST" action="{% url 'editar_incidencia_post' %}" class="row g-3">
+    <form method="POST" action="{% url 'editar_incidencia_post' %}" enctype="multipart/form-data" class="row g-3">
         {% csrf_token %}
         <input type="hidden" name="incidencia_id" value="{{ incidencia.id }}">
-
-        <!-- Título -->
         <div class="col-md-6">
             <label for="titulo" class="form-label">Título:</label>
             <input type="text" name="titulo" id="titulo" class="form-control"
                    value="{{ incidencia.titulo }}" required>
         </div>
 
-        <!-- Tipo -->
         <div class="col-md-6">
             <label for="tipo" class="form-label">Tipo:</label>
             <input type="text" name="tipo" id="tipo" class="form-control"
                    value="{{ incidencia.tipo }}" required>
         </div>
-
-        <!-- Ubicación -->
-        <div class="col-12">
-            <label for="ubicacion" class="form-label">Ubicación:</label>
-            <input type="text" name="ubicacion" id="ubicacion"
-                   class="form-control" value="{{ incidencia.ubicacion }}">
-        </div>
-
-        <!-- Departamento -->
         <div class="col-md-6">
             <label for="departamento" class="form-label">Departamento:</label>
             <select name="departamento" id="departamento" class="form-select" required>
                 <option value="">Seleccione un departamento...</option>
-                {% for depto in departamentos %}
-                    <option value="{{ depto.id }}"
-                        {% if depto.id == incidencia.departamento.id %}selected{% endif %}>
-                        {{ depto.nombre_departamento }}
-                    </option>
+                {% for d in departamentos %}
+                <option value="{{ d.id }}" {% if incidencia.departamento.id == d.id %}selected{% endif %}>
+                    {{ d.nombre_departamento }}
+                </option>
                 {% endfor %}
             </select>
         </div>
 
-        <!-- Territorial (no editable)-->
         <div class="col-md-6">
-            <label for="territorial" class="form-label">Territorial:</label>
-            <input type="text"
-                class="form-control"
-                value="{{ incidencia.territorial.usuario.username }}"
-                disabled>
-            <input type="hidden"
-                name="territorial"
-                value="{{ incidencia.territorial.id }}">
-        </div>
-
-
-        <!-- Encuesta -->
-        <div class="col-md-12">
             <label for="encuesta" class="form-label">Encuesta:</label>
-            <select name="encuesta" id="encuesta" class="form-select" required>
-                <option value="">Seleccione una encuesta...</option>
-                {% for enc in encuestas %}
-                    <option value="{{ enc.id }}"
-                        {% if enc.id == incidencia.encuesta.id %}selected{% endif %}>
-                        {{ enc.nombre_encuesta }}
-                    </option>
-                {% endfor %}
-            </select>
+            <input type="text" class="form-control"
+                   value="{{ incidencia.encuesta.nombre_encuesta }}"
+                   disabled>
+            <input type="hidden" name="encuesta" value="{{ incidencia.encuesta.id }}">
+        </div>
+        <div class="col-12">
+            <label for="ubicacion" class="form-label">Ubicación:</label>
+            <input type="text" name="ubicacion" id="ubicacion"
+                   class="form-control"
+                   value="{{ incidencia.ubicacion }}">
+        </div>
+        <div class="col-12">
+            <label class="form-label">Territorial:</label>
+            <input type="text" class="form-control"
+                   value="{{ incidencia.territorial.usuario.username }}" disabled>
+            <input type="hidden" name="territorial" value="{{ incidencia.territorial.id }}">
+        </div>
+        <h5 class="text-muted mb-3">Datos del Vecino</h5>
+         <div class="col-md-6">
+            <label for="tipo" class="form-label">Nombre del vecino:</label>
+            <input type="text" name="nombre_vecino" id="nombre_vecino" class="form-control"
+                   value="{{ incidencia.nombre_vecino }}" required>
         </div>
 
-        <!-- Botones -->
+        <div class="col-md-6">
+            <label for="tipo" class="form-label">Correo del vecino:</label>
+            <input type="text" name="correo_vecino" id="correo_vecino" class="form-control"
+                   value="{{ incidencia.correo_vecino }}" required>
+        </div>
+
+        <div class="col-md-6">
+            <label for="tipo" class="form-label">Telefono del vecino:</label>
+            <input type="text" name="telefono_vecino" id="telefono_vecino" class="form-control"
+                   value="{{ incidencia.telefono_vecino }}" required>
+        </div>
+
+        <hr class="my-3">
+        <h5 class="text-muted">Respuestas registradas</h5>
+
+        <div class="col-12">
+            <div class="row">
+
+                {% for r in respuestas %}
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ r.pregunta.titulo }}</label>
+                    <input type="text"
+                           name="respuesta_{{ r.pregunta.id }}"
+                           value="{{ r.contenido }}"
+                           class="form-control">
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
         <div class="col-12 mt-4">
             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-            <button type="submit" class="btn btn-primary" href="{% url 'ver_incidencias_bloqueo' %}" class="ms-3">Cancelar</button>
+            <a href="{% url 'ver_incidencias_bloqueo' %}" class="btn btn-secondary ms-2">Cancelar</a>
         </div>
-
     </form>
 </div>
 
@@ -86,11 +100,10 @@
 <div class="alert alert-success mt-3">
     <ul class="mb-0">
         {% for message in messages %}
-            <li>{{ message }}</li>
+        <li>{{ message }}</li>
         {% endfor %}
     </ul>
 </div>
 {% endif %}
 
 {% endblock %}
-

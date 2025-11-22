@@ -47,8 +47,13 @@
                 </li>
 
             </ul>
-
-            <a href="{% url 'gestion_departamento' %}" class="btn btn-outline-secondary mt-4">Volver</a>
+            
+            
+            {% if profile.group.id == 1 %}
+    <a href="{% url 'gestion_departamento' %}" class="btn btn-outline-secondary mt-4">Volver</a>
+{% elif profile.group.id == 2 %}
+    <a href="{% url 'departamento_e_incidencia_asociadas' %}" class="btn btn-outline-secondary mt-4">Volver</a>
+{% endif %}
 
         </div>
     </div>

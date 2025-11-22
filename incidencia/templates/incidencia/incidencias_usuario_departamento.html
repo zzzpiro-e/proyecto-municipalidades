@@ -48,14 +48,14 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% if inc.state == "Activo" %}
-                        <span class="badge bg-warning text-dark">{{ inc.get_state_display|default:"Activo (Pendiente)" }}</span>
-                    {% elif inc.state == "Aceptado" %}
-                        <span class="badge bg-success">{{ inc.get_state_display|default:inc.state }}</span>
-                    {% elif inc.state == "Rechazado" %}
-                        <span class="badge bg-danger">{{ inc.get_state_display|default:inc.state }}</span>
-                    {% elif inc.state == "Bloqueado" %}
-                        <span class="badge bg-dark">{{ inc.get_state_display|default:inc.state }}</span>
+                    {% if inc.estado == "Pendiente" %}
+                        <span class="badge bg-success text-white">{{ inc.estado }}</span>
+                    {% elif inc.estado == "Asignada" %}
+                        <span class="badge bg-success text-white">{{ inc.estado }}</span>
+                    {% elif inc.estado == "Rechazada" %}
+                        <span class="badge bg-danger text-white">{{ inc.estado }}</span>
+                    {% elif inc.estado == "Resuelta" %}
+                        <span class="badge bg-success text-white">{{ inc.estado }}</span>
                     {% else %}
                         <span class="badge bg-secondary">{{ inc.state }}</span>
                     {% endif %}
@@ -63,7 +63,7 @@
                 <td>
                     <div class="d-flex justify-content-center gap-2 flex-wrap">
                         <a href="{% url 'ver_incidencia' inc.id %}" class="btn btn-outline-dark btn-sm">Ver</a>
-                        {% if inc.state == "Activo" and inc.estado != "Rechazada" %}
+                        {% if inc.state == "Activo" and inc.estado != "Rechazada" and inc.estado != "Resuelta" %}
                             <a href="{% url 'rechazar_incidencia' inc.id %}" class="btn btn-outline-danger btn-sm">Rechazar</a>
                         {% endif %}
                     </div>

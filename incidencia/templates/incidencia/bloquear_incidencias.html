@@ -24,9 +24,9 @@
         <td>{{ i.territorial.usuario.username }}</td>
         <td>{{ i.state }}</td>
         <td>
-          <a href="">Ver</a>
-          <a href="{% url 'editar_incidencia' i.id %}">Editar</a>
-          <a href="{% url 'bloquear_incidencia' i.id %}">
+          <a href="{% url 'ver_incidencia' i.id %}" class="btn btn-outline-dark btn-sm">Ver</a>
+          <a href="{% url 'editar_incidencia' i.id %}" class="btn btn-outline-primary btn-sm">Editar </a>
+          <a href="{% url 'bloquear_incidencia' i.id %}" class="btn btn-outline-danger btn-sm">
             {% if i.state == "Activo" %}
               Bloquear
             {% else %}
@@ -50,5 +50,5 @@
 {% endif %}
 
 <br>
-<a href="{% url 'gestion_incidencia' %}">Volver al menú</a>
+<a href="{% url 'gestion_incidencia' %}" class="btn btn-outline-secondary">Volver al menú</a>
 {% endblock %}

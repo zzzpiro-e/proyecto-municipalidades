@@ -13,8 +13,8 @@
                 <th scope="col">Título</th>
                 <th scope="col">Tipo</th>
                 <th scope="col">Ubicación</th>
-                <th scope="col">Estado</th>
                 <th scope="col">Fecha Asignación</th>
+                
             </tr>
         </thead>
       <tbody>
@@ -23,8 +23,8 @@
             <td>{{ asignacion.incidencia.titulo }}</td>
             <td>{{ asignacion.incidencia.tipo }}</td>
             <td>{{ asignacion.incidencia.ubicacion }}</td>
-            <td>{{ asignacion.incidencia.state }}</td>
             <td>{{ asignacion.fecha_asignacion }}</td>
+            
           </tr>
         {% endfor %}
       </tbody>
@@ -76,5 +76,17 @@
   {% endif %}
 </div>
 
-<a href="{% url 'main_cuadrilla' %}">Volver</a>
+{% if messages %}
+<div class="alert alert-success mt-3">
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<div class="mt-3">
+    <a class="btn btn-outline-secondary" href="{% url 'main_cuadrilla' %}">Menú Principal</a>
+</div>
 {% endblock %}

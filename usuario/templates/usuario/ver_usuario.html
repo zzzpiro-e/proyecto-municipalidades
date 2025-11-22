@@ -69,6 +69,51 @@
                         {% endif %}
                     </span>
                 </li>
+
+                {% if es_territorial %}
+                    <h5 class="mt-4">Información Territorial</h5>
+                    <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <strong>Zona asignada:</strong>
+                        <span>{{ zona_asignada|default:"Sin zona" }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <strong>Incidencias creadas:</strong>
+                        <span>{{ total_creadas }}</span>
+                    </li>
+                {% endif %}
+                
+                {% if es_cuadrilla %}
+                    <h5>Datos Cuadrilla</h5>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Cuadrilla Asignada:</strong>
+                        <span>{{ cuadrilla.nombre_cuadrilla }}</span>
+                    </li>
+    
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Incidencias Resueltas:</strong>
+                        <span>{{ registros }}</span>
+                    </li>
+                {% endif %}
+                
+                {% if es_departamento %}
+                    <h5 class="mt-4">Información Departamento</h5>
+                    <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <strong>Departamento Asignado:</strong>
+                        <span>{{ departamento.nombre_departamento }}</span>
+                    </li>
+                {% endif %}
+
+                {% if es_direccion %}
+                    <h5 class="mt-4">Información Dirección</h5>
+                    <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <strong>Dirección Asignada:</strong>
+                        <span>{{ direccion.nombre_direccion }}</span>
+                    </li>
+                {% endif %}
+
             </ul>
 
             <h5 class="mt-4">Historial</h5>

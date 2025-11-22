@@ -19,12 +19,14 @@ def main_territorial(request):
     pendientes = incidencias.filter(estado="Pendiente").count()
     asignadas = incidencias.filter(estado="Asignada").count()
     resueltas = incidencias.filter(estado="Resuelta").count()
+    rechazadas = incidencias.filter(estado="Rechazada").count()
 
     context = {
         "total": total,
         "pendientes": pendientes,
         "asignadas": asignadas,
         "resueltas": resueltas,
+        "rechazadas": rechazadas,
         "territorial": territorial,
     }
 
@@ -145,3 +147,6 @@ def bloquear_territorial(request, pk):
         return redirect('gestion_territorial')
     else:
         return redirect('logout')
+    
+
+

@@ -12,16 +12,30 @@ from django.core.paginator import Paginator
 @login_required
 def main_departamento(request):
     try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.info(request, 'Error')
-        return redirect('login')
+        departamento = Departamento.objects.get(usuario=request.user)
+    except Departamento.DoesNotExist:
+        messages.error(request, "No tienes departamento asociado.")
+        return redirect("login")
+    incidencias = Incidencia.objects.filter(departamento=departamento)
+    total = incidencias.count()
+    pendientes = incidencias.filter(estado="Pendiente").count()
+    asignadas = incidencias.filter(estado="Asignada").count()
+    resueltas = incidencias.filter(estado="Resuelta").count()
+    rechazadas = incidencias.filter(estado="Rechazada").count()
 
-    if profile.group_id ==3:
-        departamentos = (Departamento.objects.select_related('usuario', 'direccion').order_by('id'))
-        return render(request, 'departamento/main_departamento.html',{'departamentos': departamentos})
-    else:
-        return redirect('logout')
+    cuadrillas=Cuadrilla.objects.filter(departamento=departamento)
+    cuadrillas_totales=cuadrillas.count()
+    context = {
+        "total": total,
+        "pendientes": pendientes,
+        "asignadas": asignadas,
+        "resueltas": resueltas,
+        "rechazadas": rechazadas,
+        "cuadrillas_totales":cuadrillas_totales,
+        "departamento": departamento,
+    }
+
+    return render(request, "departamento/main_departamento.html", context)
 
 @login_required
 def gestion_departamento(request):
@@ -104,14 +118,14 @@ def ver_departamento(request, departamento_id: int):
         messages.info(request, 'Error')
         return redirect('login')
 
-    if profile.group_id not in [1, 3]:
+    if profile.group_id not in [1,2,3]:
         return redirect('logout')
     
     departamento = get_object_or_404(
         Departamento.objects.select_related('usuario', 'direccion'),
         pk=departamento_id
     )
-    return render(request, 'departamento/ver_departamento.html', {'departamentos': departamento})
+    return render(request, 'departamento/ver_departamento.html', {'departamentos': departamento, 'profile':profile})
 
 
 
@@ -135,7 +149,7 @@ def editar_departamento(request, departamento_id=None):
 
         departamento_a_actualizar = get_object_or_404(Departamento, id=depto_id)
 
-        # Validación: si se intentó seleccionar un usuario que ya tiene departamento distinto al actual -> bloquear
+       
         usuario_ya_asignado = Departamento.objects.filter(usuario_id=usuario_id).exclude(id=depto_id).exists()
         if usuario_ya_asignado:
             messages.add_message(request, messages.INFO, 'El usuario seleccionado ya tiene otro departamento asignado.')
@@ -182,6 +196,16 @@ def bloquear_departamento(request, pk):
             messages.success(request, f"Departamento {departamento.nombre_departamento} activado")
         departamento.save()
         return redirect('gestion_departamento')
+    if profile.group_id == 2:
+        departamento = get_object_or_404(Departamento, id=pk)
+        if departamento.state == 'Activo':
+            departamento.state = 'Bloqueado'
+            messages.success(request, f"Departamento {departamento.nombre_departamento} bloqueado")
+        else:
+            departamento.state = 'Activo'
+            messages.success(request, f"Departamento {departamento.nombre_departamento} activado")
+        departamento.save()
+        return redirect('departamento_e_incidencia_asociadas')
     return redirect('logout')
 
 @login_required

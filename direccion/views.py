@@ -10,24 +10,32 @@ from django.core.paginator import Paginator
 
 
 @login_required
-def main_direccion(request, direccion_id=None):
+def main_direccion(request):
     try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.info(request, 'Error')
-        return redirect('login')
+        direccion = Direccion.objects.get(usuario=request.user)
+    except Direccion.DoesNotExist:
+        messages.error(request, "No tienes direccion asociado.")
+        return redirect("login")
+    incidencias = Incidencia.objects.filter(departamento__direccion=direccion)
+    total = incidencias.count()
+    pendientes = incidencias.filter(estado="Pendiente").count()
+    asignadas = incidencias.filter(estado="Asignada").count()
+    resueltas = incidencias.filter(estado="Resuelta").count()
+    rechazadas = incidencias.filter(estado="Rechazada").count()
 
-    if profile.group_id ==2:
-        direccion_listado = (
-            Direccion.objects.select_related('usuario').order_by('id')
-        )
-        return render(
-            request,
-            'direccion/main_direccion.html',
-            {'direcciones': direccion_listado}   
-        )
-    else:
-        return redirect('logout')
+    departamentos=Departamento.objects.filter(direccion=direccion)
+    departamentos_totales=departamentos.count()
+    context = {
+        "total": total,
+        "pendientes": pendientes,
+        "asignadas": asignadas,
+        "resueltas": resueltas,
+        "rechazadas": rechazadas,
+        "departamentos_totales":departamentos_totales,
+        "direccion": direccion,
+    }
+
+    return render(request, "direccion/main_direccion.html", context)
 
 @login_required
 def gestion_direccion(request, direccion_id=None):
@@ -116,20 +124,19 @@ def editar_direccion(request, direccion_id=None):
         direccion_a_actualizar = get_object_or_404(Direccion, id=dir_id)
         usuario_ya_asignado = Direccion.objects.filter(usuario_id=usuario_id).exclude(id=dir_id).exists()
         if usuario_ya_asignado:
-            messages.add_message(request, messages.INFO, 'El usuario seleccionado ya tiene otro direccion asignado.')
+            messages.add_message(request, messages.INFO, 'El usuario seleccionado ya tiene otra direccion asignada.')
             return redirect('editar_direccion', direccion_id=dir_id)
 
         direccion_a_actualizar.nombre_direccion = nombre_direccion
         direccion_a_actualizar.usuario_id = usuario_id
         direccion_a_actualizar.save()
 
-        messages.add_message(request, messages.INFO, 'direccion actualizado con éxito.')
+        messages.add_message(request, messages.INFO, 'direccion actualizada con éxito.')
         return redirect('gestion_direccion')
 
     else:
         direccion_para_editar = get_object_or_404(Direccion, id=direccion_id)
         direcciones = Direccion.objects.all()
-        # Mostrar sólo usuarios del grupo 3 que NO tienen direccion asignado (misma lógica que crear)
         usuarios = User.objects.filter(profile__group__id=2)
 
         template_name = 'direccion/editar_direccion.html'

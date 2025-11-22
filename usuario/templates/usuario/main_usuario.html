@@ -58,7 +58,7 @@
                     <div class="d-flex justify-content-center gap-2 flex-wrap">
                         <a class="btn btn-outline-dark btn-sm" href="{% url 'ver_usuario' u.id %}">Ver</a>
                         <a class="btn btn-outline-primary btn-sm" href="{% url 'editar_usuario' u.id %}">Editar</a>
-                        <a class="btn btn-outline-danger btn-sm" href="{% url 'eliminar_usuario' u.id %}">Eliminar</a>
+                        <a class="btn btn-outline-danger btn-sm" onclick="return confirm('⚠ ¿Estás seguro que deseas eliminar este usuario? Esta acción es irreversible.')" href="{% url 'eliminar_usuario' u.id %}">Eliminar</a>
                     </div>
                 </td>
             </tr>

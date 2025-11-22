@@ -61,13 +61,17 @@
                 </td>
                 <td>
                     
-                    <span class="badge bg-success">{{ inc.estado }}</span>
-                   
+                    
+                    {% if inc.estado == "Rechazada" %}
+                        <span class="badge bg-danger">{{ inc.estado }}</span>
+                    {% else %}
+                        <span class="badge bg-success">{{ inc.estado }}</span>
+                    {% endif %}
                 </td>
                 <td>
                     <div class="d-flex justify-content-center gap-2 flex-wrap">
                         <a href="{% url 'ver_incidencia' inc.id %}" class="btn btn-outline-dark btn-sm">Ver</a>
-                        {% if profile.group_id == 1 %}
+                        {% if profile.group_id == 1 or profile.group_id == 4 %}
                             
                             <a href="{% url 'bloquear_incidencia' inc.id %}" class="btn btn-outline-danger btn-sm">
                                 {% if inc.state == "Activo" %}
@@ -77,6 +81,14 @@
                                 {% endif %}
                             </a>
                         {% endif %}
+
+                        {% if profile.group_id == 4 %}
+                            <a href="{% url 'eliminar_incidencia' inc.id %}" class="btn btn-danger btn-sm"
+                            onclick="return confirm('⚠ ¿Estás seguro que deseas eliminar esta incidencia? Esta acción es irreversible.')">
+                            Eliminar</a>
+
+                        {% endif %}
+
                     </div>
                 </td>
             </tr>
@@ -136,8 +148,13 @@
     </ul>
 </div>
 {% endif %}
-
+{% if profile.group.id == 1 %}
 <div class="mt-3">
     <a class="btn btn-outline-secondary" href="{% url 'main_admin' %}">Menú Principal</a>
 </div>
+{% elif profile.group.id == 4 %}
+<div class="mt-3">
+    <a class="btn btn-outline-secondary" href="{% url 'main_territorial' %}">Menú Principal</a>
+</div>
+{% endif %}
 {% endblock %}

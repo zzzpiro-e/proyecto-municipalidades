@@ -6,7 +6,7 @@ from .models import Asignacion
 def asignar_incidencia(request, cuadrilla_id):
     cuadrilla = get_object_or_404(Cuadrilla, id=cuadrilla_id)
     incidencias = Incidencia.objects.filter(
-        departamento=cuadrilla.departamento
+        departamento=cuadrilla.departamento,state='Activo'
     ).exclude(id__in=Asignacion.objects.values('incidencia_id'))
 
     if request.method == "POST":

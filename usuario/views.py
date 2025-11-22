@@ -10,6 +10,10 @@ from territorial.models import Territorial
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.core.paginator import Paginator
+from incidencia.models import Incidencia
+from cuadrilla.models import Cuadrilla,Registro_trabajo
+from departamento.models import Departamento
+from direccion.models import Direccion
 
 
 @login_required
@@ -57,8 +61,29 @@ def ver_usuario(request, user_id= None):
         User.objects.select_related('profile', 'profile__group'),
         pk=user_id
     )
+
+    territorial = Territorial.objects.filter(usuario=usuario).first()
+    es_territorial = territorial is not None
+    zona_asignada = territorial.zona_asignada if territorial else None
+    total_creadas = Incidencia.objects.filter(territorial=territorial).count() if territorial else 0
+
+    cuadrilla = Cuadrilla.objects.filter(usuario=usuario).first()
+    es_cuadrilla = cuadrilla is not None
+    registros = Registro_trabajo.objects.filter(cuadrilla=cuadrilla).count() if cuadrilla else 0
+
+    departamento=Departamento.objects.filter(usuario=usuario).first()
+    es_departamento=departamento is not None
+
+    direccion=Direccion.objects.filter(usuario=usuario).first()
+    es_direccion=direccion is not None
+
     return render(request, 'usuario/ver_usuario.html', {
-        'usuario': usuario
+        'usuario': usuario, 'es_territorial':es_territorial, 
+        'zona_asignada':zona_asignada, 'total_creadas':total_creadas,
+        'es_cuadrilla':es_cuadrilla, 'registros':registros,
+        'cuadrilla':cuadrilla,'es_departamento':es_departamento,
+        'departamento':departamento,'es_direccion':es_direccion,
+        'direccion':direccion
     })
 
 def crear_usuario(request):
