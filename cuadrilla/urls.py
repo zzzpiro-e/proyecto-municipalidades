@@ -14,5 +14,7 @@ cuadrilla_urlpatterns=[
     path('crear_registro/',views.crear_registro, name='crear_registro'),
     path('ver_incidencias_cuadrilla/', views.ver_incidencias_cuadrilla, name='ver_incidencias_cuadrilla'),
     path('detalle_registro/<int:id>/', views.detalle_registro, name='detalle_registro'),
+    path('rechazar_asignacion/<int:pk>/', views.rechazar_asignacion, name='rechazar_asignacion'),
+
     
 ]

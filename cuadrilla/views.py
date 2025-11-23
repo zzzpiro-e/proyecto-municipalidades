@@ -262,11 +262,36 @@ def crear_registro(request):
         'cuadrilla': cuadrilla
     })
 
+@login_required
+def rechazar_asignacion(request, pk):
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Profile.DoesNotExist:
+        messages.error(request, "Error de perfil")
+        return redirect("login")
+    if profile.group_id != 5:
+        messages.error(request, "No tienes permiso para realizar esta acción.")
+        return redirect("logout")
+    asignacion = get_object_or_404(Asignacion, id=pk)
+    incidencia = asignacion.incidencia
+    incidencia.estado = "Rechazada"       
+    incidencia.state = "Bloqueado"           
+    incidencia.save()
+    asignacion.delete()
+    
+    messages.success(
+        request,
+        f"La incidencia '{incidencia.titulo}' fue rechazada."
+    )
+
+    return redirect("ver_incidencias_cuadrilla")
+
 
 def ver_incidencias_cuadrilla(request):
     cuadrilla = Cuadrilla.objects.filter(usuario=request.user).first()
 
-    asignaciones_qs = Asignacion.objects.filter(cuadrilla=cuadrilla,incidencia__state='Activo').select_related('incidencia')
+    asignaciones_qs = Asignacion.objects.filter(cuadrilla=cuadrilla,incidencia__state='Activo'
+    ,incidencia__estado='Asignada').select_related('incidencia')
 
 
     paginator = Paginator(asignaciones_qs, 6)  

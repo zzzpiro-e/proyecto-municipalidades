@@ -34,33 +34,6 @@ def main_territorial(request):
 
 
 @login_required
-def gestion_territorial(request):
-    try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.info(request, 'Error de perfil.')
-        return redirect('login')
-
-    if profile.group_id == 1:
-        qs = Territorial.objects.select_related('usuario').order_by('id')
-
-        paginator = Paginator(qs, 6)  
-        page_number = request.GET.get("page")
-        page_obj = paginator.get_page(page_number)
-
-        return render(
-            request,
-            'territorial/gestion_territorial.html',
-            {
-                'territoriales': page_obj,
-                'page_obj': page_obj
-            }
-        )
-
-    return redirect('logout')
-
-
-@login_required
 def editar_territorial(request, territorial_id=None):
     try:
         profile = Profile.objects.filter(user_id=request.user.id).get()
@@ -92,61 +65,12 @@ def editar_territorial(request, territorial_id=None):
     else:
         return redirect('logout')
 
-@login_required
-def ver_territorial(request, territorial_id: int):
-    try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.info(request, 'Error de perfil')
-        return redirect('login')
 
-    if profile.group_id not in [1, 4]:
-        return redirect('logout')
 
-    territorial = get_object_or_404(
-        Territorial.objects.select_related('usuario'),pk=territorial_id
-    )
-    return render(
-        request,
-        'territorial/ver_territorial.html',{'territorial': territorial}
-    )
 
     
-@login_required
-def lista_editar_territorial(request):
-    try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.add_message(request, messages.INFO, 'Error de perfil.')
-        return redirect('login')
-    if profile.group_id == 1:
-        territoriales = Territorial.objects.all()
-        context = {'territoriales': territoriales}
-        return render(request, 'territorial/lista_editar_territorial.html', context)
-    else:
-        return redirect('logout')
-    
 
-@login_required
-def bloquear_territorial(request, pk):
-    try:
-        profile = Profile.objects.get(user_id=request.user.id)
-    except Profile.DoesNotExist:
-        messages.error(request, 'Error de perfil')
-        return redirect('login')
 
-    if profile.group_id == 1:
-        territorial = get_object_or_404(Territorial, id=pk)
-        if territorial.state == 'Activo':
-            territorial.state = 'Bloqueado'
-            messages.success(request, f"Territorial {territorial.zona_asignada} bloqueado correctamente")
-        else:
-            territorial.state = 'Activo'
-            messages.success(request, f"Territorial {territorial.zona_asignada} activado correctamente")
-        territorial.save()
-        return redirect('gestion_territorial')
-    else:
-        return redirect('logout')
     
 
 

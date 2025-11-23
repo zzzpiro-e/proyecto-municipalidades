@@ -50,7 +50,7 @@ def check_profile(request):
     else:
         return redirect('logout')
 
-#funcion temporal
+
 @login_required
 def main_admin(request):  
     try:

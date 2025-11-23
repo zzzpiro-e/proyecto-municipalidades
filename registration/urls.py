@@ -1,12 +1,16 @@
 from django.urls import path
 from .views import SignUpView, ProfileUpdate, EmailUpdate, password_reset_request, profile_edit
 from django.contrib.auth import views as auth_views
+from registration import views
+
 
 urlpatterns = [
     path('signup/', SignUpView.as_view(), name="signup"),
     path('profile/', ProfileUpdate.as_view(), name="profile"),  
     path('profile/email/', EmailUpdate.as_view(), name="profile_email"),       
-    path('profile_edit/', profile_edit, name='profile_edit'),    
+    path('profile_edit/', profile_edit, name='profile_edit'),
+    path('logout/', views.logout_view, name='logout'),
+       
     
     # Restablecimiento de contraseña
     path(

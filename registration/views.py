@@ -17,6 +17,13 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from .forms import PasswordResetRequestForm
+from django.contrib.auth import logout
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')  
+
 
 class SignUpView(CreateView):
     form_class = UserCreationFormWithEmail

@@ -14,6 +14,7 @@
                 <th scope="col">Tipo</th>
                 <th scope="col">Ubicación</th>
                 <th scope="col">Fecha Asignación</th>
+                <th scope="col">Acciones</th>
                 
             </tr>
         </thead>
@@ -24,6 +25,15 @@
             <td>{{ asignacion.incidencia.tipo }}</td>
             <td>{{ asignacion.incidencia.ubicacion }}</td>
             <td>{{ asignacion.fecha_asignacion }}</td>
+            {% if asignacion.incidencia.estado != "Resuelta" %}
+            <td>
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <a href="{% url 'ver_incidencia' asignacion.incidencia.id %}" class="btn btn-outline-dark btn-sm">Ver</a>
+                <a href="{% url 'rechazar_asignacion' asignacion.id %}" class="btn btn-outline-danger btn-sm">
+                Rechazar</a>
+                </div>
+            </td>
+            {% endif %}
             
           </tr>
         {% endfor %}
