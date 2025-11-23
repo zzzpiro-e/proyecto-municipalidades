@@ -17,4 +17,4 @@ class Departamento(models.Model):
         ordering=["nombre_departamento"]
 
     def __str__(self):
-        return self.nombre_departamento
+        return self.nombre_departamentoz

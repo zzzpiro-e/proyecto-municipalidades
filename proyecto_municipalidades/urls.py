@@ -45,7 +45,9 @@ urlpatterns = [
     path('asignacion/', include(asignacion_urlpatterns)),
     path('accounts/',include('django.contrib.auth.urls')),
     path('accounts/',include('registration.urls')),
+    path('departamento/api/', include('departamento.api_urls')), 
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
